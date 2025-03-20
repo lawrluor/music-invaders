@@ -4,7 +4,7 @@ A space invaders game that uses a MIDI keyboard as the controller. Each enemy co
 
 ## Play Now
 
-You can play the game online at: [MIDI Space Invaders](https://github.com/username/space-invaders)
+Once deployed, you can play the game online at: [MIDI Space Invaders](https://username.github.io/space-invaders/)
 
 **Note:** You'll need a MIDI keyboard connected to your computer to play. The game uses the Web MIDI API, which is supported in Chrome, Edge, and Opera browsers.
 
@@ -48,7 +48,7 @@ You can play the game online at: [MIDI Space Invaders](https://github.com/userna
 
 1. Clone the repository:
    ```
-   git clone https://github.com/username/space-invaders.git
+   git clone https://github.com/YOUR_USERNAME/space-invaders.git
    cd space-invaders
    ```
 
