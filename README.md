@@ -2,6 +2,12 @@
 
 A space invaders game that uses a MIDI keyboard as the controller. Each enemy corresponds to a specific note on your MIDI keyboard. Press the correct note to destroy the enemy!
 
+## Play Now
+
+You can play the game online at: [MIDI Space Invaders](https://github.com/username/space-invaders)
+
+**Note:** You'll need a MIDI keyboard connected to your computer to play. The game uses the Web MIDI API, which is supported in Chrome, Edge, and Opera browsers.
+
 ## Features
 
 1. **MIDI Keyboard Control**: Connect your MIDI keyboard to play the game. Each enemy is associated with a specific note.
@@ -20,31 +26,46 @@ A space invaders game that uses a MIDI keyboard as the controller. Each enemy co
 
 8. **High Score Tracking**: Your highest score is saved between game sessions.
 
+9. **Dynamic MIDI Range**: Each wave uses a different MIDI note range, keeping the gameplay fresh and challenging.
+
+10. **Colorful Backgrounds**: Background colors change with each wave for visual variety.
+
 ## How to Play
 
-1. Open the game in a web browser that supports the Web MIDI API (Chrome, Edge, Opera).
-
-2. Connect your MIDI keyboard to your computer.
-
-3. On the title screen, select your MIDI device from the dropdown menu.
-
-4. Click "Start Game" to begin.
-
-5. Press the notes on your MIDI keyboard that correspond to the enemies you want to destroy.
-
-6. Survive all 5 waves to win!
+1. Connect a MIDI keyboard to your computer
+2. Open the game in a supported browser (Chrome, Edge, or Opera)
+3. Select your MIDI device from the dropdown menu
+4. Click 'Start Game'
+5. Press the notes on your keyboard that correspond to the enemies
+6. Complete all waves to win!
 
 ## Game Controls
 
 - **MIDI Keyboard**: Press notes to fire at enemies.
 - **Mouse**: Use the buttons on screen to navigate menus.
 
-## Technical Details
+## Local Development
 
-- Built with HTML5 Canvas and JavaScript.
-- Uses the Web MIDI API to connect to MIDI devices.
-- Web Audio API for sound generation.
-- Local Storage for saving high scores and device preferences.
+1. Clone the repository:
+   ```
+   git clone https://github.com/username/space-invaders.git
+   cd space-invaders
+   ```
+
+2. Open `index.html` in your browser or use a local server:
+   ```
+   npx http-server
+   ```
+
+3. Connect your MIDI keyboard and enjoy!
+
+## Technologies Used
+
+- HTML5 Canvas for rendering
+- Web MIDI API for MIDI device integration
+- Web Audio API for sound generation
+- Vanilla JavaScript (no frameworks)
+- Local Storage for saving high scores and device preferences
 
 ## Browser Compatibility
 
@@ -55,10 +76,6 @@ This game requires a browser that supports the Web MIDI API:
 
 Firefox and Safari do not currently support the Web MIDI API without extensions.
 
-## Running Locally
-
-To run the game locally, simply open the `index.html` file in a compatible web browser. No server is required.
-
 ## License
 
-This project is available for personal and educational use.
+MIT
