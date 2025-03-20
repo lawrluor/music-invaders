@@ -16,7 +16,7 @@ class Enemy {
     this.noteName = utils.midiNoteToName(midiNote);
     
     // Movement
-    this.speed = 12.5 + Math.random() * 3; // Pixels per second
+    this.speed = 15 + Math.random() * 2.5; // Pixels per second
     this.wobbleAmount = 10;
     this.wobbleSpeed = 1 + Math.random() * 0.5;
     

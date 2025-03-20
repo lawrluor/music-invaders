@@ -74,14 +74,14 @@ canvas {
 #health-bar {
   height: 100%;
   width: 100%;
-  background-color: #0f0;
+  background-color: #006305;
   transition: width 0.3s ease, background-color 0.3s ease;
 }
 
 #ammo-bar {
   height: 100%;
   width: 100%;
-  background-color: #cc0; /* Darker yellow for ammo */
+  background-color: rgb(128, 128, 2); /* Darker yellow for ammo */
   transition: width 0.3s ease;
 }
 

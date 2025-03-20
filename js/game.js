@@ -240,7 +240,7 @@ class Game {
     this.animationFrameId = requestAnimationFrame(this.gameLoop);
   }
   
-  // Update game during playing state
+  // Update game during playing state (runs every "frame)
   updatePlaying(deltaTime) {
     // Update player
     if (this.player) {
@@ -255,38 +255,35 @@ class Game {
         allEnemiesDead = false;
         enemy.update(deltaTime);
         
-        // Check if enemy is touching the shield
-        if (this.player) {
-          // Check if any part of the enemy is inside the shield
-          const enemyPoints = [
-            { x: enemy.x, y: enemy.y }, // Top-left
-            { x: enemy.x + enemy.width, y: enemy.y }, // Top-right
-            { x: enemy.x, y: enemy.y + enemy.height }, // Bottom-left
-            { x: enemy.x + enemy.width, y: enemy.y + enemy.height }, // Bottom-right
-            { x: enemy.x + enemy.width / 2, y: enemy.y + enemy.height } // Bottom-center
-          ];
+        // Check if any part of the enemy is inside the shield
+        const enemyPoints = [
+          { x: enemy.x, y: enemy.y }, // Top-left
+          { x: enemy.x + enemy.width, y: enemy.y }, // Top-right
+          { x: enemy.x, y: enemy.y + enemy.height }, // Bottom-left
+          { x: enemy.x + enemy.width, y: enemy.y + enemy.height }, // Bottom-right
+          { x: enemy.x + enemy.width / 2, y: enemy.y + enemy.height } // Bottom-center
+        ];
           
-          // Check if any point is inside the shield
-          const touchingShield = enemyPoints.some(point => 
-            this.player.isPointInShield(point.x, point.y)
-          );
+        // Check if any point is inside the shield
+        const touchingShield = enemyPoints.some(point => 
+          this.player.isPointInShield(point.x, point.y)
+        );
+        
+        if (touchingShield && !enemy.hasHitShield) {
+          // Enemy touches shield - cause damage immediately (20% of health)
+          this.health -= 20; // 20% of initial health (100)
+          enemy.hitShield();
+          enemy.die(); // Start death animation
+          window.soundController.playEnemyShieldHitSound();
+          window.soundController.playPlayerDamageSound();
           
-          if (touchingShield && !enemy.hasHitShield) {
-            // Enemy touches shield - cause damage immediately (20% of health)
-            this.health -= 20; // 20% of initial health (100)
-            enemy.hitShield();
-            enemy.die(); // Start death animation
-            window.soundController.playEnemyShieldHitSound();
-            window.soundController.playPlayerDamageSound();
-            
-            // Check if player is dead
-            if (this.health <= 0) {
-              this.gameOverReason = 'Your shield was destroyed by an enemy!';
-              this.gameOver();
-            }
+          // Check if player is dead
+          if (this.health <= 0) {
+            this.gameOverReason = 'Your shield was destroyed by an enemy!';
+            this.gameOver();
           }
         }
-        
+
         enemy.draw(this.ctx);
       }
     });
@@ -305,6 +302,12 @@ class Game {
       } else {
         this.startWaveTransition();
       }
+    }
+
+    // Check if out of ammo
+    if (this.player.ammo <= 0) {
+      this.gameOverReason = 'You ran out of ammo!';
+      this.gameOver();
     }
     
     // Update UI
@@ -491,12 +494,6 @@ class Game {
         // Add laser
         this.lasers.push(laser);
       }, 100); // 100ms delay to allow player to move first
-      
-      // Check if out of ammo
-      if (this.player.ammo <= 0) {
-        this.gameOverReason = 'You ran out of ammo!';
-        this.gameOver();
-      }
     }
   }
   
@@ -536,7 +533,7 @@ class Game {
       
       // Change color based on health
       if (healthPercent > 60) {
-        this.uiElements.healthBar.style.backgroundColor = '#0f0';
+        this.uiElements.healthBar.style.backgroundColor = '#006305';
       } else if (healthPercent > 30) {
         this.uiElements.healthBar.style.backgroundColor = '#ff0';
       } else {
