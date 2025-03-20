@@ -64,7 +64,6 @@ class SoundController {
     
     // Laser miss sound
     this.sounds.laserMiss = this.createBuffer(buffer => {
-      const duration = 0.3;
       const sampleRate = this.audioContext.sampleRate;
       
       for (let i = 0; i < buffer.length; i++) {
@@ -76,19 +75,17 @@ class SoundController {
     
     // Enemy destroyed sound
     this.sounds.enemyDestroyed = this.createBuffer(buffer => {
-      const duration = 0.4;
       const sampleRate = this.audioContext.sampleRate;
       
       for (let i = 0; i < buffer.length; i++) {
         const t = i / sampleRate;
         const frequency = 300 + 200 * Math.random();
-        buffer[i] = 0.5 * Math.sin(frequency * t * Math.PI * 2) * Math.exp(-5 * t);
+        buffer[i] = 0.5 * Math.sin(frequency * t * Math.PI * 2) * Math.exp(-6 * t);
       }
-    }, 0.4);
+    }, 0.7);  // duration
     
     // Enemy shield hit sound
     this.sounds.enemyShieldHit = this.createBuffer(buffer => {
-      const duration = 0.5;
       const sampleRate = this.audioContext.sampleRate;
       
       for (let i = 0; i < buffer.length; i++) {
@@ -100,7 +97,6 @@ class SoundController {
     
     // Player damage sound
     this.sounds.playerDamage = this.createBuffer(buffer => {
-      const duration = 0.3;
       const sampleRate = this.audioContext.sampleRate;
       
       for (let i = 0; i < buffer.length; i++) {
@@ -124,7 +120,6 @@ class SoundController {
     
     // Victory sound
     this.sounds.victory = this.createBuffer(buffer => {
-      const duration = 2.0;
       const sampleRate = this.audioContext.sampleRate;
       
       for (let i = 0; i < buffer.length; i++) {

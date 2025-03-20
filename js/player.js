@@ -21,7 +21,7 @@ class Player {
     this.shieldY = this.y - this.shieldHeight;
     
     // Ammo
-    this.maxAmmo = 75;
+    this.maxAmmo = 60;
     this.ammo = this.maxAmmo;
   }
   

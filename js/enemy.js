@@ -16,7 +16,7 @@ class Enemy {
     this.noteName = utils.midiNoteToName(midiNote);
     
     // Movement
-    this.speed = 10 + Math.random() * 3; // Pixels per second
+    this.speed = 12.5 + Math.random() * 3; // Pixels per second
     this.wobbleAmount = 10;
     this.wobbleSpeed = 1 + Math.random() * 0.5;
     
@@ -151,8 +151,8 @@ class Enemy {
     // Draw tentacles first (they go behind the head)
     const tentacleCount = 3;
     const tentacleWidth = 4;
-    const tentacleHeight = 15; // Increased from 10 to make tentacles longer
-    const tentacleSpacing = 6; // 4px width + 2px margin on each side
+    const tentacleHeight = 20; // Increased from 10 to make tentacles longer
+    const tentacleSpacing = 7; // 4px width + 2px margin on each side
     
     // Calculate starting position for first tentacle
     const firstTentacleX = centerX - ((tentacleCount - 1) * tentacleSpacing) / 2;

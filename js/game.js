@@ -176,7 +176,10 @@ class Game {
     this.enemies = [];
     
     // Determine number of enemies based on wave
-    const enemyCount = 5 + Math.min(this.wave - 1, 2);
+    // 5 to 5 + WAVE_NUMBER enemies
+    const enemyCount = 5 + (this.wave - 1);
+    // const enemyCount = 5 + Math.min(this.wave - 1, 2);
+
     
     // Use the current MIDI range for this wave
     // The range should already be set to 3 octaves (36 notes) if possible
