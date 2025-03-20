@@ -127,6 +127,12 @@ class Enemy {
     // Create glow effect
     try {
       const glowRadius = this.width / 2;
+      
+      // Ensure all values are finite and valid
+      if (!isFinite(centerX) || !isFinite(centerY) || !isFinite(glowRadius) || glowRadius <= 0) {
+        throw new Error('Invalid gradient parameters');
+      }
+      
       const glow = ctx.createRadialGradient(
         centerX, centerY, 0,
         centerX, centerY, glowRadius
@@ -230,9 +236,16 @@ class Enemy {
     
     // Add head glow
     try {
+      const headGlowRadius = headWidth/2 + 5;
+      
+      // Ensure all values are finite and valid
+      if (!isFinite(centerX) || !isFinite(headY) || !isFinite(headGlowRadius) || headGlowRadius <= 0) {
+        throw new Error('Invalid gradient parameters');
+      }
+      
       const headGlow = ctx.createRadialGradient(
         centerX, headY, 0,
-        centerX, headY, headWidth/2 + 5
+        centerX, headY, headGlowRadius
       );
       // Convert color to rgba with alpha for head glow
       const headColorFull = this.color.startsWith('hsl') 

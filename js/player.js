@@ -39,6 +39,17 @@ class Player {
     }
   }
   
+  // Reset player to initial state
+  reset() {
+    // Reset position
+    this.x = this.canvasWidth / 2 - this.width / 2;
+    this.y = this.canvasHeight - 100;
+    this.targetX = this.x;
+    
+    // Reset ammo
+    this.ammo = this.maxAmmo;
+  }
+  
   // Draw player and shield
   draw(ctx) {
     // Draw shield (rectangular touchdown zone style)
@@ -194,14 +205,27 @@ class Player {
     const glowSize = 8 + Math.sin(time) * 3; // Pulsating effect
     
     // Create gradient for engine glow
-    const engineGlow = ctx.createRadialGradient(
-      this.x + this.width / 2, this.y + this.height + 5, 0,
-      this.x + this.width / 2, this.y + this.height + 5, glowSize
-    );
-    engineGlow.addColorStop(0, '#ffffff');
-    engineGlow.addColorStop(0.4, '#ffff00');
-    engineGlow.addColorStop(1, 'rgba(255, 100, 0, 0)');
-    ctx.fillStyle = engineGlow;
+    try {
+      const centerX = this.x + this.width / 2;
+      const centerY = this.y + this.height + 5;
+      
+      // Ensure all values are finite and valid
+      if (!isFinite(centerX) || !isFinite(centerY) || !isFinite(glowSize) || glowSize <= 0) {
+        throw new Error('Invalid gradient parameters');
+      }
+      
+      const engineGlow = ctx.createRadialGradient(
+        centerX, centerY, 0,
+        centerX, centerY, glowSize
+      );
+      engineGlow.addColorStop(0, '#ffffff');
+      engineGlow.addColorStop(0.4, '#ffff00');
+      engineGlow.addColorStop(1, 'rgba(255, 100, 0, 0)');
+      ctx.fillStyle = engineGlow;
+    } catch (e) {
+      console.log('Engine glow error:', e.message);
+      ctx.fillStyle = 'rgba(255, 100, 0, 0.5)'; // Fallback color
+    }
     
     // Main engine
     ctx.beginPath();

@@ -19,11 +19,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Initialize game
   window.game.init();
   
-  // Add event listener for the start button
-  document.getElementById('start-button').addEventListener('click', () => {
-    // Make sure audio context is resumed on user interaction
-    window.soundController.resumeAudio();
-  });
+  // Add event listeners for game mode buttons to resume audio on click
+  const classicButton = document.getElementById('classic-mode-button');
+  const survivalButton = document.getElementById('survival-mode-button');
+  
+  if (classicButton) {
+    classicButton.addEventListener('click', () => {
+      window.soundController.resumeAudio();
+    });
+  }
+  
+  if (survivalButton) {
+    survivalButton.addEventListener('click', () => {
+      window.soundController.resumeAudio();
+    });
+  }
   
   console.log('MIDI Space Invaders initialized');
 });

@@ -14,7 +14,9 @@ Once deployed, you can play the game online at: [MIDI Space Invaders](https://la
 
 2. **Musical Layout**: Enemies are positioned on the x-axis proportionally to a piano keyboard layout.
 
-3. **Waves of Enemies**: Battle through 5 waves of increasingly difficult enemies.
+3. **Game Modes**:
+   - **Classic Mode**: Battle through 5 waves of increasingly difficult enemies to win.
+   - **Survival Mode**: Play through endless waves of enemies until you run out of ammo or health. Earn bonus ammo after each wave based on the number of enemies.
 
 4. **Shield Protection**: Your spaceship is protected by a shield. Enemies that pass through will damage your health.
 

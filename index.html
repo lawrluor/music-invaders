@@ -26,8 +26,13 @@
       </div>
 
       <div id="score-container">
+        <div>Mode: <span id="game-mode-display">Classic</span></div>
         <div>High Score: <span id="high-score">0</span></div>
         <div>Score: <span id="score">0</span></div>
+      </div>
+
+      <div id="exit-button-container">
+        <button id="exit-to-menu-button" class="small-button">Exit to Menu</button>
       </div>
 
       <div style="display: none;" id="fps-counter">FPS: 0</div>
@@ -45,7 +50,6 @@
           <li>Play the correct note to shoot the enemy.</li>
           <li>Don't let enemies pass your shield - they'll hurt you!</li>
           <li>Watch your ammo - running out means game over.</li>
-          <li>Survive 5 waves to win!</li>
         </ul>
       </div>
       
@@ -63,7 +67,23 @@
         <div style="display: none;" id="midi-test-area">Play a note on your MIDI device to test</div>
       </div>
       
-      <button id="start-button" class="button">Start Game</button>
+      <div class="game-mode-selection">
+        <h2>Game Mode</h2>
+        <div class="mode-options">
+          <div class="mode-button-container">
+            <button id="classic-mode-button" class="mode-button" data-mode="classic">
+              <span class="mode-label">Classic Mode</span>
+              <span class="mode-description">Complete 5 waves to win</span>
+            </button>
+          </div>
+          <div class="mode-button-container">
+            <button id="survival-mode-button" class="mode-button" data-mode="survival">
+              <span class="mode-label">Survival Mode</span>
+              <span class="mode-description">Endless waves until you run out of ammo or health</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
     
     <!-- Game Over Screen -->
@@ -71,7 +91,14 @@
       <h1 class="screen-title game-over-title game-over-text">Game Over</h1>
       <h2 id="game-over-reason" class="reason game-over-text">You were defeated!</h2>
       <h2 class="game-over-score game-over-text">Final Score: <span id="final-score" class="game-over-text">0</span></h2>
-      <button id="restart-button" class="button">Play Again</button>
+      <div id="game-over-high-score-message" class="high-score-message hidden">
+        <h2 class="high-score-text">New High Score!</h2>
+        <p>Congratulations! You've set a new record!</p>
+      </div>
+      <div class="button-container">
+        <button id="restart-button" class="button">Play Again</button>
+        <button id="game-over-menu-button" class="button">Return to Menu</button>
+      </div>
     </div>
     
     <!-- Victory Screen -->
@@ -80,8 +107,16 @@
       <h2>Base Score: <span id="base-score">0</span></h2>
       <h2>Ammo Bonus: <span id="ammo-bonus">0</span> points</h2>
       <h2>Health Bonus: <span id="health-bonus">0</span> points</h2>
+      <h2 id="wave-bonus-container" style="display: none;">Wave Bonus: <span id="wave-bonus">0</span> points</h2>
       <h2 class="final-total">Final Score: <span id="victory-score">0</span></h2>
-      <button id="play-again-button" class="button">Play Again</button>
+      <div id="victory-high-score-message" class="high-score-message hidden">
+        <h2 class="high-score-text">New High Score!</h2>
+        <p>Congratulations! You've set a new record!</p>
+      </div>
+      <div class="button-container">
+        <button id="play-again-button" class="button">Play Again</button>
+        <button id="victory-menu-button" class="button">Return to Menu</button>
+      </div>
     </div>
     
     <!-- Wave Transition -->

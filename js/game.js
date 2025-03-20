@@ -12,7 +12,8 @@ class Game {
     // Game state
     this.gameState = 'title'; // title, playing, gameOver, victory, waveTransition
     this.score = 0;
-    this.highScore = utils.loadHighScore();
+    this.gameMode = 'classic'; // classic or survival
+    this.highScore = utils.loadHighScore(this.gameMode);
     this.wave = 1;
     this.health = 100;
     this.initialHealth = 100;
@@ -91,6 +92,7 @@ class Game {
       wave: document.getElementById('wave'),
       ammoBar: document.getElementById('ammo-bar'),
       healthBar: document.getElementById('health-bar'),
+      gameModeDisplay: document.getElementById('game-mode-display'),
       fpsCounter: document.getElementById('fps-counter'),
       finalScore: document.getElementById('final-score'),
       victoryScore: document.getElementById('victory-score'),
@@ -110,11 +112,8 @@ class Game {
     this.resizeCanvas = this.resizeCanvas.bind(this);
     this.startNextWave = this.startNextWave.bind(this);
     
-    // Event listeners
+    // Add window resize event listener
     window.addEventListener('resize', this.resizeCanvas);
-    document.getElementById('start-button').addEventListener('click', this.startGame);
-    document.getElementById('restart-button').addEventListener('click', this.startGame);
-    document.getElementById('play-again-button').addEventListener('click', this.startGame);
   }
   
   // Initialize the game
@@ -123,7 +122,60 @@ class Game {
     window.midiController.addNoteOnListener(this.handleNoteOn);
     window.midiController.addNoteOffListener(this.handleNoteOff);
     
-    // Update high score display
+    // Add game control event listeners with null checks
+    const classicButton = document.getElementById('classic-mode-button');
+    if (classicButton) {
+      classicButton.addEventListener('click', () => {
+        console.log('Classic mode button clicked');
+        this.startGame('classic');
+      });
+    }
+    
+    const survivalButton = document.getElementById('survival-mode-button');
+    if (survivalButton) {
+      survivalButton.addEventListener('click', () => {
+        console.log('Survival mode button clicked');
+        this.startGame('survival');
+      });
+    }
+    
+    const restartButton = document.getElementById('restart-button');
+    if (restartButton) {
+      restartButton.addEventListener('click', () => this.startGame(this.gameMode));
+    }
+    
+    const playAgainButton = document.getElementById('play-again-button');
+    if (playAgainButton) {
+      playAgainButton.addEventListener('click', () => this.startGame(this.gameMode));
+    }
+    
+    // Add return to menu buttons
+    const gameOverMenuButton = document.getElementById('game-over-menu-button');
+    if (gameOverMenuButton) {
+      gameOverMenuButton.addEventListener('click', () => this.returnToMenu());
+    }
+    
+    const victoryMenuButton = document.getElementById('victory-menu-button');
+    if (victoryMenuButton) {
+      victoryMenuButton.addEventListener('click', () => this.returnToMenu());
+    }
+    
+    // Add exit to menu button
+    const exitToMenuButton = document.getElementById('exit-to-menu-button');
+    if (exitToMenuButton) {
+      exitToMenuButton.addEventListener('click', () => {
+        // Only allow exit during gameplay
+        if (this.gameState === 'playing') {
+          // Confirm before exiting
+          if (confirm('Are you sure you want to exit to the menu? Your progress will be lost.')) {
+            this.returnToMenu();
+          }
+        }
+      });
+    }
+    
+    // Load high score for current game mode and update display
+    this.highScore = utils.loadHighScore(this.gameMode);
     this.uiElements.highScore.textContent = this.highScore;
     
     // Start game loop
@@ -134,7 +186,25 @@ class Game {
   }
   
   // Start a new game
-  startGame() {
+  startGame(gameMode) {
+    // Cancel any ongoing animation frame to prevent multiple loops
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+    
+    // Set game mode
+    this.gameMode = gameMode || 'classic';
+    
+    // Load the appropriate high score for this mode
+    this.highScore = utils.loadHighScore(this.gameMode);
+    console.log(`Starting ${this.gameMode} mode with high score: ${this.highScore}`);
+    
+    // Update high score display
+    if (this.uiElements.highScore) {
+      this.uiElements.highScore.textContent = this.highScore;
+    }
+    
     // Reset game state
     this.gameState = 'playing';
     this.score = 0;
@@ -167,19 +237,36 @@ class Game {
     // Resume audio context
     window.soundController.resumeAudio();
     
+    // Reset timing variables to ensure smooth animation
+    this.lastFrameTime = performance.now();
+    this.frameCount = 0;
+    this.lastFpsUpdate = 0;
+    
+    // Make sure the game loop is running
+    if (!this.animationFrameId) {
+      this.gameLoop(this.lastFrameTime);
+    }
+    
     console.log('Game started');
   }
   
   // Create enemies for the current wave
+  // Returns the number of enemies created for ammo calculation
   createEnemiesForWave() {
     // Clear existing enemies
     this.enemies = [];
     
     // Determine number of enemies based on wave
-    // 5 to 5 + WAVE_NUMBER enemies
-    const enemyCount = 5 + (this.wave - 1);
-    // const enemyCount = 5 + Math.min(this.wave - 1, 2);
-
+    // For classic mode: 5 to 9 enemies (5 + wave - 1, capped at 9)
+    // For survival mode: 5 + wave/2 enemies (increasing more slowly but without cap)
+    let enemyCount;
+    
+    if (this.gameMode === 'classic') {
+      enemyCount = 5 + (this.wave - 1); 
+    } else { // survival mode
+      // Start with 5 enemies, add 1 enemy every wave
+      enemyCount = 5 + (this.wave - 1);
+    }
     
     // Use the current MIDI range for this wave
     // The range should already be set to 3 octaves (36 notes) if possible
@@ -209,8 +296,20 @@ class Game {
       // Animation offset for variety
       const animationOffset = i * 0.2;
       
-      this.enemies.push(new Enemy(x, y, note, animationOffset));
+      const enemy = new Enemy(x, y, note, animationOffset);
+      
+      // In survival mode, make enemies gradually faster as waves progress
+      if (this.gameMode === 'survival' && this.wave > 3) {
+        // Increase speed by 5% for each wave after wave 3, up to a maximum of double speed
+        const speedMultiplier = Math.min(1 + ((this.wave - 3) * 0.05), 2.0);
+        enemy.speed *= speedMultiplier;
+      }
+      
+      this.enemies.push(enemy);
     }
+    
+    // Return the enemy count for ammo calculation in survival mode
+    return enemyCount;
   }
   
   // Main game loop
@@ -226,7 +325,7 @@ class Game {
     // Clear canvas
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     
-    // Draw gradient background instead of stars
+    // Always draw the background for visual consistency
     this.drawBackground(deltaTime);
     
     // Update and draw game objects based on game state
@@ -297,7 +396,8 @@ class Game {
     
     // Check if all enemies are dead
     if (allEnemiesDead && this.enemies.length > 0) {
-      if (this.wave >= this.wavesTotal) {
+      // Check if this was the last wave for classic mode
+      if (this.gameMode === 'classic' && this.wave >= this.wavesTotal) {
         this.victory();
       } else {
         this.startWaveTransition();
@@ -347,7 +447,19 @@ class Game {
     // Update MIDI range based on wave
     this.updateMidiRangeForWave();
     
-    this.createEnemiesForWave();
+    // Create enemies for the new wave
+    const previousEnemyCount = this.createEnemiesForWave();
+    
+    // In survival mode, give additional ammo after each wave
+    if (this.gameMode === 'survival' && this.wave > 1) {
+      // Add ammo equal to 125% of the enemies in the previous wave, rounded down
+      // Make sure previousEnemyCount is a valid number
+      const enemyCount = typeof previousEnemyCount === 'number' && !isNaN(previousEnemyCount) ? previousEnemyCount : 5;
+      const ammoBonus = Math.floor(enemyCount * 1.25);
+      this.player.ammo = Math.min(this.player.maxAmmo, this.player.ammo + ammoBonus);
+      
+      console.log(`Wave ${this.wave}: Added ${ammoBonus} ammo based on ${enemyCount} enemies`);
+    }
     
     // Hide transition screen
     this.uiElements.waveTransition.classList.add('hidden');
@@ -357,11 +469,29 @@ class Game {
   gameOver() {
     this.gameState = 'gameOver';
     
-    // Update high score
-    if (this.score > this.highScore) {
+    // Check if this is a new high score
+    const isNewHighScore = this.score > this.highScore;
+    
+    // Update high score for the current game mode
+    console.log(`Game over - Current score: ${this.score}, Current high score: ${this.highScore}, Mode: ${this.gameMode}`);
+    if (isNewHighScore) {
       this.highScore = this.score;
-      utils.saveHighScore(this.highScore);
+      const saved = utils.saveHighScore(this.highScore, this.gameMode);
+      console.log(`High score ${saved ? 'updated' : 'not updated'} to ${this.highScore}`);
       this.uiElements.highScore.textContent = this.highScore;
+      
+      // Show high score message
+      const highScoreMessage = document.getElementById('game-over-high-score-message');
+      if (highScoreMessage) {
+        highScoreMessage.classList.remove('hidden');
+      }
+    } else {
+      console.log('Score not high enough to update high score');
+      // Hide high score message
+      const highScoreMessage = document.getElementById('game-over-high-score-message');
+      if (highScoreMessage) {
+        highScoreMessage.classList.add('hidden');
+      }
     }
     
     // Update UI
@@ -375,8 +505,21 @@ class Game {
     
     this.uiElements.gameOverScreen.classList.remove('hidden');
     
-    // Play sound
-    window.soundController.playGameOverSound();
+    // Add event listener for the return to menu button
+    const menuButton = document.getElementById('game-over-menu-button');
+    if (menuButton) {
+      // Remove any existing event listeners
+      const newMenuButton = menuButton.cloneNode(true);
+      menuButton.parentNode.replaceChild(newMenuButton, menuButton);
+      
+      // Add new event listener
+      newMenuButton.addEventListener('click', () => {
+        this.returnToMenu();
+      });
+    }
+    
+    // Play sound - special jingle for high score
+    window.soundController.playGameOverSound(isNewHighScore);
   }
   
   // Victory
@@ -394,11 +537,40 @@ class Game {
     const healthBonus = Math.round(this.health * 10); // 10 points per health point
     this.score += healthBonus;
     
-    // Update high score
-    if (this.score > this.highScore) {
+    // In survival mode, add a wave bonus
+    let waveBonus = 0;
+    if (this.gameMode === 'survival') {
+      waveBonus = this.wave * 500; // 500 points per wave completed
+      document.getElementById('wave-bonus-container').style.display = 'block';
+      document.getElementById('wave-bonus').textContent = waveBonus;
+      this.score += waveBonus;
+    } else {
+      document.getElementById('wave-bonus-container').style.display = 'none';
+    }
+    
+    // Check if this is a new high score
+    const isNewHighScore = this.score > this.highScore;
+    
+    // Update high score for the current game mode
+    console.log(`Victory - Current score: ${this.score}, Current high score: ${this.highScore}, Mode: ${this.gameMode}`);
+    if (isNewHighScore) {
       this.highScore = this.score;
-      utils.saveHighScore(this.highScore);
+      const saved = utils.saveHighScore(this.highScore, this.gameMode);
+      console.log(`High score ${saved ? 'updated' : 'not updated'} to ${this.highScore}`);
       this.uiElements.highScore.textContent = this.highScore;
+      
+      // Show high score message
+      const highScoreMessage = document.getElementById('victory-high-score-message');
+      if (highScoreMessage) {
+        highScoreMessage.classList.remove('hidden');
+      }
+    } else {
+      console.log('Score not high enough to update high score');
+      // Hide high score message
+      const highScoreMessage = document.getElementById('victory-high-score-message');
+      if (highScoreMessage) {
+        highScoreMessage.classList.add('hidden');
+      }
     }
     
     // Update UI
@@ -408,8 +580,21 @@ class Game {
     this.uiElements.victoryScore.textContent = this.score;
     this.uiElements.victoryScreen.classList.remove('hidden');
     
-    // Play sound
-    window.soundController.playVictorySound();
+    // Add event listener for the return to menu button
+    const menuButton = document.getElementById('victory-menu-button');
+    if (menuButton) {
+      // Remove any existing event listeners
+      const newMenuButton = menuButton.cloneNode(true);
+      menuButton.parentNode.replaceChild(newMenuButton, menuButton);
+      
+      // Add new event listener
+      newMenuButton.addEventListener('click', () => {
+        this.returnToMenu();
+      });
+    }
+    
+    // Play sound - special jingle for high score
+    window.soundController.playVictorySound(isNewHighScore);
   }
   
   // Handle MIDI note on event
@@ -507,6 +692,11 @@ class Game {
   updateUI() {
     if (this.uiElements.score) this.uiElements.score.textContent = this.score;
     if (this.uiElements.wave) this.uiElements.wave.textContent = this.wave;
+    
+    // Update game mode display
+    if (this.uiElements.gameModeDisplay) {
+      this.uiElements.gameModeDisplay.textContent = this.gameMode.charAt(0).toUpperCase() + this.gameMode.slice(1);
+    }
     
     // Update ammo bar
     if (this.player) {
@@ -690,6 +880,12 @@ class Game {
         }
         
         const glowSize = size * (3 + (i % 3));
+        
+        // Ensure all values are finite and valid
+        if (!isFinite(x) || !isFinite(y) || !isFinite(glowSize) || glowSize <= 0) {
+          throw new Error('Invalid gradient parameters');
+        }
+        
         const glow = this.ctx.createRadialGradient(x, y, 0, x, y, glowSize);
         glow.addColorStop(0, starColor);
         glow.addColorStop(0.5, starColor.replace('0.9', '0.5'));
@@ -704,6 +900,75 @@ class Game {
         console.log('Glow error:', e.message);
       }
     }
+  }
+  
+  // Reset game to initial state
+  reset() {
+    // Reset game state
+    this.gameState = 'title';
+    this.wave = 1;
+    this.score = 0;
+    this.health = 100;
+    this.gameOverReason = '';
+    
+    // Hide all screens except title
+    this.uiElements.gameOverScreen.classList.add('hidden');
+    this.uiElements.victoryScreen.classList.add('hidden');
+    this.uiElements.waveTransition.classList.add('hidden');
+    
+    // Reset player
+    if (this.player) {
+      this.player.reset();
+    } else {
+      // Create a new player if it doesn't exist
+      this.player = new Player(this.canvas.width, this.canvas.height);
+    }
+    
+    // Clear enemies and lasers
+    this.enemies = [];
+    this.lasers = [];
+    
+    // Reset background
+    this.backgroundColors = this.backgroundSchemes[0];
+    
+    // Reset MIDI range
+    this.updateMidiDeviceRange();
+    this.updateMidiRangeForWave();
+    
+    // Clear any note processing state
+    this.lastProcessedNotes = {};
+    
+    // Update UI
+    this.updateUI();
+    
+    // Clear the canvas
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+  
+  // Return to the main menu
+  returnToMenu() {
+    console.log('Returning to main menu');
+    
+    // Cancel any ongoing animation frame
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+    
+    // Play a sound effect when returning to menu
+    if (window.soundController) {
+      window.soundController.playMenuSound();
+    }
+    
+    // Reset the game state
+    this.reset();
+    
+    // Make sure the title screen is shown
+    this.uiElements.titleScreen.classList.remove('hidden');
+    
+    // Restart the game loop to ensure proper rendering
+    this.lastFrameTime = performance.now();
+    this.gameLoop();
   }
 }
 

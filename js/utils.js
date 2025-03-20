@@ -185,10 +185,11 @@ const utils = {
         const starY = star.y * height;
         const glowRadius = star.size * 3;
         
-        // Check for NaN or Infinity values
-        if (isFinite(starX) && isFinite(starY) && isFinite(glowRadius)) {
+        // Check for NaN or Infinity values and ensure radius is positive
+        if (isFinite(starX) && isFinite(starY) && isFinite(glowRadius) && glowRadius > 0) {
           // Outer glow
           try {
+            
             const glow = ctx.createRadialGradient(
               starX, starY, 0,
               starX, starY, glowRadius
@@ -266,19 +267,33 @@ const utils = {
     return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
   },
   
-  // Save high score to local storage
-  saveHighScore: function(score) {
-    const currentHighScore = localStorage.getItem('midiSpaceInvadersHighScore') || 0;
+  // Save high score to local storage based on game mode
+  saveHighScore: function(score, gameMode = 'classic') {
+    const storageKey = gameMode === 'survival' ? 'musicInvadersSurvivalHighScore' : 'musicInvadersClassicHighScore';
+    const currentHighScore = parseInt(localStorage.getItem(storageKey) || 0, 10);
+    
+    // Only save if the new score is higher than the current high score
     if (score > currentHighScore) {
-      localStorage.setItem('midiSpaceInvadersHighScore', score);
+      localStorage.setItem(storageKey, score.toString());
+      console.log(`New high score for ${gameMode} mode: ${score}`);
       return true;
     }
     return false;
   },
   
-  // Load high score from local storage
-  loadHighScore: function() {
-    return parseInt(localStorage.getItem('midiSpaceInvadersHighScore') || 0);
+  // Load high score from local storage based on game mode
+  loadHighScore: function(gameMode = 'classic') {
+    const storageKey = gameMode === 'survival' ? 'musicInvadersSurvivalHighScore' : 'musicInvadersClassicHighScore';
+    const storedScore = localStorage.getItem(storageKey);
+    
+    // If no score exists yet, return 0
+    if (storedScore === null) {
+      console.log(`No high score found for ${gameMode} mode, starting at 0`);
+      return 0;
+    }
+    
+    // Parse the stored score as an integer
+    return parseInt(storedScore, 10);
   },
   
   // Save last selected MIDI device

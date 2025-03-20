@@ -247,11 +247,17 @@ class SoundController {
   }
   
   // Play game over sound - special sad jingle
-  playGameOverSound() {
+  playGameOverSound(isNewHighScore = false) {
     if (!this.audioContext) return;
     
     // Resume audio context if suspended
     this.resumeAudio();
+    
+    if (isNewHighScore) {
+      // Play the high score jingle instead
+      this.playHighScoreJingle();
+      return;
+    }
     
     // Sad jingle - descending minor pattern
     const notes = [64, 62, 59, 55]; // E4, D4, B3, G3 - descending minor pattern
@@ -274,11 +280,17 @@ class SoundController {
   }
   
   // Play victory sound - special triumphant jingle
-  playVictorySound() {
+  playVictorySound(isNewHighScore = false) {
     if (!this.audioContext) return;
     
     // Resume audio context if suspended
     this.resumeAudio();
+    
+    if (isNewHighScore) {
+      // Play the high score jingle instead
+      this.playHighScoreJingle();
+      return;
+    }
     
     // Triumphant jingle - ascending major pattern
     const notes = [60, 64, 67, 72, 76]; // C4, E4, G4, C5, E5 - ascending C major pattern
@@ -298,6 +310,56 @@ class SoundController {
         this.createOscillator(frequency, 1.8, 'sine', 0.3);
       });
     }, 1000);
+  }
+  
+  // Play special high score jingle - longer and more elaborate
+  playHighScoreJingle() {
+    if (!this.audioContext) return;
+    
+    // Resume audio context if suspended
+    this.resumeAudio();
+    
+    // Celebratory high score jingle - more elaborate pattern
+    // First part - ascending pattern
+    const part1 = [60, 64, 67, 72, 76, 79]; // C4, E4, G4, C5, E5, G5
+    
+    part1.forEach((note, index) => {
+      setTimeout(() => {
+        const frequency = 440 * Math.pow(2, (note - 69) / 12);
+        this.createOscillator(frequency, 0.3, 'sine', 0.4);
+      }, index * 150);
+    });
+    
+    // Second part - descending pattern
+    const part2 = [76, 72, 76, 79, 84]; // E5, C5, E5, G5, C6
+    
+    part2.forEach((note, index) => {
+      setTimeout(() => {
+        const frequency = 440 * Math.pow(2, (note - 69) / 12);
+        this.createOscillator(frequency, 0.3, 'triangle', 0.4);
+      }, 1000 + index * 150);
+    });
+    
+    // Final triumphant chord with shimmer
+    setTimeout(() => {
+      [60, 64, 67, 72, 76, 84].forEach((note, i) => { // C major chord with octaves
+        const frequency = 440 * Math.pow(2, (note - 69) / 12);
+        // Stagger the notes slightly for a shimmer effect
+        setTimeout(() => {
+          this.createOscillator(frequency, 2.5 - (i * 0.1), 'sine', 0.25);
+        }, i * 50);
+      });
+    }, 2000);
+    
+    // Add a little flourish at the end
+    setTimeout(() => {
+      [88, 84, 88, 91].forEach((note, i) => { // High notes flourish
+        setTimeout(() => {
+          const frequency = 440 * Math.pow(2, (note - 69) / 12);
+          this.createOscillator(frequency, 0.2, 'sine', 0.2);
+        }, i * 100);
+      });
+    }, 3000);
   }
   
   // Play wave complete sound - randomly generated major triad between C3-C5
@@ -335,6 +397,25 @@ class SoundController {
         this.createOscillator(frequency, 1.2, 'sine', 0.3);
       });
     }, 800); // Play chord after all individual notes
+  }
+  
+  // Play menu sound - short sound for returning to menu
+  playMenuSound() {
+    if (!this.audioContext) return;
+    
+    // Resume audio context if suspended
+    this.resumeAudio();
+    
+    // Simple descending pattern
+    const notes = [67, 64, 60]; // G4, E4, C4 - descending C major triad
+    
+    // Play each note with delay
+    notes.forEach((note, index) => {
+      setTimeout(() => {
+        const frequency = 440 * Math.pow(2, (note - 69) / 12);
+        this.createOscillator(frequency, 0.2, 'sine', 0.4);
+      }, index * 100); // 100ms between notes
+    });
   }
 }
 
