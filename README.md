@@ -1,10 +1,10 @@
-# MIDI Space Invaders
+# Music Invaders
 
 A space invaders game that uses a MIDI keyboard as the controller. Each enemy corresponds to a specific note on your MIDI keyboard. Press the correct note to destroy the enemy!
 
 ## Play Now
 
-Once deployed, you can play the game online at: [MIDI Space Invaders](https://username.github.io/space-invaders/)
+Once deployed, you can play the game online at: [MIDI Space Invaders](https://lawrluor.github.io/space-invaders/)
 
 **Note:** You'll need a MIDI keyboard connected to your computer to play. The game uses the Web MIDI API, which is supported in Chrome, Edge, and Opera browsers.
 
