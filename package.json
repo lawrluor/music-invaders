@@ -1,0 +1,18 @@
+{
+  "name": "midi-space-invaders",
+  "version": "1.0.0",
+  "description": "A space invaders game that uses a MIDI keyboard as the controller",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "midi",
+    "game",
+    "space-invaders",
+    "html5",
+    "canvas"
+  ],
+  "author": "",
+  "license": "MIT"
+}

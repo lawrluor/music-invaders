@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MIDI Space Invaders</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="game-canvas"></canvas>
+    
+    <div id="ui-overlay">
+      <div id="game-info">
+        <div style="display: none;">Wave: <span id="wave">1</span>/5</div>
+        <div>Ammo:</div>
+        <div id="ammo-bar-container">
+          <div id="ammo-bar"></div>
+          <div id="ammo-value">50</div>
+        </div>
+        <div>Health:</div>
+        <div id="health-bar-container">
+          <div id="health-bar"></div>
+          <div id="health-value">100</div>
+        </div>
+      </div>
+
+      <div id="score-container">
+        <div>High Score: <span id="high-score">0</span></div>
+        <div>Score: <span id="score">0</span></div>
+      </div>
+
+      <div style="display: none;" id="fps-counter">FPS: 0</div>
+    </div>
+    
+    <!-- Title Screen -->
+    <div id="title-screen">
+      <h1 class="screen-title">MIDI Space Invaders</h1>
+      
+      <div class="instructions-container">
+        <h2>How to Play</h2>
+        <ul class="instructions-list">
+          <li>Use your MIDI keyboard to shoot enemies.</li>
+          <li>Each enemy corresponds to a specific note on your keyboard.</li>
+          <li>Press the correct note to destroy the enemy.</li>
+          <li>Don't let enemies pass your shield - they'll hurt you!</li>
+          <li>Watch your ammo - running out means game over.</li>
+          <li>Survive 5 waves to win!</li>
+        </ul>
+      </div>
+      
+      <div class="midi-setup">
+        <h2>MIDI Setup</h2>
+        <div>
+          <label for="midi-device-select">Select MIDI Input Device:</label>
+          <select id="midi-device-select">
+            <option value="">No MIDI devices available</option>
+          </select>
+          <button id="refresh-midi" class="small-button">Refresh</button>
+        </div>
+        
+        <div id="midi-status">MIDI Status: Not connected</div>
+        <div style="display: none;" id="midi-test-area">Play a note on your MIDI device to test</div>
+      </div>
+      
+      <button id="start-button" class="button">Start Game</button>
+    </div>
+    
+    <!-- Game Over Screen -->
+    <div id="game-over-screen" class="hidden">
+      <h1 class="screen-title game-over-title game-over-text">Game Over</h1>
+      <h2 id="game-over-reason" class="reason game-over-text">You were defeated!</h2>
+      <h2 class="game-over-score game-over-text">Final Score: <span id="final-score" class="game-over-text">0</span></h2>
+      <button id="restart-button" class="button">Play Again</button>
+    </div>
+    
+    <!-- Victory Screen -->
+    <div id="victory-screen" class="hidden">
+      <h1 class="screen-title">Victory!</h1>
+      <h2>Base Score: <span id="base-score">0</span></h2>
+      <h2>Ammo Bonus: <span id="ammo-bonus">0</span> points</h2>
+      <h2>Health Bonus: <span id="health-bonus">0</span> points</h2>
+      <h2 class="final-total">Final Score: <span id="victory-score">0</span></h2>
+      <button id="play-again-button" class="button">Play Again</button>
+    </div>
+    
+    <!-- Wave Transition -->
+    <div id="wave-transition" class="hidden">
+      <h1 class="screen-title">Wave <span id="next-wave">2</span></h1>
+      <h2>Get Ready!</h2>
+    </div>
+  </div>
+  
+  <!-- Scripts -->
+  <script src="js/utils.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/midi.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/enemy.js"></script>
+  <script src="js/laser.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+  <script src="debug.js"></script>
+</body>
+</html>
