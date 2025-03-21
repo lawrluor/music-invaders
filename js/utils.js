@@ -269,7 +269,22 @@ const utils = {
   
   // Save high score to local storage based on game mode
   saveHighScore: function(score, gameMode = 'classic') {
-    const storageKey = gameMode === 'survival' ? 'musicInvadersSurvivalHighScore' : 'musicInvadersClassicHighScore';
+    // Generate storage key based on game mode and whether it's chord mode
+    let storageKey;
+    
+    // Check if gameMode includes chord indicator
+    if (gameMode.includes('_chord')) {
+      // Already has chord indicator
+      storageKey = gameMode === 'survival_chord' ? 
+        'musicInvadersSurvivalChordHighScore' : 
+        'musicInvadersClassicChordHighScore';
+    } else {
+      // Standard note mode
+      storageKey = gameMode === 'survival' ? 
+        'musicInvadersSurvivalHighScore' : 
+        'musicInvadersClassicHighScore';
+    }
+    
     const currentHighScore = parseInt(localStorage.getItem(storageKey) || 0, 10);
     
     // Only save if the new score is higher than the current high score
@@ -283,7 +298,22 @@ const utils = {
   
   // Load high score from local storage based on game mode
   loadHighScore: function(gameMode = 'classic') {
-    const storageKey = gameMode === 'survival' ? 'musicInvadersSurvivalHighScore' : 'musicInvadersClassicHighScore';
+    // Generate storage key based on game mode and whether it's chord mode
+    let storageKey;
+    
+    // Check if gameMode includes chord indicator
+    if (gameMode.includes('_chord')) {
+      // Already has chord indicator
+      storageKey = gameMode === 'survival_chord' ? 
+        'musicInvadersSurvivalChordHighScore' : 
+        'musicInvadersClassicChordHighScore';
+    } else {
+      // Standard note mode
+      storageKey = gameMode === 'survival' ? 
+        'musicInvadersSurvivalHighScore' : 
+        'musicInvadersClassicHighScore';
+    }
+    
     const storedScore = localStorage.getItem(storageKey);
     
     // If no score exists yet, return 0

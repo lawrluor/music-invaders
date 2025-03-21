@@ -123,7 +123,7 @@ canvas {
   width: 200px;
 }
 
-.mode-button {
+.mode-button, .start-game-button {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -137,16 +137,86 @@ canvas {
   color: white;
 }
 
-.mode-button:hover {
+.mode-button:hover, .start-game-button:hover {
   border-color: rgba(255, 255, 255, 0.7);
   background-color: rgba(255, 255, 255, 0.1);
   transform: translateY(-3px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-.mode-button:active {
+.mode-button:active, .start-game-button:active {
   transform: translateY(1px);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.note-mode-options {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.note-mode-container {
+  width: 200px;
+}
+
+.note-mode-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+}
+
+.note-mode-button:hover {
+  border-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.note-mode-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.note-mode-button.selected {
+  border-color: #0f0;
+  background-color: rgba(0, 255, 0, 0.2);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+#start-game-button {
+  display: block;
+  margin: 30px auto 0;
+  padding: 15px 30px;
+  font-size: 1.2em;
+  background-color: #0f0;
+  color: #000;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+  width: 200px;
+}
+
+#start-game-button:hover {
+  background-color: #00ff00;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
+}
+
+#start-game-button:active {
+  transform: scale(0.98);
+  background-color: #00cc00;
 }
 
 .mode-label {

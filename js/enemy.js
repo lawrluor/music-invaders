@@ -3,7 +3,7 @@
  */
 
 class Enemy {
-  constructor(x, y, midiNote, animationOffset = 0) {
+  constructor(x, y, midiNote, animationOffset = 0, isChord = false, chordData = null) {
     // Position and size
     this.x = x;
     this.y = y;
@@ -11,9 +11,25 @@ class Enemy {
     this.width = 85; // Increased size by 30% again (from 65)
     this.height = 85; // Increased size by 30% again (from 65)
     
-    // MIDI note
-    this.midiNote = midiNote;
-    this.noteName = utils.midiNoteToName(midiNote);
+    // Chord mode
+    this.isChord = isChord;
+    
+    if (isChord && chordData) {
+      // For chord mode
+      this.chordData = chordData;
+      this.rootNote = chordData.root;
+      this.chordType = chordData.type;
+      this.chordNotes = chordData.notes;
+      this.displayName = chordData.name;
+      // Use root note for color
+      this.color = this.getColorFromNote(this.rootNote);
+    } else {
+      // For single note mode
+      this.midiNote = midiNote;
+      this.noteName = utils.midiNoteToName(midiNote);
+      this.displayName = this.noteName;
+      this.color = this.getColorFromNote(midiNote);
+    }
     
     // Movement
     this.speed = 15 + Math.random() * 2.5; // Pixels per second
@@ -30,9 +46,6 @@ class Enemy {
     this.deathTime = 0;
     this.deathDuration = 0.3; // seconds - faster fade out
     this.hasHitShield = false; // Flag to track if enemy has already hit the shield
-    
-    // Colors
-    this.color = this.getColorFromNote(midiNote);
   }
   
   // Update enemy position and animation
@@ -356,7 +369,7 @@ class Enemy {
     
 
     
-    // Draw note name below enemy
+    // Draw note/chord name below enemy
     ctx.fillStyle = '#dddddd'; // Light grey instead of white for better readability
     ctx.font = 'bold 22px Arial';
     ctx.textAlign = 'center';
@@ -368,11 +381,11 @@ class Enemy {
     // Add text shadow for glow effect
     ctx.shadowColor = this.color;
     ctx.shadowBlur = 1;
-    ctx.fillText(this.noteName, centerX, noteY);
+    ctx.fillText(this.displayName, centerX, noteY);
     
     // Add second shadow for stronger glow
     ctx.shadowBlur = 1;
-    ctx.fillText(this.noteName, centerX, noteY);
+    ctx.fillText(this.displayName, centerX, noteY);
     
     // Reset shadow
     ctx.shadowBlur = 0;
@@ -391,9 +404,16 @@ class Enemy {
     return `hsl(${hue}, 100%, ${lightness}%)`;
   }
   
-  // Check if this enemy matches the given MIDI note
-  matchesNote(note) {
-    return this.midiNote === note;
+  // Check if this enemy matches the given MIDI note or chord
+  matchesNote(note, activeNotes = null) {
+    if (this.isChord && activeNotes) {
+      // For chord mode, check if all required notes are played
+      // This is now octave-agnostic - the chord can be played in any octave
+      return window.chordController.notesMatchChord(activeNotes, this.chordNotes);
+    } else {
+      // For single note mode - exact note match required
+      return this.midiNote === note;
+    }
   }
   
   // Hit the enemy

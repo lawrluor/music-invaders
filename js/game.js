@@ -9,10 +9,15 @@ class Game {
     this.ctx = canvas.getContext('2d');
     this.resizeCanvas();
     
+    // Helper for controllers
+    this.getSoundController = () => window.soundController || window.sound;
+    this.getMidiController = () => window.midiController || window.midi;
+    
     // Game state
     this.gameState = 'title'; // title, playing, gameOver, victory, waveTransition
     this.score = 0;
     this.gameMode = 'classic'; // classic or survival
+    this.chordMode = false; // Whether to use chords instead of single notes
     this.highScore = utils.loadHighScore(this.gameMode);
     this.wave = 1;
     this.health = 100;
@@ -118,16 +123,31 @@ class Game {
   
   // Initialize the game
   init() {
+    // Initialize chord controller if it doesn't exist
+    if (!window.chordController) {
+      window.chordController = new ChordController();
+    }
+    
     // Add MIDI event listeners
-    window.midiController.addNoteOnListener(this.handleNoteOn);
-    window.midiController.addNoteOffListener(this.handleNoteOff);
+    const midiController = this.getMidiController();
+    if (midiController) {
+      midiController.addNoteOnListener(this.handleNoteOn);
+      midiController.addNoteOffListener(this.handleNoteOff);
+    } else {
+      console.error('MIDI controller not found');
+    }
+    
+    // Track selected game mode and chord mode
+    this.selectedGameMode = 'classic';
+    this.selectedChordMode = false;
     
     // Add game control event listeners with null checks
     const classicButton = document.getElementById('classic-mode-button');
     if (classicButton) {
       classicButton.addEventListener('click', () => {
         console.log('Classic mode button clicked');
-        this.startGame('classic');
+        this.selectedGameMode = 'classic';
+        this.updateModeButtonSelection();
       });
     }
     
@@ -135,18 +155,52 @@ class Game {
     if (survivalButton) {
       survivalButton.addEventListener('click', () => {
         console.log('Survival mode button clicked');
-        this.startGame('survival');
+        this.selectedGameMode = 'survival';
+        this.updateModeButtonSelection();
       });
     }
     
+    // Add chord mode button listeners
+    const singleNoteButton = document.getElementById('single-note-button');
+    if (singleNoteButton) {
+      singleNoteButton.addEventListener('click', () => {
+        console.log('Single note mode button clicked');
+        this.selectedChordMode = false;
+        this.updateNoteModeButtonSelection();
+      });
+    }
+    
+    const chordModeButton = document.getElementById('chord-mode-button');
+    if (chordModeButton) {
+      chordModeButton.addEventListener('click', () => {
+        console.log('Chord mode button clicked');
+        this.selectedChordMode = true;
+        this.updateNoteModeButtonSelection();
+      });
+    }
+    
+    // No need to add a start game button anymore since we start directly from mode buttons
+    
     const restartButton = document.getElementById('restart-button');
     if (restartButton) {
-      restartButton.addEventListener('click', () => this.startGame(this.gameMode));
+      restartButton.addEventListener('click', () => {
+        // Maintain the current game mode and chord mode
+        this.startGame(this.gameMode, this.chordMode);
+        // Update the global selections to match
+        window.selectedGameMode = this.gameMode;
+        window.selectedChordMode = this.chordMode;
+      });
     }
     
     const playAgainButton = document.getElementById('play-again-button');
     if (playAgainButton) {
-      playAgainButton.addEventListener('click', () => this.startGame(this.gameMode));
+      playAgainButton.addEventListener('click', () => {
+        // Maintain the current game mode and chord mode
+        this.startGame(this.gameMode, this.chordMode);
+        // Update the global selections to match
+        window.selectedGameMode = this.gameMode;
+        window.selectedChordMode = this.chordMode;
+      });
     }
     
     // Add return to menu buttons
@@ -186,7 +240,7 @@ class Game {
   }
   
   // Start a new game
-  startGame(gameMode) {
+  startGame(gameMode, chordMode = false) {
     // Cancel any ongoing animation frame to prevent multiple loops
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
@@ -195,10 +249,13 @@ class Game {
     
     // Set game mode
     this.gameMode = gameMode || 'classic';
+    this.chordMode = chordMode;
     
     // Load the appropriate high score for this mode
-    this.highScore = utils.loadHighScore(this.gameMode);
-    console.log(`Starting ${this.gameMode} mode with high score: ${this.highScore}`);
+    // Combine gameMode and chordMode for high score tracking
+    const scoreKey = this.chordMode ? `${this.gameMode}_chord` : this.gameMode;
+    this.highScore = utils.loadHighScore(scoreKey);
+    console.log(`Starting ${this.gameMode} mode (${this.chordMode ? 'chord' : 'note'} mode) with high score: ${this.highScore}`);
     
     // Update high score display
     if (this.uiElements.highScore) {
@@ -211,6 +268,7 @@ class Game {
     this.wave = 1;
     this.health = this.initialHealth;
     this.lastProcessedNotes = {};
+    this.activeNotes = new Set();
     
     // Reset to the first MIDI range scheme
     this.updateMidiRangeForWave();
@@ -235,7 +293,10 @@ class Game {
     this.uiElements.waveTransition.classList.add('hidden');
     
     // Resume audio context
-    window.soundController.resumeAudio();
+    const soundController = this.getSoundController();
+    if (soundController) {
+      soundController.resumeAudio();
+    }
     
     // Reset timing variables to ensure smooth animation
     this.lastFrameTime = performance.now();
@@ -273,30 +334,54 @@ class Game {
     const startNote = this.midiRange.min;
     const endNote = this.midiRange.max;
     
-    // Create a set to track used notes
+    // Create a set to track used notes or chord roots
     const usedNotes = new Set();
     
     // Create enemies
     for (let i = 0; i < enemyCount; i++) {
-      // Generate random note for each enemy, ensuring no duplicates
-      let note;
-      do {
-        note = utils.randomInt(startNote, endNote);
-      } while (usedNotes.has(note));
-      
-      // Add note to used notes set
-      usedNotes.add(note);
-      
-      // Calculate x position based on note
-      const x = utils.midiNoteToXPosition(note, this.canvas.width, startNote, endNote);
+      // Animation offset for variety
+      const animationOffset = i * 0.2;
       
       // Random y position near the top with 20% more spread
       const y = utils.random(30, 180); // Increased from (50, 150)
       
-      // Animation offset for variety
-      const animationOffset = i * 0.2;
+      let enemy;
       
-      const enemy = new Enemy(x, y, note, animationOffset);
+      if (this.chordMode) {
+        // Chord mode - generate random chord
+        // Ensure root notes are within the MIDI range and not duplicated
+        let rootNote;
+        do {
+          rootNote = utils.randomInt(startNote, endNote - 12); // Leave room for chord notes
+        } while (usedNotes.has(rootNote));
+        
+        // Add root note to used notes set
+        usedNotes.add(rootNote);
+        
+        // Generate a random chord
+        const chordData = window.chordController.generateRandomChord(rootNote, rootNote);
+        
+        // Calculate x position based on root note
+        const x = utils.midiNoteToXPosition(rootNote, this.canvas.width, startNote, endNote);
+        
+        // Create enemy with chord data
+        enemy = new Enemy(x, y, rootNote, animationOffset, true, chordData);
+      } else {
+        // Single note mode - generate random note
+        let note;
+        do {
+          note = utils.randomInt(startNote, endNote);
+        } while (usedNotes.has(note));
+        
+        // Add note to used notes set
+        usedNotes.add(note);
+        
+        // Calculate x position based on note
+        const x = utils.midiNoteToXPosition(note, this.canvas.width, startNote, endNote);
+        
+        // Create enemy with single note
+        enemy = new Enemy(x, y, note, animationOffset);
+      }
       
       // In survival mode, make enemies gradually faster as waves progress
       if (this.gameMode === 'survival' && this.wave > 3) {
@@ -373,8 +458,11 @@ class Game {
           this.health -= 20; // 20% of initial health (100)
           enemy.hitShield();
           enemy.die(); // Start death animation
-          window.soundController.playEnemyShieldHitSound();
-          window.soundController.playPlayerDamageSound();
+          const soundController = this.getSoundController();
+          if (soundController) {
+            soundController.playEnemyShieldHitSound();
+            soundController.playPlayerDamageSound();
+          }
           
           // Check if player is dead
           if (this.health <= 0) {
@@ -433,7 +521,10 @@ class Game {
     this.uiElements.waveTransition.classList.remove('hidden');
     
     // Play sound
-    window.soundController.playWaveCompleteSound();
+    const soundController = this.getSoundController();
+    if (soundController) {
+      soundController.playWaveCompleteSound();
+    }
   }
   
   // Start next wave
@@ -476,7 +567,9 @@ class Game {
     console.log(`Game over - Current score: ${this.score}, Current high score: ${this.highScore}, Mode: ${this.gameMode}`);
     if (isNewHighScore) {
       this.highScore = this.score;
-      const saved = utils.saveHighScore(this.highScore, this.gameMode);
+      // Create a key that combines game mode and chord mode
+      const scoreKey = this.chordMode ? `${this.gameMode}_chord` : this.gameMode;
+      const saved = utils.saveHighScore(this.highScore, scoreKey);
       console.log(`High score ${saved ? 'updated' : 'not updated'} to ${this.highScore}`);
       this.uiElements.highScore.textContent = this.highScore;
       
@@ -519,7 +612,10 @@ class Game {
     }
     
     // Play sound - special jingle for high score
-    window.soundController.playGameOverSound(isNewHighScore);
+    const soundController = this.getSoundController();
+    if (soundController) {
+      soundController.playGameOverSound(isNewHighScore);
+    }
   }
   
   // Victory
@@ -555,7 +651,9 @@ class Game {
     console.log(`Victory - Current score: ${this.score}, Current high score: ${this.highScore}, Mode: ${this.gameMode}`);
     if (isNewHighScore) {
       this.highScore = this.score;
-      const saved = utils.saveHighScore(this.highScore, this.gameMode);
+      // Create a key that combines game mode and chord mode
+      const scoreKey = this.chordMode ? `${this.gameMode}_chord` : this.gameMode;
+      const saved = utils.saveHighScore(this.highScore, scoreKey);
       console.log(`High score ${saved ? 'updated' : 'not updated'} to ${this.highScore}`);
       this.uiElements.highScore.textContent = this.highScore;
       
@@ -594,7 +692,10 @@ class Game {
     }
     
     // Play sound - special jingle for high score
-    window.soundController.playVictorySound(isNewHighScore);
+    const soundController = this.getSoundController();
+    if (soundController) {
+      soundController.playVictorySound(isNewHighScore);
+    }
   }
   
   // Handle MIDI note on event
@@ -610,10 +711,26 @@ class Game {
     // Record processing time
     this.lastProcessedNotes[note] = performance.now();
     
+    // Keep track of active notes for chord matching
+    // Chords can be played in any octave - the pitch class (note % 12) is what matters
+    if (!this.activeNotes) {
+      this.activeNotes = new Set();
+    }
+    this.activeNotes.add(note);
+    
     // Try to fire
     if (this.player.fire()) {
-      // Find matching enemy
-      const matchingEnemy = this.enemies.find(enemy => enemy.alive && enemy.matchesNote(note));
+      let matchingEnemy;
+      
+      if (this.chordMode) {
+        // For chord mode, check if all required notes of any chord are played
+        matchingEnemy = this.enemies.find(enemy => {
+          return enemy.alive && enemy.matchesNote(note, Array.from(this.activeNotes));
+        });
+      } else {
+        // For single note mode
+        matchingEnemy = this.enemies.find(enemy => enemy.alive && enemy.matchesNote(note));
+      }
       
       // Calculate target position
       let targetX, targetY;
@@ -666,14 +783,20 @@ class Game {
           this.score += this.pointsPerEnemy;
           
           // Play sound
-          window.soundController.playEnemyDestroyedSound();
-          
-          // Mark laser as hit
-          laser.markHit();
-          window.soundController.playLaserHitSound();
+          const soundController = this.getSoundController();
+          if (soundController) {
+            soundController.playEnemyDestroyedSound();
+            
+            // Mark laser as hit
+            laser.markHit();
+            soundController.playLaserHitSound();
+          }
         } else if (!firingData.hit) {
           // Play miss sound
-          window.soundController.playLaserMissSound();
+          const soundController = this.getSoundController();
+          if (soundController) {
+            soundController.playLaserMissSound();
+          }
         }
         
         // Add laser
@@ -686,6 +809,11 @@ class Game {
   handleNoteOff(note) {
     // Clear from processed notes
     delete this.lastProcessedNotes[note];
+    
+    // Remove from active notes for chord matching
+    if (this.activeNotes) {
+      this.activeNotes.delete(note);
+    }
   }
   
   // Update UI elements
@@ -695,7 +823,9 @@ class Game {
     
     // Update game mode display
     if (this.uiElements.gameModeDisplay) {
-      this.uiElements.gameModeDisplay.textContent = this.gameMode.charAt(0).toUpperCase() + this.gameMode.slice(1);
+      const modeName = this.gameMode.charAt(0).toUpperCase() + this.gameMode.slice(1);
+      const noteModeText = this.chordMode ? 'Chord' : 'Single Note';
+      this.uiElements.gameModeDisplay.textContent = `${modeName} (${noteModeText})`;
     }
     
     // Update ammo bar
@@ -937,6 +1067,10 @@ class Game {
     
     // Clear any note processing state
     this.lastProcessedNotes = {};
+    this.activeNotes = new Set();
+    
+    // Reset chord mode state
+    this.chordMode = false;
     
     // Update UI
     this.updateUI();
@@ -956,8 +1090,9 @@ class Game {
     }
     
     // Play a sound effect when returning to menu
-    if (window.soundController) {
-      window.soundController.playMenuSound();
+    const soundController = this.getSoundController();
+    if (soundController) {
+      soundController.playMenuSound();
     }
     
     // Reset the game state
@@ -969,6 +1104,44 @@ class Game {
     // Restart the game loop to ensure proper rendering
     this.lastFrameTime = performance.now();
     this.gameLoop();
+  }
+  
+  // Update the visual selection of game mode buttons
+  updateModeButtonSelection() {
+    const classicButton = document.getElementById('classic-mode-button');
+    const survivalButton = document.getElementById('survival-mode-button');
+    
+    if (classicButton && survivalButton) {
+      // Remove selected class from all buttons
+      classicButton.classList.remove('selected');
+      survivalButton.classList.remove('selected');
+      
+      // Add selected class to the active button
+      if (this.selectedGameMode === 'classic') {
+        classicButton.classList.add('selected');
+      } else if (this.selectedGameMode === 'survival') {
+        survivalButton.classList.add('selected');
+      }
+    }
+  }
+  
+  // Update the visual selection of note mode buttons
+  updateNoteModeButtonSelection() {
+    const singleNoteButton = document.getElementById('single-note-button');
+    const chordModeButton = document.getElementById('chord-mode-button');
+    
+    if (singleNoteButton && chordModeButton) {
+      // Remove selected class from all buttons
+      singleNoteButton.classList.remove('selected');
+      chordModeButton.classList.remove('selected');
+      
+      // Add selected class to the active button
+      if (this.selectedChordMode) {
+        chordModeButton.classList.add('selected');
+      } else {
+        singleNoteButton.classList.add('selected');
+      }
+    }
   }
 }
 

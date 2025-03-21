@@ -46,8 +46,9 @@
         <h2>How to Play</h2>
         <ul class="instructions-list">
           <li>Use your MIDI instrument as a controller to shoot down baddies.</li>
-          <li>Each enemy corresponds to a specific note on your keyboard.</li>
-          <li>Play the correct note to shoot the enemy.</li>
+          <li>Each enemy corresponds to a specific note or chord on your keyboard.</li>
+          <li>In Single Note mode: Play the exact note to shoot the enemy.</li>
+          <li>In Chord mode: Play the indicated chord in any octave to shoot the enemy.</li>
           <li>Don't let enemies pass your shield - they'll hurt you!</li>
           <li>Watch your ammo - running out means game over.</li>
         </ul>
@@ -68,18 +69,34 @@
       </div>
       
       <div class="game-mode-selection">
-        <h2>Game Mode</h2>
+        <h2>Single Note Mode</h2>
         <div class="mode-options">
           <div class="mode-button-container">
-            <button id="classic-mode-button" class="mode-button" data-mode="classic">
+            <button id="single-note-classic-button" class="start-game-button" data-mode="classic" data-chord-mode="false">
               <span class="mode-label">Classic Mode</span>
               <span class="mode-description">Complete 5 waves to win</span>
             </button>
           </div>
           <div class="mode-button-container">
-            <button id="survival-mode-button" class="mode-button" data-mode="survival">
+            <button id="single-note-survival-button" class="start-game-button" data-mode="survival" data-chord-mode="false">
               <span class="mode-label">Survival Mode</span>
               <span class="mode-description">Endless waves until you run out of ammo or health</span>
+            </button>
+          </div>
+        </div>
+        
+        <h2>Chord Mode</h2>
+        <div class="mode-options">
+          <div class="mode-button-container">
+            <button id="chord-classic-button" class="start-game-button" data-mode="classic" data-chord-mode="true">
+              <span class="mode-label">Classic Mode</span>
+              <span class="mode-description">Complete 5 waves of chord enemies</span>
+            </button>
+          </div>
+          <div class="mode-button-container">
+            <button id="chord-survival-button" class="start-game-button" data-mode="survival" data-chord-mode="true">
+              <span class="mode-label">Survival Mode</span>
+              <span class="mode-description">Endless waves of chord enemies</span>
             </button>
           </div>
         </div>
@@ -130,6 +147,7 @@
   <script src="js/utils.js"></script>
   <script src="js/sound.js"></script>
   <script src="js/midi.js"></script>
+  <script src="js/chords.js"></script>
   <script src="js/player.js"></script>
   <script src="js/enemy.js"></script>
   <script src="js/laser.js"></script>

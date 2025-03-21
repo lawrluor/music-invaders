@@ -1,17 +1,31 @@
 /**
  * Main entry point for MIDI Space Invaders
  */
+// import ChordController from './chord-controller.js';
 
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', async () => {
   // Initialize MIDI controller first
-  await window.midiController.init();
+  const midiController = window.midiController || window.midi;
+  if (midiController) {
+    await midiController.init();
+  } else {
+    console.error('MIDI controller not found');
+  }
   
   // Get canvas element
   const canvas = document.getElementById('game-canvas');
   
   // Initialize sound controller
-  window.soundController.init();
+  const soundController = window.soundController || window.sound;
+  if (soundController) {
+    soundController.init();
+  } else {
+    console.error('Sound controller not found');
+  }
+  
+  // Initialize chord controller
+  window.chordController = new ChordController();
   
   // Create game instance and expose it globally for debugging
   window.game = new Game(canvas);
@@ -19,21 +33,31 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Initialize game
   window.game.init();
   
-  // Add event listeners for game mode buttons to resume audio on click
-  const classicButton = document.getElementById('classic-mode-button');
-  const survivalButton = document.getElementById('survival-mode-button');
+  // Get references to all game mode buttons
+  const singleNoteClassicButton = document.getElementById('single-note-classic-button');
+  const singleNoteSurvivalButton = document.getElementById('single-note-survival-button');
+  const chordClassicButton = document.getElementById('chord-classic-button');
+  const chordSurvivalButton = document.getElementById('chord-survival-button');
   
-  if (classicButton) {
-    classicButton.addEventListener('click', () => {
-      window.soundController.resumeAudio();
-    });
-  }
+  // Helper function to add click event to game mode buttons
+  const addStartGameListener = (button, gameMode, chordMode) => {
+    if (button) {
+      button.addEventListener('click', () => {
+        if (soundController) soundController.resumeAudio();
+        // Start the game directly with the selected mode
+        window.game.startGame(gameMode, chordMode);
+        // Hide title screen and show game
+        const titleScreen = document.getElementById('title-screen');
+        if (titleScreen) titleScreen.classList.add('hidden');
+      });
+    }
+  };
   
-  if (survivalButton) {
-    survivalButton.addEventListener('click', () => {
-      window.soundController.resumeAudio();
-    });
-  }
+  // Add event listeners for all game mode buttons
+  addStartGameListener(singleNoteClassicButton, 'classic', false);
+  addStartGameListener(singleNoteSurvivalButton, 'survival', false);
+  addStartGameListener(chordClassicButton, 'classic', true);
+  addStartGameListener(chordSurvivalButton, 'survival', true);
   
   console.log('MIDI Space Invaders initialized');
 });
