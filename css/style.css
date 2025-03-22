@@ -49,17 +49,20 @@ canvas {
   text-align: center;
 }
 
+/* Make this match style of page */
 #exit-to-menu-button {
   margin-left: 0;
-  background-color: rgba(255, 50, 50, 0.7);
-  font-size: 0.8rem;
-  padding: 0.3rem 0.7rem;
+  font-family: 'Courier New', monospace;
+  color: #0f0;
+  background-color: rgba(0, 0, 0, 0.5);
+  font-size: 1rem;
+  padding: 0.8rem 0.7rem;
   pointer-events: auto;
   align-self: flex-end;
 }
 
 #exit-to-menu-button:hover {
-  background-color: rgba(255, 50, 50, 1);
+  opacity: 0.7;
 }
 
 #fps-counter {
@@ -80,15 +83,37 @@ canvas {
   border-radius: 5px;
 }
 
+#game-info > * {
+  margin-bottom: 10px;
+}
+
 #health-bar-container, #ammo-bar-container {
-  width: 200px;
-  height: 20px;
+  width: 180px;
+  height: 22.5px;
   background-color: rgba(0, 0, 0, 0.5);
   border: 1px solid #fff;
   border-radius: 10px;
   overflow: hidden;
   margin-top: 5px;
   position: relative;
+}
+
+#health-text, #ammo-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px #000;
+  z-index: 10;
+  pointer-events: none;
 }
 
 #health-bar {
@@ -342,21 +367,6 @@ canvas {
   font-size: 0.9em;
   color: rgba(255, 255, 255, 0.7);
   text-align: center;
-}
-
-#health-value, #ammo-value {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-weight: bold;
-  text-shadow: 1px 1px 2px #000;
-  font-size: 12px;
 }
 
 #title-screen, #game-over-screen, #victory-screen, #wave-transition {

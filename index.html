@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Music Invaders</title>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <!-- Fallback for browsers that don't support SVG favicons -->
+  <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAFEmlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDAgNzkuMTYwNDUxLCAyMDE3LzA1LzA2LTAxOjA4OjIxICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ0MgMjAxOCAoTWFjaW50b3NoKSIgeG1wOkNyZWF0ZURhdGU9IjIwMjUtMDMtMjJUMTQ6MzA6MzctMDc6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDI1LTAzLTIyVDE0OjMxOjA3LTA3OjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDI1LTAzLTIyVDE0OjMxOjA3LTA3OjAwIiBkYzpmb3JtYXQ9ImltYWdlL3BuZyIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgcGhvdG9zaG9wOklDQ1Byb2ZpbGU9InNSR0IgSUVDNjE5NjYtMi4xIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjY3YzI0YzM1LTUzNDAtNGU0ZC05ZDI3LTNiZWNlMzVlMTRiNyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo2N2MyNGMzNS01MzQwLTRlNGQtOWQyNy0zYmVjZTM1ZTE0YjciIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo2N2MyNGMzNS01MzQwLTRlNGQtOWQyNy0zYmVjZTM1ZTE0YjciPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjY3YzI0YzM1LTUzNDAtNGU0ZC05ZDI3LTNiZWNlMzVlMTRiNyIgc3RFdnQ6d2hlbj0iMjAyNS0wMy0yMlQxNDozMDozNy0wNzowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTggKE1hY2ludG9zaCkiLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+jHsR8AAAAmNJREFUWIXtl89rE1EQx7/z3pvdJG3S0KaKtYrYg4IHD3pQEA+CiCfRkyAe/QM8+QcIHgQP/gEevCjoUfAiIh48qQcpFkGwrT8aG5Mmu8m+fTOeYtJ0t9lNdhePfS/Lm5nv5zezM/MGUEoppZRSSv0zZKMD/vz+Jb+ePQMAEEJACIFoNIpkMgnTNLcswPLyMmZnZ+G6LpRSIIQgHA4jk8mgq6trS/LXVQDnHPl8HoVCAUopEEJAKQUhBOLxOPr7+2GaJgghDQdQSqFUKmFiYgK+74MxBsYYCCGQUmJ+fh7FYhGDg4MIhUINzV9XAZZlYWxsDEIIMMbAOQdjDJxzSCmRz+fR09ODWCzWUADVSADOOcbHx8E5h+/7ByilBKUUQRAgm81ieHi4YQAbvgMrKysoFAoIguCQeJVSCgDgOA5mZmYQBMGR8/8VgHOOyclJSCmPFK+SUiKXy8F13SPnrqsAKSVyuRwcxzlWvEoIAcuyUCwWj5y7rgCe56FQKEBKWbP4aq9QKpVqzl1XAMuyjpz5tXqe52FpaanmvHUFqFQqx/b+Ws+4rotKpVJz3roCBEFwrPjqvFrrmnPWFcAwDDDGahbPGANjDIZh1JyzrgCRSASMMdQyAkIIfN9HNBqtOW9dASKRCJLJJCilNYtnjCGRSCAcDtect64AjDH09vaCc36seM45UqkUQqFQzXnrfgssy0I6nT5WvEopJJNJpFKpI+etuwDDMDA0NATf92sWTymFbdvo6+s78vYDNbwFtm1jZGQEjuMcEk8pheM4GBgYQEdHx7HyNvTXbNs2RkdHMTU1hUwmg/b29kZOB2D1e6C9vR2ZTAatra0NzauUUkoppf4ffgM1P4tL9NsH8wAAAABJRU5ErkJggg==" type="image/png">
 </head>
 <body>
   <div id="game-container">
@@ -13,15 +16,18 @@
     <div id="ui-overlay">
       <div id="game-info">
         <div style="display: none;">Wave: <span id="wave">1</span>/5</div>
-        <div>Ammo:</div>
-        <div id="ammo-bar-container">
-          <div id="ammo-bar"></div>
-          <div id="ammo-value">50</div>
+        <div>
+          <div id="ammo-bar-container">
+            <div id="ammo-bar"></div>
+            <div id="ammo-text">Ammo: <span id="ammo-value">50</span></div>
+          </div>
         </div>
-        <div>Health:</div>
-        <div id="health-bar-container">
-          <div id="health-bar"></div>
-          <div id="health-value">100</div>
+
+        <div>
+          <div id="health-bar-container">
+            <div id="health-bar"></div>
+            <div id="health-text">Health: <span id="health-value">100</span></div>
+          </div>
         </div>
       </div>
 
@@ -32,7 +38,7 @@
       </div>
 
       <div id="exit-button-container">
-        <button id="exit-to-menu-button" class="small-button">Exit to Menu</button>
+        <button id="exit-to-menu-button" class="small-button">Quit</button>
       </div>
 
       <div style="display: none;" id="fps-counter">FPS: 0</div>
@@ -50,10 +56,10 @@
         <ul class="instructions-list">
           <li>Use your MIDI instrument as a controller to shoot down baddies.</li>
           <li>Each enemy corresponds to a specific note on your keyboard.</li>
-          <li>Play the exact note to shoot the enemy.</li>
-          <li>If playing in Chord mode: Play the indicated chord in any octave to shoot the enemy.</li>
+          <li>Play the note in the correct octave to shoot the enemy.</li>
+          <li>If playing in "chord mode": Play the chord in any octave to shoot the enemy.</li>
           <li>Don't let enemies pass your shield - they'll hurt you!</li>
-          <li>Watch your ammo - running out means game over.</li>
+          <li>Choose your notes wisely - running out of ammo ends the game.</li>
         </ul>
       </div>
       
@@ -114,6 +120,8 @@
     <div id="game-over-screen" class="hidden">
       <h1 class="screen-title game-over-title game-over-text">Game Over</h1>
       <h2 id="game-over-reason" class="reason game-over-text">You were defeated!</h2>
+      <h2 class="game-over-waves game-over-text">Waves Completed: <span id="game-over-waves" class="game-over-text">0</span></h2>
+      <h2 id="game-over-wave-bonus-container" style="display: none;" class="game-over-text">Wave Bonus: <span id="game-over-wave-bonus" class="game-over-text">0</span> points</h2>
       <h2 class="game-over-score game-over-text">Final Score: <span id="final-score" class="game-over-text">0</span></h2>
       <div id="game-over-high-score-message" class="high-score-message hidden">
         <h2 class="high-score-text">New High Score!</h2>
@@ -131,6 +139,7 @@
       <h2>Base Score: <span id="base-score">0</span></h2>
       <h2>Ammo Bonus: <span id="ammo-bonus">0</span> points</h2>
       <h2>Health Bonus: <span id="health-bonus">0</span> points</h2>
+      <h2>Waves Completed: <span id="waves-completed">0</span></h2>
       <h2 id="wave-bonus-container" style="display: none;">Wave Bonus: <span id="wave-bonus">0</span> points</h2>
       <h2 class="final-total">Final Score: <span id="victory-score">0</span></h2>
       <div id="victory-high-score-message" class="high-score-message hidden">
@@ -163,6 +172,14 @@
               Use chord name abbreviations
             </label>
             <p class="setting-description">When enabled, chord names will be abbreviated:</p>
+          </div>
+          
+          <div class="setting-item">
+            <label for="use-large-font">
+              <input type="checkbox" id="use-large-font">
+              Use large font for notes/chords
+            </label>
+            <p class="setting-description">When enabled, notes and chord names will be displayed in a larger font size for better visibility.</p>
           </div>
         </div>
       </div>

@@ -220,9 +220,26 @@ class Game {
       exitToMenuButton.addEventListener('click', () => {
         // Only allow exit during gameplay
         if (this.gameState === 'playing') {
-          // Confirm before exiting
-          if (confirm('Are you sure you want to exit to the menu? Your progress will be lost and your score will not be saved.')) {
-            this.returnToMenu();
+          // Hide the entire game container before showing the confirmation dialog
+          // This prevents players from using the dialog as a pause mechanism
+          const gameContainer = document.getElementById('game-container');
+          if (gameContainer) {
+            gameContainer.style.visibility = 'hidden';
+            
+            // Use setTimeout to ensure the visibility change is rendered before showing the dialog
+            setTimeout(() => {
+              // Confirm before exiting
+              const confirmExit = confirm('Are you sure you want to exit to the menu? Your progress will be lost and your score will not be saved.');
+              
+              if (confirmExit) {
+                // User clicked OK, return to menu
+                this.returnToMenu();
+                gameContainer.style.visibility = 'visible';
+              } else {
+                // User clicked Cancel, show the game container again
+                gameContainer.style.visibility = 'visible';
+              }
+            }, 50); // Small delay to ensure the visibility change is rendered
           }
         }
       });
@@ -553,6 +570,26 @@ class Game {
   gameOver() {
     this.gameState = 'gameOver';
     
+    // Store the base score before adding bonus
+    const baseScore = this.score;
+    
+    // Add wave bonus in both classic and survival modes
+    let waveBonus = 0;
+    // In classic mode, only add wave bonus if they completed at least one wave
+    if (this.wave > 1) {
+      // Wave bonus is (completed waves - 1) * 500 points
+      // We subtract 1 because wave 1 doesn't count as a completed wave
+      waveBonus = (this.wave - 1) * 500;
+      document.getElementById('game-over-wave-bonus-container').style.display = 'block';
+      document.getElementById('game-over-wave-bonus').textContent = waveBonus;
+      this.score += waveBonus;
+    } else {
+      document.getElementById('game-over-wave-bonus-container').style.display = 'none';
+    }
+    
+    // Update the waves completed display
+    document.getElementById('game-over-waves').textContent = this.wave - 1;
+    
     // Check if this is a new high score
     const isNewHighScore = this.score > this.highScore;
     
@@ -619,23 +656,29 @@ class Game {
     const baseScore = this.score;
     
     // Add bonus points for leftover ammo
-    const ammoBonus = this.player.ammo * 50; // 50 points per leftover ammo
+    const leftoverAmmoMultiplier = this.chordMode ? 10 : 50;  // 10 points per leftover ammo in chord mode, 50 points per leftover ammo in single note mode
+    const ammoBonus = this.player.ammo * leftoverAmmoMultiplier; 
     this.score += ammoBonus;
     
     // Add bonus points for leftover health
     const healthBonus = Math.round(this.health * 10); // 10 points per health point
     this.score += healthBonus;
     
-    // In survival mode, add a wave bonus
+    // Add wave bonus in both classic and survival modes
     let waveBonus = 0;
     if (this.gameMode === 'survival') {
-      waveBonus = this.wave * 500; // 500 points per wave completed
-      document.getElementById('wave-bonus-container').style.display = 'block';
-      document.getElementById('wave-bonus').textContent = waveBonus;
-      this.score += waveBonus;
+      // In survival mode, wave bonus is current wave * 500
+      waveBonus = this.wave * 500;
     } else {
-      document.getElementById('wave-bonus-container').style.display = 'none';
+      // In classic mode, wave bonus is wavesTotal * 500 (all waves completed)
+      waveBonus = this.wavesTotal * 500;
     }
+    
+    // Display wave bonus and update score
+    document.getElementById('wave-bonus-container').style.display = 'block';
+    document.getElementById('wave-bonus').textContent = waveBonus;
+    document.getElementById('waves-completed').textContent = this.gameMode === 'survival' ? this.wave : this.wavesTotal;
+    this.score += waveBonus;
     
     // Check if this is a new high score
     const isNewHighScore = this.score > this.highScore;
@@ -848,9 +891,9 @@ class Game {
       if (healthPercent > 60) {
         this.uiElements.healthBar.style.backgroundColor = '#006305';
       } else if (healthPercent > 30) {
-        this.uiElements.healthBar.style.backgroundColor = '#ff0';
+        this.uiElements.healthBar.style.backgroundColor = '#bdae07';
       } else {
-        this.uiElements.healthBar.style.backgroundColor = '#f00';
+        this.uiElements.healthBar.style.backgroundColor = '#c20600';
       }
     }
   }

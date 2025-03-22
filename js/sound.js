@@ -80,7 +80,8 @@ class SoundController {
       for (let i = 0; i < buffer.length; i++) {
         const t = i / sampleRate;
         const frequency = 300 + 200 * Math.random();
-        buffer[i] = 0.5 * Math.sin(frequency * t * Math.PI * 2) * Math.exp(-6 * t);
+        const volume = 0.15;
+        buffer[i] = volume * Math.sin(frequency * t * Math.PI * 2) * Math.exp(-6 * t);
       }
     }, 0.7);  // duration
     

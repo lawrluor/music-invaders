@@ -378,7 +378,11 @@ class Enemy {
     
     // Draw note/chord name below enemy
     ctx.fillStyle = '#dddddd'; // Light grey instead of white for better readability
-    ctx.font = 'bold 22px Arial';
+    
+    // Check if large font is enabled
+    const useLargeFont = localStorage.getItem('useLargeFont') === 'true';
+    ctx.font = useLargeFont ? 'bold 36px Arial' : 'bold 26px Arial';
+    
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     
@@ -387,11 +391,11 @@ class Enemy {
     
     // Add text shadow for glow effect
     ctx.shadowColor = this.color;
-    ctx.shadowBlur = 1;
+    ctx.shadowBlur = 0.5;
     ctx.fillText(this.displayName, centerX, noteY);
     
     // Add second shadow for stronger glow
-    ctx.shadowBlur = 1;
+    ctx.shadowBlur = 0.5;
     ctx.fillText(this.displayName, centerX, noteY);
     
     // Reset shadow
@@ -413,10 +417,16 @@ class Enemy {
   getColorFromNote(note) {
     // Use hue based on note (C = red, C# = orange, etc.)
     const hue = (note % 12) * 30;
+
     // Use brightness based on octave
     const lightness = 50 + (Math.floor(note / 12) - 2) * 10;
     
-    return `hsl(${hue}, 100%, ${lightness}%)`;
+    /* Avoid white color for enemies */
+    if (lightness > 90) {
+      return `hsl(${hue}, 100%, 90%)`;
+    } else {
+      return `hsl(${hue}, 100%, ${lightness}%)`;
+    }
   }
   
   // Check if this enemy matches the given MIDI note or chord

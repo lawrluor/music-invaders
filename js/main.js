@@ -98,8 +98,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const settingsModal = document.getElementById('settings-modal');
   const closeSettingsButton = document.getElementById('close-settings');
   const useChordAbbreviationsCheckbox = document.getElementById('use-chord-abbreviations');
+  const useLargeFontCheckbox = document.getElementById('use-large-font');
   
-  // Initialize checkbox state from localStorage
+  // Initialize checkbox states from localStorage
   if (useChordAbbreviationsCheckbox) {
     const savedState = localStorage.getItem('useChordAbbreviations') === 'true';
     useChordAbbreviationsCheckbox.checked = savedState;
@@ -127,15 +128,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
   
+  // Initialize large font checkbox
+  if (useLargeFontCheckbox) {
+    const savedLargeFontState = localStorage.getItem('useLargeFont') === 'true';
+    useLargeFontCheckbox.checked = savedLargeFontState;
+    
+    // Add change event listener
+    useLargeFontCheckbox.addEventListener('change', (event) => {
+      const useLargeFont = event.target.checked;
+      
+      // Save to localStorage
+      localStorage.setItem('useLargeFont', useLargeFont);
+    });
+  }
+  
   // Open settings modal
   if (settingsButton) {
     settingsButton.addEventListener('click', () => {
       if (settingsModal) {
         settingsModal.classList.remove('hidden');
         
-        // Update checkbox state when opening modal
+        // Update checkbox states when opening modal
         if (useChordAbbreviationsCheckbox && window.chordController) {
           useChordAbbreviationsCheckbox.checked = window.chordController.useAbbreviations;
+        }
+        
+        if (useLargeFontCheckbox) {
+          useLargeFontCheckbox.checked = localStorage.getItem('useLargeFont') === 'true';
         }
       }
     });
