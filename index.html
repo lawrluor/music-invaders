@@ -40,15 +40,18 @@
     
     <!-- Title Screen -->
     <div id="title-screen">
-      <h1 class="screen-title">Music Invaders</h1>
+      <div class="title-header">
+        <h1 class="screen-title">Music Invaders</h1>
+        <button id="settings-button" class="icon-button">⚙️</button>
+      </div>
       
       <div class="instructions-container">
         <h2>How to Play</h2>
         <ul class="instructions-list">
           <li>Use your MIDI instrument as a controller to shoot down baddies.</li>
-          <li>Each enemy corresponds to a specific note or chord on your keyboard.</li>
-          <li>In Single Note mode: Play the exact note to shoot the enemy.</li>
-          <li>In Chord mode: Play the indicated chord in any octave to shoot the enemy.</li>
+          <li>Each enemy corresponds to a specific note on your keyboard.</li>
+          <li>Play the exact note to shoot the enemy.</li>
+          <li>If playing in Chord mode: Play the indicated chord in any octave to shoot the enemy.</li>
           <li>Don't let enemies pass your shield - they'll hurt you!</li>
           <li>Watch your ammo - running out means game over.</li>
         </ul>
@@ -75,12 +78,14 @@
             <button id="single-note-classic-button" class="start-game-button" data-mode="classic" data-chord-mode="false">
               <span class="mode-label">Classic Mode</span>
               <span class="mode-description">Complete 5 waves to win</span>
+              <span class="high-score">High Score: <span id="single-note-classic-high-score">0</span></span>
             </button>
           </div>
           <div class="mode-button-container">
             <button id="single-note-survival-button" class="start-game-button" data-mode="survival" data-chord-mode="false">
               <span class="mode-label">Survival Mode</span>
               <span class="mode-description">Endless waves until you run out of ammo or health</span>
+              <span class="high-score">High Score: <span id="single-note-survival-high-score">0</span></span>
             </button>
           </div>
         </div>
@@ -90,13 +95,15 @@
           <div class="mode-button-container">
             <button id="chord-classic-button" class="start-game-button" data-mode="classic" data-chord-mode="true">
               <span class="mode-label">Classic Mode</span>
-              <span class="mode-description">Complete 5 waves of chord enemies</span>
+              <span class="mode-description">Complete 5 waves to win</span>
+              <span class="high-score">High Score: <span id="chord-classic-high-score">0</span></span>
             </button>
           </div>
           <div class="mode-button-container">
             <button id="chord-survival-button" class="start-game-button" data-mode="survival" data-chord-mode="true">
               <span class="mode-label">Survival Mode</span>
-              <span class="mode-description">Endless waves of chord enemies</span>
+              <span class="mode-description">Endless waves of enemies</span>
+              <span class="high-score">High Score: <span id="chord-survival-high-score">0</span></span>
             </button>
           </div>
         </div>
@@ -140,6 +147,25 @@
     <div id="wave-transition" class="hidden">
       <h1 class="screen-title">Wave <span id="next-wave">2</span></h1>
       <h2>Get Ready!</h2>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Game Settings</h2>
+          <button id="close-settings" class="close-button">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="setting-item">
+            <label for="use-chord-abbreviations">
+              <input type="checkbox" id="use-chord-abbreviations">
+              Use chord name abbreviations
+            </label>
+            <p class="setting-description">When enabled, chord names will be abbreviated:</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   

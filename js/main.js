@@ -53,11 +53,111 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   };
   
+  // Function to load and display high scores - make it globally available
+  window.loadAndDisplayHighScores = () => {
+    // Single Note Classic
+    const singleNoteClassicHighScore = utils.loadHighScore('classic');
+    const singleNoteClassicHighScoreElement = document.getElementById('single-note-classic-high-score');
+    if (singleNoteClassicHighScoreElement) {
+      singleNoteClassicHighScoreElement.textContent = singleNoteClassicHighScore;
+    }
+    
+    // Single Note Survival
+    const singleNoteSurvivalHighScore = utils.loadHighScore('survival');
+    const singleNoteSurvivalHighScoreElement = document.getElementById('single-note-survival-high-score');
+    if (singleNoteSurvivalHighScoreElement) {
+      singleNoteSurvivalHighScoreElement.textContent = singleNoteSurvivalHighScore;
+    }
+    
+    // Chord Classic
+    const chordClassicHighScore = utils.loadHighScore('classic_chord');
+    const chordClassicHighScoreElement = document.getElementById('chord-classic-high-score');
+    if (chordClassicHighScoreElement) {
+      chordClassicHighScoreElement.textContent = chordClassicHighScore;
+    }
+    
+    // Chord Survival
+    const chordSurvivalHighScore = utils.loadHighScore('survival_chord');
+    const chordSurvivalHighScoreElement = document.getElementById('chord-survival-high-score');
+    if (chordSurvivalHighScoreElement) {
+      chordSurvivalHighScoreElement.textContent = chordSurvivalHighScore;
+    }
+  };
+  
+  // Load high scores on startup
+  window.loadAndDisplayHighScores();
+  
   // Add event listeners for all game mode buttons
   addStartGameListener(singleNoteClassicButton, 'classic', false);
   addStartGameListener(singleNoteSurvivalButton, 'survival', false);
   addStartGameListener(chordClassicButton, 'classic', true);
   addStartGameListener(chordSurvivalButton, 'survival', true);
+  
+  // Settings modal functionality
+  const settingsButton = document.getElementById('settings-button');
+  const settingsModal = document.getElementById('settings-modal');
+  const closeSettingsButton = document.getElementById('close-settings');
+  const useChordAbbreviationsCheckbox = document.getElementById('use-chord-abbreviations');
+  
+  // Initialize checkbox state from localStorage
+  if (useChordAbbreviationsCheckbox) {
+    const savedState = localStorage.getItem('useChordAbbreviations') === 'true';
+    useChordAbbreviationsCheckbox.checked = savedState;
+    
+    // Add change event listener
+    useChordAbbreviationsCheckbox.addEventListener('change', (event) => {
+      const useAbbreviations = event.target.checked;
+      
+      // Save to localStorage
+      localStorage.setItem('useChordAbbreviations', useAbbreviations);
+      
+      // Update the chord controller if it exists
+      if (window.chordController) {
+        window.chordController.toggleAbbreviations(useAbbreviations);
+        
+        // Update all enemies in the current game if it exists
+        if (window.game && window.game.enemies) {
+          window.game.enemies.forEach(enemy => {
+            if (enemy.isChord) {
+              enemy.updateDisplayName();
+            }
+          });
+        }
+      }
+    });
+  }
+  
+  // Open settings modal
+  if (settingsButton) {
+    settingsButton.addEventListener('click', () => {
+      if (settingsModal) {
+        settingsModal.classList.remove('hidden');
+        
+        // Update checkbox state when opening modal
+        if (useChordAbbreviationsCheckbox && window.chordController) {
+          useChordAbbreviationsCheckbox.checked = window.chordController.useAbbreviations;
+        }
+      }
+    });
+  }
+  
+  // Close settings modal
+  if (closeSettingsButton) {
+    closeSettingsButton.addEventListener('click', () => {
+      if (settingsModal) {
+        settingsModal.classList.add('hidden');
+      }
+    });
+  }
+  
+  // Close modal when clicking outside of it
+  if (settingsModal) {
+    settingsModal.addEventListener('click', (event) => {
+      if (event.target === settingsModal) {
+        settingsModal.classList.add('hidden');
+      }
+    });
+  }
   
   console.log('MIDI Space Invaders initialized');
 });

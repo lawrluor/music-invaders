@@ -3,7 +3,7 @@
  */
 
 class Player {
-  constructor(canvasWidth, canvasHeight) {
+  constructor(canvasWidth, canvasHeight, chordMode = false) {
     // Position and size
     this.canvasWidth = canvasWidth;
     this.canvasHeight = canvasHeight;
@@ -20,9 +20,11 @@ class Player {
     this.shieldHeight = 30;
     this.shieldY = this.y - this.shieldHeight;
     
-    // Ammo
-    this.maxAmmo = 60;
+    // Ammo - multiply by 5 for chord mode
+    this.baseMaxAmmo = 60;
+    this.maxAmmo = chordMode ? this.baseMaxAmmo * 5 : this.baseMaxAmmo;
     this.ammo = this.maxAmmo;
+    this.isChordMode = chordMode; // Store chord mode state
   }
   
   // Update player position and state
@@ -40,11 +42,17 @@ class Player {
   }
   
   // Reset player to initial state
-  reset() {
+  reset(chordMode = null) {
     // Reset position
     this.x = this.canvasWidth / 2 - this.width / 2;
     this.y = this.canvasHeight - 100;
     this.targetX = this.x;
+    
+    // Update chord mode if provided
+    if (chordMode !== null) {
+      this.isChordMode = chordMode;
+      this.maxAmmo = chordMode ? this.baseMaxAmmo * 5 : this.baseMaxAmmo;
+    }
     
     // Reset ammo
     this.ammo = this.maxAmmo;

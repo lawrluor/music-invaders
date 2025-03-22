@@ -20,7 +20,14 @@ class Enemy {
       this.rootNote = chordData.root;
       this.chordType = chordData.type;
       this.chordNotes = chordData.notes;
-      this.displayName = chordData.name;
+      
+      // Get display name from chord controller to respect abbreviation settings
+      if (window.chordController) {
+        this.displayName = window.chordController.getChordName(this.rootNote, this.chordType);
+      } else {
+        this.displayName = chordData.name;
+      }
+      
       // Use root note for color
       this.color = this.getColorFromNote(this.rootNote);
     } else {
@@ -392,6 +399,14 @@ class Enemy {
     
     // Restore context
     ctx.restore();
+  }
+  
+  // Update display name based on current abbreviation settings
+  updateDisplayName() {
+    if (this.isChord && window.chordController) {
+      // Update the display name based on current abbreviation settings
+      this.displayName = window.chordController.getChordName(this.rootNote, this.chordType);
+    }
   }
   
   // Get color based on MIDI note

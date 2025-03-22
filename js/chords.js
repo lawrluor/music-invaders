@@ -12,15 +12,36 @@ class ChordController {
       
       // Seventh chords
       '7': [0, 4, 7, 10],   // Dominant 7th (C, E, G, Bb)
+      'maj6': [0, 4, 7, 9], // Major 6th (C, E, G, A)
+      'min6': [0, 3, 7, 9], // Minor 6th (C, Eb, G, A)
       'maj7': [0, 4, 7, 11], // Major 7th (C, E, G, B)
       'min7': [0, 3, 7, 10], // Minor 7th (C, Eb, G, Bb)
       'dim7': [0, 3, 6, 9],  // Diminished 7th (C, Eb, Gb, A)
       'half-dim7': [0, 3, 6, 10], // Half-diminished 7th (C, Eb, Gb, Bb)
-      'minmaj7': [0, 3, 7, 11] // Minor-major 7th (C, Eb, G, B)
+      'minMaj7': [0, 3, 7, 11] // Minor-major 7th (C, Eb, G, B)
+    };
+    
+    // Define chord abbreviations
+    this.chordAbbreviations = {
+      'maj': 'M',
+      'min': 'm',
+      'dim': '°',
+      'aug': '+',
+      '7': '7',
+      'maj6': 'M6',
+      'min6': 'm6',
+      'maj7': 'Δ',
+      'min7': 'm7',
+      'dim7': '°7',
+      'half-dim7': 'ø7',
+      'minMaj7': 'm(Maj7)'
     };
     
     // Note names (for display)
     this.noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    
+    // Check if abbreviations are enabled (load from localStorage)
+    this.useAbbreviations = localStorage.getItem('useChordAbbreviations') === 'true';
   }
   
   // Get the name of a note from MIDI note number
@@ -69,10 +90,22 @@ class ChordController {
     return intervals.map(interval => rootNote + interval);
   }
   
-  // Get chord name (e.g., "C maj7")
+  // Get chord name (e.g., "C maj7" or "C Δ" if abbreviations enabled)
   getChordName(rootNote, chordType) {
     const rootName = this.noteNames[rootNote % 12];
-    return `${rootName} ${chordType}`;
+    
+    // Don't include a space between root and chord type
+    if (this.useAbbreviations && this.chordAbbreviations[chordType]) {
+      return `${rootName}${this.chordAbbreviations[chordType]}`;
+    } else {
+      return `${rootName}${chordType}`;
+    }
+  }
+  
+  // Toggle abbreviations on/off
+  toggleAbbreviations(useAbbrev) {
+    this.useAbbreviations = useAbbrev;
+    localStorage.setItem('useChordAbbreviations', useAbbrev);
   }
   
   // Check if a set of played notes matches a chord

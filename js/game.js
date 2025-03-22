@@ -221,7 +221,7 @@ class Game {
         // Only allow exit during gameplay
         if (this.gameState === 'playing') {
           // Confirm before exiting
-          if (confirm('Are you sure you want to exit to the menu? Your progress will be lost.')) {
+          if (confirm('Are you sure you want to exit to the menu? Your progress will be lost and your score will not be saved.')) {
             this.returnToMenu();
           }
         }
@@ -273,8 +273,8 @@ class Game {
     // Reset to the first MIDI range scheme
     this.updateMidiRangeForWave();
     
-    // Create player
-    this.player = new Player(this.canvas.width, this.canvas.height);
+    // Create player with chord mode parameter
+    this.player = new Player(this.canvas.width, this.canvas.height, this.chordMode);
     
     // Clear existing objects
     this.enemies = [];
@@ -381,13 +381,6 @@ class Game {
         
         // Create enemy with single note
         enemy = new Enemy(x, y, note, animationOffset);
-      }
-      
-      // In survival mode, make enemies gradually faster as waves progress
-      if (this.gameMode === 'survival' && this.wave > 3) {
-        // Increase speed by 5% for each wave after wave 3, up to a maximum of double speed
-        const speedMultiplier = Math.min(1 + ((this.wave - 3) * 0.05), 2.0);
-        enemy.speed *= speedMultiplier;
       }
       
       this.enemies.push(enemy);
@@ -546,7 +539,7 @@ class Game {
       // Add ammo equal to 125% of the enemies in the previous wave, rounded down
       // Make sure previousEnemyCount is a valid number
       const enemyCount = typeof previousEnemyCount === 'number' && !isNaN(previousEnemyCount) ? previousEnemyCount : 5;
-      const ammoBonus = Math.floor(enemyCount * 1.25);
+      const ammoBonus = this.chordMode ? Math.floor(enemyCount * 5) : Math.floor(enemyCount * 1.25);
       this.player.ammo = Math.min(this.player.maxAmmo, this.player.ammo + ammoBonus);
       
       console.log(`Wave ${this.wave}: Added ${ammoBonus} ammo based on ${enemyCount} enemies`);
@@ -1048,10 +1041,10 @@ class Game {
     
     // Reset player
     if (this.player) {
-      this.player.reset();
+      this.player.reset(this.chordMode);
     } else {
-      // Create a new player if it doesn't exist
-      this.player = new Player(this.canvas.width, this.canvas.height);
+      // Create a new player if it doesn't exist, with chord mode parameter
+      this.player = new Player(this.canvas.width, this.canvas.height, this.chordMode);
     }
     
     // Clear enemies and lasers
@@ -1100,6 +1093,13 @@ class Game {
     
     // Make sure the title screen is shown
     this.uiElements.titleScreen.classList.remove('hidden');
+    
+    // Refresh high scores in the menu
+    if (typeof loadAndDisplayHighScores === 'function') {
+      loadAndDisplayHighScores();
+    } else if (window.loadAndDisplayHighScores) {
+      window.loadAndDisplayHighScores();
+    }
     
     // Restart the game loop to ensure proper rendering
     this.lastFrameTime = performance.now();
