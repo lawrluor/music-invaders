@@ -1054,7 +1054,6 @@ class Game {
     const ctx = this.ctx;
     const power = this.chordCharge.power;
     const chargeTime = performance.now() - this.chordCharge.startTime;
-    const chargeRatio = Math.min(chargeTime / this.chordCharge.maxHoldTime, 1);
     
     // Position at the bottom of the screen, above the player
     const indicatorWidth = 100;
@@ -1084,8 +1083,9 @@ class Game {
     }
     
     // Draw charge level
+    // this.chordCharge.notes.size 
     ctx.fillStyle = chargeColor;
-    ctx.fillRect(x, y, indicatorWidth * chargeRatio, indicatorHeight);
+    ctx.fillRect(x, y, indicatorWidth / 4 * power, indicatorHeight);
     
     // Draw power level indicators
     for (let i = 1; i <= 4; i++) {
@@ -1103,14 +1103,14 @@ class Game {
     ctx.lineWidth = 1;
     ctx.strokeRect(x, y, indicatorWidth, indicatorHeight);
     
-    // Show notes in chord
-    if (this.chordCharge.notes.size > 0) {
-      const noteNames = Array.from(this.chordCharge.notes).map(note => utils.midiNoteToName(note));
-      ctx.fillStyle = 'white';
-      ctx.font = '12px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText(noteNames.join(' '), x + indicatorWidth / 2, y - 5);
-    }
+    // Optionally, show notes in chord
+    // if (this.chordCharge.notes.size > 0) {
+    //   const noteNames = Array.from(this.chordCharge.notes).map(note => utils.midiNoteToName(note));
+    //   ctx.fillStyle = 'white';
+    //   ctx.font = '12px Arial';
+    //   ctx.textAlign = 'center';
+    //   ctx.fillText(noteNames.join(' '), x + indicatorWidth / 2, y - 5);
+    // }
   }
   
   // Update UI elements
