@@ -19,6 +19,17 @@ class Game {
     this.gameMode = 'classic'; // classic or survival
     this.chordMode = false; // Whether to use chords instead of single notes
     this.highScore = utils.loadHighScore(this.gameMode);
+    
+    // Chord charging system
+    this.chordCharge = {
+      active: false,
+      notes: new Set(),
+      startTime: 0,
+      maxHoldTime: 10000, // Max time to hold chord before auto-firing (ms)
+      lastReleaseTime: 0,
+      cooldownTime: 300, // Time before a new charge can start after releasing (ms)
+      power: 1 // Power level of the charged laser (1-4)
+    };
     this.wave = 1;
     this.health = 100;
     this.initialHealth = 100;
@@ -492,6 +503,19 @@ class Game {
       return laser.active;
     });
     
+    // Draw chord charge indicator if in chord mode
+    if (this.chordMode) {
+      this.drawChordChargeIndicator();
+      
+      // Check if we need to auto-release the chord charge due to timeout
+      if (this.chordCharge.active) {
+        const chargeTime = performance.now() - this.chordCharge.startTime;
+        if (chargeTime >= this.chordCharge.maxHoldTime) {
+          this.releaseChordCharge();
+        }
+      }
+    }
+    
     // Check if all enemies are dead
     if (allEnemiesDead && this.enemies.length > 0) {
       // Check if this was the last wave for classic mode
@@ -754,34 +778,75 @@ class Game {
     }
     this.activeNotes.add(note);
     
-    // Try to fire
-    if (this.player.fire()) {
-      let matchingEnemy;
+    if (this.chordMode) {
+      // CHORD MODE: Charge up laser based on notes played
       
-      if (this.chordMode) {
-        // For chord mode, check if all required notes of any chord are played
-        matchingEnemy = this.enemies.find(enemy => {
-          return enemy.alive && enemy.matchesNote(note, Array.from(this.activeNotes));
+      // Start a new charge if not already active and cooldown has passed
+      const now = performance.now();
+      if (!this.chordCharge.active && now - this.chordCharge.lastReleaseTime > this.chordCharge.cooldownTime) {
+        this.chordCharge.active = true;
+        this.chordCharge.startTime = now;
+        this.chordCharge.notes = new Set(this.activeNotes);
+        this.chordCharge.power = 1; // Start with power level 1
+        
+        // Play charging sound
+        const soundController = this.getSoundController();
+        if (soundController) {
+          soundController.playLaserChargeSound();
+        }
+      } else if (this.chordCharge.active) {
+        // Update the notes in the current charge
+        this.activeNotes.forEach(n => this.chordCharge.notes.add(n));
+        
+        // Update power level based on number of unique notes (max 4)
+        const newPower = Math.min(this.chordCharge.notes.size, 4);
+        
+        // Play charging sound if power level increased
+        if (newPower > this.chordCharge.power) {
+          const soundController = this.getSoundController();
+          if (soundController) {
+            soundController.playLaserChargeSound();
+          }
+        }
+        
+        this.chordCharge.power = newPower;
+        
+        // Check if any enemy matches the current chord
+        let matchingEnemy = this.enemies.find(enemy => {
+          return enemy.alive && enemy.matchesNote(note, Array.from(this.chordCharge.notes));
         });
-      } else {
+        
+        if (matchingEnemy) {
+          // We have a match! Fire the laser at the matching enemy
+          this.fireChargedLaser(matchingEnemy);
+        } else {
+          // No match yet, check if we've held the chord too long
+          if (now - this.chordCharge.startTime > this.chordCharge.maxHoldTime) {
+            // Auto-release after holding too long
+            this.releaseChordCharge();
+          }
+        }
+      }
+    } else {
+      // SINGLE NOTE MODE: Fire immediately as before
+      if (this.player.fire()) {
         // For single note mode
-        matchingEnemy = this.enemies.find(enemy => enemy.alive && enemy.matchesNote(note));
-      }
-      
-      // Calculate target position
-      let targetX, targetY;
-      let hit = false;
-      
-      if (matchingEnemy) {
-        // Hit enemy
-        targetX = matchingEnemy.x + matchingEnemy.width / 2;
-        targetY = matchingEnemy.y + matchingEnemy.height / 2;
-        hit = true;
-      } else {
-        // Miss - target position based on note
-        targetX = utils.midiNoteToXPosition(note, this.canvas.width, this.midiRange.min, this.midiRange.max);
-        targetY = 0;  // Laser shoot to top of screen
-      }
+        const matchingEnemy = this.enemies.find(enemy => enemy.alive && enemy.matchesNote(note));
+        
+        // Calculate target position
+        let targetX, targetY;
+        let hit = false;
+        
+        if (matchingEnemy) {
+          // Hit enemy
+          targetX = matchingEnemy.x + matchingEnemy.width / 2;
+          targetY = matchingEnemy.y + matchingEnemy.height / 2;
+          hit = true;
+        } else {
+          // Miss - target position based on note
+          targetX = utils.midiNoteToXPosition(note, this.canvas.width, this.midiRange.min, this.midiRange.max);
+          targetY = 0;  // Laser shoot to top of screen
+        }
       
       // Move player to note position first
       this.player.moveTo(targetX);
@@ -840,6 +905,7 @@ class Game {
       }, 100); // 100ms delay to allow player to move first
     }
   }
+}
   
   // Handle MIDI note off event
   handleNoteOff(note) {
@@ -849,6 +915,201 @@ class Game {
     // Remove from active notes for chord matching
     if (this.activeNotes) {
       this.activeNotes.delete(note);
+    }
+    
+    // For chord mode, check if we need to release the charge
+    if (this.chordMode && this.chordCharge.active) {
+      // Remove the note from the chord charge
+      this.chordCharge.notes.delete(note);
+      
+      // If no more notes are held, release the charge
+      if (this.chordCharge.notes.size === 0) {
+        this.releaseChordCharge();
+      }
+    }
+  }
+  
+  // Fire a charged laser at a specific enemy
+  fireChargedLaser(matchingEnemy) {
+    if (!this.player.fire()) return;
+    
+    // Calculate target position
+    const targetX = matchingEnemy.x + matchingEnemy.width / 2;
+    const targetY = matchingEnemy.y + matchingEnemy.height / 2;
+    
+    // Move player to the average position of all notes in the chord
+    const notePositions = Array.from(this.chordCharge.notes).map(note => {
+      return utils.midiNoteToXPosition(note, this.canvas.width, this.midiRange.min, this.midiRange.max);
+    });
+    const avgX = notePositions.reduce((sum, pos) => sum + pos, 0) / notePositions.length;
+    this.player.moveTo(avgX);
+    
+    // Store the necessary data for firing after movement
+    const firingData = {
+      targetX,
+      targetY,
+      matchingEnemy,
+      power: this.chordCharge.power,
+      timestamp: performance.now()
+    };
+    
+    // Set a short timeout to fire after player has moved
+    setTimeout(() => {
+      // Only proceed if still in playing state
+      if (this.gameState !== 'playing') return;
+      
+      // Create laser from current player position with power level
+      const laser = new Laser(
+        this.player.x + this.player.width / 2,
+        this.player.y,
+        firingData.targetX,
+        firingData.targetY,
+        firingData.power
+      );
+      
+      if (firingData.matchingEnemy && firingData.matchingEnemy.alive) {
+        // Mark enemy as hit
+        firingData.matchingEnemy.hit();
+        
+        // Start death animation
+        firingData.matchingEnemy.die();
+        
+        // Add score (bonus for higher power)
+        this.score += this.pointsPerEnemy * firingData.power;
+        
+        // Play sound
+        const soundController = this.getSoundController();
+        if (soundController) {
+          soundController.playEnemyDestroyedSound();
+          
+          // Mark laser as hit
+          laser.markHit();
+          soundController.playLaserHitSound();
+        }
+      }
+      
+      // Add laser
+      this.lasers.push(laser);
+      
+      // Reset chord charge
+      this.resetChordCharge();
+    }, 100); // 100ms delay to allow player to move first
+  }
+  
+  // Release the charged laser without a specific target
+  releaseChordCharge() {
+    if (!this.chordCharge.active || !this.player.fire()) return;
+    
+    // Calculate target position - shoot straight up from player
+    const targetX = this.player.x + this.player.width / 2;
+    const targetY = 0; // Top of screen
+    
+    // Store the necessary data for firing
+    const firingData = {
+      targetX,
+      targetY,
+      power: this.chordCharge.power,
+      timestamp: performance.now()
+    };
+    
+    // Set a short timeout to fire
+    setTimeout(() => {
+      // Only proceed if still in playing state
+      if (this.gameState !== 'playing') return;
+      
+      // Create laser from current player position with power level
+      const laser = new Laser(
+        this.player.x + this.player.width / 2,
+        this.player.y,
+        firingData.targetX,
+        firingData.targetY,
+        firingData.power
+      );
+      
+      // Play miss sound
+      const soundController = this.getSoundController();
+      if (soundController) {
+        soundController.playLaserMissSound();
+      }
+      
+      // Add laser
+      this.lasers.push(laser);
+      
+      // Reset chord charge
+      this.resetChordCharge();
+    }, 100);
+  }
+  
+  // Reset the chord charge system
+  resetChordCharge() {
+    this.chordCharge.active = false;
+    this.chordCharge.lastReleaseTime = performance.now();
+    this.chordCharge.notes = new Set();
+  }
+  
+  // Draw chord charge indicator
+  drawChordChargeIndicator() {
+    if (!this.chordMode || !this.chordCharge.active) return;
+    
+    const ctx = this.ctx;
+    const power = this.chordCharge.power;
+    const chargeTime = performance.now() - this.chordCharge.startTime;
+    const chargeRatio = Math.min(chargeTime / this.chordCharge.maxHoldTime, 1);
+    
+    // Position at the bottom of the screen, above the player
+    const indicatorWidth = 100;
+    const indicatorHeight = 10;
+    const x = this.player.x + (this.player.width / 2) - (indicatorWidth / 2);
+    const y = this.canvas.height - 50;
+    
+    // Draw background
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.fillRect(x, y, indicatorWidth, indicatorHeight);
+    
+    // Draw charge level
+    let chargeColor;
+    switch(power) {
+      case 1: // Single note - cyan
+        chargeColor = 'rgba(0, 255, 255, 0.7)';
+        break;
+      case 2: // Two notes - green
+        chargeColor = 'rgba(0, 255, 100, 0.7)';
+        break;
+      case 3: // Three notes - yellow/orange
+        chargeColor = 'rgba(255, 200, 0, 0.7)';
+        break;
+      case 4: // Four notes or more - red/purple
+        chargeColor = 'rgba(255, 0, 255, 0.7)';
+        break;
+    }
+    
+    // Draw charge level
+    ctx.fillStyle = chargeColor;
+    ctx.fillRect(x, y, indicatorWidth * chargeRatio, indicatorHeight);
+    
+    // Draw power level indicators
+    for (let i = 1; i <= 4; i++) {
+      const markerX = x + (indicatorWidth * i / 4);
+      ctx.strokeStyle = i <= power ? 'white' : 'rgba(255, 255, 255, 0.3)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(markerX, y);
+      ctx.lineTo(markerX, y + indicatorHeight);
+      ctx.stroke();
+    }
+    
+    // Draw border
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x, y, indicatorWidth, indicatorHeight);
+    
+    // Show notes in chord
+    if (this.chordCharge.notes.size > 0) {
+      const noteNames = Array.from(this.chordCharge.notes).map(note => utils.midiNoteToName(note));
+      ctx.fillStyle = 'white';
+      ctx.font = '12px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(noteNames.join(' '), x + indicatorWidth / 2, y - 5);
     }
   }
   

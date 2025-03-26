@@ -3,15 +3,18 @@
  */
 
 class Laser {
-  constructor(startX, startY, targetX, targetY) {
+  constructor(startX, startY, targetX, targetY, power = 1) {
     // Start and end positions
     this.startX = startX;
     this.startY = startY;
     this.targetX = targetX;
     this.targetY = targetY;
     
+    // Power level (1-4 based on number of notes in chord)
+    this.power = Math.min(Math.max(power, 1), 4);
+    
     // Animation
-    this.duration = 0.3; // seconds
+    this.duration = 0.3 + (this.power * 0.05); // Longer duration for more powerful lasers
     this.time = 0;
     this.active = true;
     
@@ -78,17 +81,38 @@ class Laser {
     // Draw laser beam
     ctx.save();
     
-    // Outer glow
-    ctx.strokeStyle = `rgba(0, 255, 255, ${alpha * 0.5})`;
-    ctx.lineWidth = 6;
+    // Determine color based on power level
+    let outerColor, innerColor;
+    switch(this.power) {
+      case 1: // Single note - cyan
+        outerColor = `rgba(0, 255, 255, ${alpha * 0.5})`;
+        innerColor = `rgba(255, 255, 255, ${alpha})`;
+        break;
+      case 2: // Two notes - green
+        outerColor = `rgba(0, 255, 100, ${alpha * 0.6})`;
+        innerColor = `rgba(200, 255, 200, ${alpha})`;
+        break;
+      case 3: // Three notes - yellow/orange
+        outerColor = `rgba(255, 200, 0, ${alpha * 0.7})`;
+        innerColor = `rgba(255, 255, 200, ${alpha})`;
+        break;
+      case 4: // Four notes or more - red/purple
+        outerColor = `rgba(255, 0, 255, ${alpha * 0.8})`;
+        innerColor = `rgba(255, 200, 255, ${alpha})`;
+        break;
+    }
+    
+    // Outer glow - size based on power
+    ctx.strokeStyle = outerColor;
+    ctx.lineWidth = 4 + (this.power * 2); // 6-12 based on power
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
     ctx.stroke();
     
     // Inner beam
-    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = innerColor;
+    ctx.lineWidth = 1 + this.power; // 2-5 based on power
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
@@ -96,8 +120,31 @@ class Laser {
     
     // Draw impact if hit and near end of animation
     if (this.hit && progress > 0.4 && progress < 0.7) {
-      const impactSize = 10 * (1 - Math.abs(progress - 0.5) * 2);
+      const impactSize = (8 + (this.power * 3)) * (1 - Math.abs(progress - 0.5) * 2);
       
+      // Outer impact glow
+      let impactColor;
+      switch(this.power) {
+        case 1: // Single note - cyan
+          impactColor = `rgba(0, 255, 255, ${alpha * 0.7})`;
+          break;
+        case 2: // Two notes - green
+          impactColor = `rgba(0, 255, 100, ${alpha * 0.7})`;
+          break;
+        case 3: // Three notes - yellow/orange
+          impactColor = `rgba(255, 200, 0, ${alpha * 0.7})`;
+          break;
+        case 4: // Four notes or more - red/purple
+          impactColor = `rgba(255, 0, 255, ${alpha * 0.7})`;
+          break;
+      }
+      
+      ctx.fillStyle = impactColor;
+      ctx.beginPath();
+      ctx.arc(this.targetX, this.targetY, impactSize * 1.5, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Inner impact
       ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
       ctx.beginPath();
       ctx.arc(this.targetX, this.targetY, impactSize, 0, Math.PI * 2);

@@ -11,6 +11,7 @@ class SoundController {
     this.sounds = {
       laserHit: null,
       laserMiss: null,
+      laserCharge: null,
       enemyDestroyed: null,
       enemyShieldHit: null,
       playerDamage: null,
@@ -137,6 +138,18 @@ class SoundController {
       }
     }, 2.0);
     
+    // Laser charge sound
+    this.sounds.laserCharge = this.createBuffer(buffer => {
+      const duration = 0.5;
+      const sampleRate = this.audioContext.sampleRate;
+      
+      for (let i = 0; i < buffer.length; i++) {
+        const t = i / sampleRate;
+        const frequency = 300 + 400 * (t / duration);
+        buffer[i] = 0.3 * Math.sin(frequency * t * Math.PI * 2) * Math.pow(t / duration, 0.5);
+      }
+    }, 0.5);
+    
     // Wave complete sound
     this.sounds.waveComplete = this.createBuffer(buffer => {
       const duration = 1.0;
@@ -245,6 +258,11 @@ class SoundController {
   // Play player damage sound
   playPlayerDamageSound() {
     this.playSound('playerDamage', 0.5);
+  }
+  
+  // Play laser charge sound
+  playLaserChargeSound() {
+    this.playSound('laserCharge', 0.3);
   }
   
   // Play game over sound - special sad jingle
