@@ -18,7 +18,17 @@ class Laser {
     // Hit status
     this.hit = false;
   }
-  
+
+  setTarget(targetX, targetY) {
+    this.targetX = targetX;
+    this.targetY = targetY;
+  }
+
+  setSource(startX, startY) {
+    this.startX = startX;
+    this.startY = startY;
+  }
+
   // Update laser animation
   update(deltaTime) {
     if (!this.active) return;

@@ -28,11 +28,11 @@ class ChordController {
       'dim': 'o',
       'aug': '+',
       '7': '7',
-      'maj6': 'M6',
-      'min6': 'm6',
+      'maj6': '6',
+      'min6': '-6',
       'maj7': 'Δ7',
-      'min7': 'm7',
-      'dim7': '°7',
+      'min7': '-7',
+      'dim7': 'o7',
       'half-dim7': 'ø7',
       'minMaj7': 'm(Maj7)'
     };

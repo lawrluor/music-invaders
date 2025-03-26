@@ -780,7 +780,7 @@ class Game {
       } else {
         // Miss - target position based on note
         targetX = utils.midiNoteToXPosition(note, this.canvas.width, this.midiRange.min, this.midiRange.max);
-        targetY = 100;
+        targetY = 0;  // Laser shoot to top of screen
       }
       
       // Move player to note position first
