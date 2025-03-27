@@ -680,8 +680,7 @@ class Game {
     const baseScore = this.score;
     
     // Add bonus points for leftover ammo
-    const leftoverAmmoMultiplier = this.chordMode ? 10 : 50;  // 10 points per leftover ammo in chord mode, 50 points per leftover ammo in single note mode
-    const ammoBonus = this.player.ammo * leftoverAmmoMultiplier; 
+    const ammoBonus = this.player.ammo * 10;
     this.score += ammoBonus;
     
     // Add bonus points for leftover health
@@ -977,12 +976,9 @@ class Game {
     const targetX = matchingEnemy.x + matchingEnemy.width / 2;
     const targetY = matchingEnemy.y + matchingEnemy.height / 2;
     
-    // Move player to the average position of all notes in the chord
-    const notePositions = Array.from(this.chordCharge.notes).map(note => {
-      return utils.midiNoteToXPosition(note, this.canvas.width, this.midiRange.min, this.midiRange.max);
-    });
-    const avgX = notePositions.reduce((sum, pos) => sum + pos, 0) / notePositions.length;
-    this.player.moveTo(avgX);
+    // Move player directly to the matching enemy's X position instead of using note averages
+    // This ensures the player is always aligned with the target in chord mode
+    this.player.moveTo(targetX);
     
     // Store the necessary data for firing after movement
     const firingData = {
@@ -1000,7 +996,7 @@ class Game {
       
       // Create laser from current player position with power level
       const laser = new Laser(
-        this.player.x + this.player.width / 2,
+        firingData.targetX,  // shoot straight at the enemy
         this.player.y,
         firingData.targetX,
         firingData.targetY,
@@ -1037,7 +1033,7 @@ class Game {
       
       // Reset chord charge
       this.resetChordCharge();
-    }, 100); // 100ms delay to allow player to move first
+    }, 220); // small delay to allow player to move first before firing
   }
   
   // Release the charged laser without a specific target
@@ -1050,9 +1046,25 @@ class Game {
       soundController.stopLaserChargeSound(0.01); // Very short fade out
     }
     
-    // Calculate target position - shoot straight up from player
-    const targetX = this.player.x + this.player.width / 2;
-    const targetY = 0; // Top of screen
+    // Find a suitable target position based on the notes in the chord
+    let targetX;
+    let targetY = 0; // Top of screen
+    
+    // If we have notes in the chord, use the most recently played note to determine position
+    if (this.chordCharge.notes.size > 0) {
+      // Convert notes to an array and use the last one (most recently played)
+      const notes = Array.from(this.chordCharge.notes);
+      const lastNote = notes[notes.length - 1];
+      
+      // Calculate position based on the last note played
+      targetX = utils.midiNoteToXPosition(lastNote, this.canvas.width, this.midiRange.min, this.midiRange.max);
+      
+      // Move player to this position
+      this.player.moveTo(targetX);
+    } else {
+      // Fallback - shoot straight up from current player position
+      targetX = this.player.x + this.player.width / 2;
+    }
     
     // Store the necessary data for firing
     const firingData = {

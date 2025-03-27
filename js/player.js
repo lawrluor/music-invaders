@@ -20,9 +20,8 @@ class Player {
     this.shieldHeight = 30;
     this.shieldY = this.y - this.shieldHeight;
     
-    // Ammo - multiply by 5 for chord mode
-    this.baseMaxAmmo = 60;
-    this.maxAmmo = chordMode ? this.baseMaxAmmo * 5 : this.baseMaxAmmo;
+    // Ammo
+    this.maxAmmo = 60;
     this.ammo = this.maxAmmo;
     this.isChordMode = chordMode; // Store chord mode state
   }
@@ -51,7 +50,7 @@ class Player {
     // Update chord mode if provided
     if (chordMode !== null) {
       this.isChordMode = chordMode;
-      this.maxAmmo = chordMode ? this.baseMaxAmmo * 5 : this.baseMaxAmmo;
+      this.ammo = this.maxAmmo;
     }
     
     // Reset ammo
