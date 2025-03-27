@@ -100,6 +100,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const useChordAbbreviationsCheckbox = document.getElementById('use-chord-abbreviations');
   const useLargeFontCheckbox = document.getElementById('use-large-font');
   const useMusicFontCheckbox = document.getElementById('use-music-font');
+  const hideUncommonChordsCheckbox = document.getElementById('hide-uncommon-chords');
   
   // Initialize checkbox states from localStorage
   if (useChordAbbreviationsCheckbox) {
@@ -158,6 +159,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
   
+  // Initialize hide uncommon chords checkbox
+  if (hideUncommonChordsCheckbox) {
+    const savedHideUncommonChordsState = localStorage.getItem('hideUncommonChords') === 'true';
+    hideUncommonChordsCheckbox.checked = savedHideUncommonChordsState;
+    
+    // Add change event listener
+    hideUncommonChordsCheckbox.addEventListener('change', (event) => {
+      const hideUncommonChords = event.target.checked;
+      
+      // Save to localStorage
+      localStorage.setItem('hideUncommonChords', hideUncommonChords.toString());
+      
+      // Update the chord controller if it exists
+      if (window.chordController) {
+        window.chordController.toggleHideUncommonChords(hideUncommonChords);
+      }
+    });
+  }
+  
   // Open settings modal
   if (settingsButton) {
     settingsButton.addEventListener('click', () => {
@@ -175,6 +195,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         if (useMusicFontCheckbox) {
           useMusicFontCheckbox.checked = localStorage.getItem('useMusicFont') !== 'false';
+        }
+        
+        if (hideUncommonChordsCheckbox) {
+          hideUncommonChordsCheckbox.checked = localStorage.getItem('hideUncommonChords') === 'true';
         }
       }
     });

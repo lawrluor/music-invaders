@@ -60,6 +60,17 @@ class ChordController {
     
     // Check if abbreviations are enabled (load from localStorage)
     this.useAbbreviations = localStorage.getItem('useChordAbbreviations') === 'true';
+    
+    // Check if we should hide uncommon chords (load from localStorage)
+    this.hideUncommonChords = localStorage.getItem('hideUncommonChords') === 'true';
+    
+    // Define common key names (for filtering uncommon chords)
+    this.commonKeyNames = [
+      // Major keys (C, G, D, A, E, B/Cb, F#/Gb, C#/Db, Ab, Eb, Bb, F)
+      'C', 'G', 'D', 'A', 'E', 'B', 'Cb', 'F#', 'Gb', 'C#', 'Db', 'Ab', 'Eb', 'Bb', 'F',
+      // Minor keys (Am, Em, Bm, F#m, C#m, G#m, D#m/Ebm, A#m/Bbm, Fm, Cm, Gm, Dm)
+      'Am', 'Em', 'Bm', 'F#m', 'C#m', 'G#m', 'D#m', 'Ebm', 'A#m', 'Bbm', 'Fm', 'Cm', 'Gm', 'Dm'
+    ];
   }
   
   // Get the name of a note from MIDI note number
@@ -70,6 +81,52 @@ class ChordController {
     return `${this.extendedNoteNames[noteIndex][0]}${octave}`;
   }
   
+  // Check if a chord is common based on its root note and type
+  isCommonChord(rootNote, chordType) {
+    // Extract just the note name without octave
+    const noteName = rootNote.replace(/\d+$/, '');
+    
+    // For major chords, aug chords, and dominant 7 chords
+    if (chordType === 'maj' || chordType === 'aug' || chordType === '7') {
+      // Check if the root note is a common major key
+      return this.commonKeyNames.some(key => {
+        // If it's a major key (not ending with m)
+        if (!key.endsWith('m')) {
+          // Check if the note matches
+          return key === noteName;
+        }
+        return false;
+      });
+    } 
+    // For minor chords, dim chords, half-dim chords, and minMaj chords
+    else if (chordType === 'min' || chordType === 'dim' || chordType === 'half-dim7' || chordType === 'minMaj7') {
+      // Check if the root note + 'm' is a common minor key
+      return this.commonKeyNames.some(key => {
+        // If it's a minor key (ending with m)
+        if (key.endsWith('m')) {
+          // Check if the note matches (removing the 'm' suffix)
+          return key.slice(0, -1) === noteName;
+        }
+        return false;
+      });
+    }
+    
+    // For other chord types, use the same rules as their base type
+    if (chordType === 'maj6' || chordType === 'maj7') {
+      return this.isCommonChord(rootNote, 'maj');
+    } else if (chordType === 'min6' || chordType === 'min7' || chordType === 'dim7') {
+      return this.isCommonChord(rootNote, 'min');
+    }
+    
+    // Default to true for any other chord types
+    return true;
+  }
+  
+  // Toggle the hide uncommon chords setting
+  toggleHideUncommonChords(value) {
+    this.hideUncommonChords = value;
+  }
+  
   // Get a random chord type
   getRandomChordType() {
     const chordTypes = Object.keys(this.chordTypes);
@@ -78,13 +135,39 @@ class ChordController {
   
   // Generate a random chord
   generateRandomChord(minRoot, maxRoot) {
+    // Maximum attempts to find a common chord
+    const maxAttempts = 50;
+    let attempts = 0;
+    
+    while (attempts < maxAttempts) {
+      // Get random root note
+      const root = Math.floor(Math.random() * (maxRoot - minRoot + 1)) + minRoot;
+      const rootNoteName = this.getNoteNameFromMidi(root);
+      
+      // Get random chord type
+      const chordType = this.getRandomChordType();
+      
+      // If we're hiding uncommon chords and this chord is uncommon, try again
+      if (this.hideUncommonChords && !this.isCommonChord(rootNoteName, chordType)) {
+        attempts++;
+        continue;
+      }
+      
+      // Generate chord notes
+      const chordNotes = this.generateChordFromRoot(root, chordType);
+      
+      return {
+        root: root,
+        type: chordType,
+        notes: chordNotes,
+        name: this.getChordName(root, chordType)
+      };
+    }
+    
+    // If we couldn't find a common chord after max attempts, just return any chord
     // Get random root note
     const root = Math.floor(Math.random() * (maxRoot - minRoot + 1)) + minRoot;
-    
-    // Get random chord type
     const chordType = this.getRandomChordType();
-    
-    // Generate chord notes
     const chordNotes = this.generateChordFromRoot(root, chordType);
     
     return {
