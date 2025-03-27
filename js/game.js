@@ -1369,51 +1369,15 @@ class Game {
       const twinkle = 0.5 + 0.5 * Math.sin(this.backgroundTime * 10 + i * 0.3);
       const size = 1.5 + twinkle * 2.5;
       
-      // Draw star with glow
+      // Draw star
       this.ctx.beginPath();
       this.ctx.arc(x, y, size, 0, Math.PI * 2);
       this.ctx.fill();
-      
-      // Add glow for all stars, stronger for larger ones
-      try {
-        // Choose a color based on position (to add variety)
-        const colorIndex = (i % 5);
-        let starColor;
-        
-        switch(colorIndex) {
-          case 0: starColor = 'rgba(255, 255, 255, 0.9)'; break; // White
-          case 1: starColor = 'rgba(200, 200, 255, 0.9)'; break; // Bluish
-          case 2: starColor = 'rgba(255, 200, 200, 0.9)'; break; // Reddish
-          case 3: starColor = 'rgba(200, 255, 200, 0.9)'; break; // Greenish
-          case 4: starColor = 'rgba(255, 255, 200, 0.9)'; break; // Yellowish
-        }
-        
-        const glowSize = size * (3 + (i % 3));
-        
-        // Ensure all values are finite and valid
-        if (!isFinite(x) || !isFinite(y) || !isFinite(glowSize) || glowSize <= 0) {
-          throw new Error('Invalid gradient parameters');
-        }
-        
-        const glow = this.ctx.createRadialGradient(x, y, 0, x, y, glowSize);
-        glow.addColorStop(0, starColor);
-        glow.addColorStop(0.5, starColor.replace('0.9', '0.5'));
-        glow.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        
-        this.ctx.fillStyle = glow;
-        this.ctx.beginPath();
-        this.ctx.arc(x, y, glowSize, 0, Math.PI * 2);
-        this.ctx.fill();
-        this.ctx.fillStyle = '#fff';
-      } catch (e) {
-        console.log('Glow error:', e.message);
-      }
     }
   }
   
   // Reset game to initial state
   reset() {
-    // Reset game state
     this.gameState = 'title';
     this.wave = 1;
     this.score = 0;
