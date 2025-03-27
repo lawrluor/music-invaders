@@ -134,6 +134,10 @@ class Game {
   }
   
   // Initialize the game
+  /**
+   * Initialize the game by adding event listeners and loading high score data.
+   * This method is called once when the game is first loaded.
+   */
   init() {
     // Initialize chord controller if it doesn't exist
     if (!window.chordController) {
@@ -191,19 +195,6 @@ class Game {
       });
     }
     
-    // No need to add a start game button anymore since we start directly from mode buttons
-    
-    const restartButton = document.getElementById('restart-button');
-    if (restartButton) {
-      restartButton.addEventListener('click', () => {
-        // Maintain the current game mode and chord mode
-        this.startGame(this.gameMode, this.chordMode);
-        // Update the global selections to match
-        window.selectedGameMode = this.gameMode;
-        window.selectedChordMode = this.chordMode;
-      });
-    }
-    
     const playAgainButton = document.getElementById('play-again-button');
     if (playAgainButton) {
       playAgainButton.addEventListener('click', () => {
@@ -212,6 +203,34 @@ class Game {
         // Update the global selections to match
         window.selectedGameMode = this.gameMode;
         window.selectedChordMode = this.chordMode;
+      });
+    }
+    
+    const restartGameButton = document.getElementById('restart-game-button');
+    if (restartGameButton) {
+      restartGameButton.addEventListener('click', () => {
+        if (this.gameState === 'playing') {
+          // Hide the entire game container before showing the confirmation dialog
+          // This prevents players from abusing the dialog as a pause mechanism
+          const gameContainer = document.getElementById('game-container');
+          if (gameContainer) {
+            gameContainer.style.visibility = 'hidden';
+            
+            // Use setTimeout to ensure the visibility change is rendered before showing the dialog
+            setTimeout(() => {
+              // Confirm before exiting
+              const confirmExit = confirm('Are you sure you want to restart the game? Your progress will be lost and your score will not be saved.');
+              
+              if (confirmExit) {
+                this.restartGame();
+                gameContainer.style.visibility = 'visible';
+              } else {
+                // Allow player to see the game again
+                gameContainer.style.visibility = 'visible';
+              }
+            }, 50);  // Small delay to ensure the visibility change is rendered
+          }
+        }
       });
     }
     
@@ -299,6 +318,9 @@ class Game {
     this.lastProcessedNotes = {};
     this.activeNotes = new Set();
     
+    // Reset chord charge system
+    this.resetChordCharge();
+    
     // Reset to the first MIDI range scheme
     this.updateMidiRangeForWave();
     
@@ -321,10 +343,12 @@ class Game {
     this.uiElements.victoryScreen.classList.add('hidden');
     this.uiElements.waveTransition.classList.add('hidden');
     
-    // Resume audio context
+    // Resume audio context and play start jingle
     const soundController = this.getSoundController();
     if (soundController) {
       soundController.resumeAudio();
+      // Play the game start jingle
+      soundController.playGameStartJingle();
     }
     
     // Reset timing variables to ensure smooth animation
@@ -338,6 +362,19 @@ class Game {
     }
     
     console.log('Game started');
+  }
+
+  restartGame() {
+    this.resetChordCharge();
+    if (this.activeNotes) {
+      this.activeNotes.clear();
+    }
+    
+    // Maintain the current game mode and chord mode
+    this.startGame(this.gameMode, this.chordMode);
+    // Update the global selections to match
+    window.selectedGameMode = this.gameMode;
+    window.selectedChordMode = this.chordMode;
   }
   
   // Create enemies for the current wave
@@ -1126,7 +1163,18 @@ class Game {
     this.chordCharge.active = false;
     this.chordCharge.lastReleaseTime = performance.now();
     this.chordCharge.notes = new Set();
+    this.chordCharge.power = 1; // Reset power level
     this.chordCharge.isFiring = false; // Reset the firing flag
+    
+    // Reset active notes tracking
+    if (this.activeNotes) {
+      this.activeNotes.clear();
+    } else {
+      this.activeNotes = new Set();
+    }
+    
+    // Reset last processed notes to prevent note processing issues
+    this.lastProcessedNotes = {};
   }
   
   // Draw chord charge indicator
@@ -1383,6 +1431,11 @@ class Game {
     this.score = 0;
     this.health = 100;
     this.gameOverReason = '';
+    this.lastProcessedNotes = {};
+    this.activeNotes = new Set();
+    
+    // Reset chord charge system
+    this.resetChordCharge();
     
     // Hide all screens except title
     this.uiElements.gameOverScreen.classList.add('hidden');

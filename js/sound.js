@@ -28,10 +28,15 @@ class SoundController {
       laserCharge: null
     };
     
+    // Mute state - load from localStorage if available
+    this.muted = localStorage.getItem('musicInvadersMuted') === 'true';
+    
     // Bind methods
     this.init = this.init.bind(this);
     this.resumeAudio = this.resumeAudio.bind(this);
     this.createOscillator = this.createOscillator.bind(this);
+    this.toggleMute = this.toggleMute.bind(this);
+    this.setMuted = this.setMuted.bind(this);
   }
   
   // Initialize audio context and create sounds
@@ -43,6 +48,9 @@ class SoundController {
       
       // Create sounds
       this.createSounds();
+      
+      // Initialize UI with current mute state
+      this.updateMuteUI();
       
       console.log('Sound controller initialized');
     } catch (e) {
@@ -283,6 +291,7 @@ class SoundController {
   // Play a sound from the buffer
   playSound(soundName, volume = 1.0, trackSource = false, sourceKey = null) {
     if (!this.audioContext || !this.sounds[soundName]) return null;
+    if (this.muted) return null; // Don't play if muted
     
     // Resume audio context if suspended
     this.resumeAudio();
@@ -341,6 +350,7 @@ class SoundController {
   // Create and play an oscillator
   createOscillator(frequency, duration, type = 'sine', volume = 0.5) {
     if (!this.audioContext) return;
+    if (this.muted) return; // Don't play if muted
     
     // Resume audio context if suspended
     this.resumeAudio();
@@ -632,6 +642,112 @@ class SoundController {
         this.createOscillator(frequency, 0.2, 'sine', 0.4);
       }, index * 100); // 100ms between notes
     });
+  }
+  
+  // Play game start jingle - short upbeat sound when starting a new game
+  playGameStartJingle() {
+    if (!this.audioContext) return;
+    if (this.muted) return; // Don't play if muted
+    
+    // Resume audio context if suspended
+    this.resumeAudio();
+    
+    // Upbeat ascending pattern
+    const notes = [60, 64, 67, 72]; // C4, E4, G4, C5 - ascending C major arpeggio
+    
+    // Play each note with delay - quick and energetic
+    notes.forEach((note, index) => {
+      setTimeout(() => {
+        const frequency = 440 * Math.pow(2, (note - 69) / 12);
+        this.createOscillator(frequency, 0.15, 'sine', 0.3);
+      }, index * 80); // 80ms between notes for a quick jingle
+    });
+    
+    // Add a final chord for emphasis
+    setTimeout(() => {
+      // Play a C major chord
+      [60, 64, 67].forEach(note => {
+        const frequency = 440 * Math.pow(2, (note - 69) / 12);
+        this.createOscillator(frequency, 0.4, 'sine', 0.25);
+      });
+    }, 350); // Play after the ascending notes
+  }
+  
+  // Toggle mute state
+  toggleMute() {
+    this.muted = !this.muted;
+    
+    // Save to localStorage
+    localStorage.setItem('musicInvadersMuted', this.muted);
+    
+    // Update UI elements
+    this.updateMuteUI();
+    
+    // Stop any currently playing sounds if muting
+    if (this.muted) {
+      // Stop laser charge sound if it's playing
+      this.stopLaserChargeSound(0);
+      
+      // Stop all active sources
+      Object.values(this.activeSources).forEach(source => {
+        if (source && source.stop) {
+          try {
+            source.stop(0);
+          } catch (e) {
+            // Ignore errors if already stopped
+          }
+        }
+      });
+    }
+    
+    return this.muted;
+  }
+  
+  // Set muted state directly
+  setMuted(muted) {
+    if (this.muted !== muted) {
+      this.muted = muted;
+      
+      // Save to localStorage
+      localStorage.setItem('musicInvadersMuted', this.muted);
+      
+      // Update UI elements
+      this.updateMuteUI();
+      
+      // Stop any currently playing sounds if muting
+      if (this.muted) {
+        // Stop laser charge sound if it's playing
+        this.stopLaserChargeSound(0);
+        
+        // Stop all active sources
+        Object.values(this.activeSources).forEach(source => {
+          if (source && source.stop) {
+            try {
+              source.stop(0);
+            } catch (e) {
+              // Ignore errors if already stopped
+            }
+          }
+        });
+      }
+    }
+    
+    return this.muted;
+  }
+  
+  // Update all UI elements related to mute state
+  updateMuteUI() {
+    // Update mute button icon
+    const muteButton = document.getElementById('mute-toggle-button');
+    if (muteButton) {
+      muteButton.textContent = this.muted ? '🔇' : '🔊';
+    }
+    
+    // Update checkbox in settings
+    const muteCheckbox = document.getElementById('mute-sound');
+    if (muteCheckbox) {
+      muteCheckbox.checked = this.muted;
+    }
   }
 }
 

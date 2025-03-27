@@ -98,20 +98,33 @@ canvas {
   text-align: center;
 }
 
-/* Make this match style of page */
-#exit-to-menu-button {
-  margin-left: 0;
-  font-family: var(--font-main);
-  color: var(--color-green);
-  background-color: var(--bg-transparent);
-  font-size: 1rem;
-  padding: 0.8rem 0.7rem;
+#mute-button-container {
+  position: absolute;
+  bottom: var(--spacing-small);
+  right: var(--spacing-small);
+  text-align: center;
   pointer-events: auto;
-  align-self: flex-end;
+  z-index: 20;
 }
 
-#exit-to-menu-button:hover {
-  opacity: 0.7;
+#mute-toggle-button {
+  position: static;
+  background-color: var(--bg-transparent);
+  border-radius: var(--border-radius-small);
+  color: var(--color-green);
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#mute-toggle-button:hover {
+  transform: none;
+  background-color: var(--bg-hover);
 }
 
 #fps-counter {
@@ -519,6 +532,25 @@ canvas {
 .small-button:disabled {
   background-color: #555;
   cursor: not-allowed;
+}
+
+/* Make this match style of page */
+.game-button {
+  margin-left: 0;
+  font-family: var(--font-main);
+  color: var(--color-green);
+  background-color: var(--bg-transparent);
+  font-size: 0.9rem;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  pointer-events: auto;
+  align-self: flex-end;
+  border: none;
+}
+
+.game-button:hover {
+  opacity: 0.7;
 }
 
 .button-container {

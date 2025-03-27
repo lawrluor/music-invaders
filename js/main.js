@@ -97,6 +97,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const settingsButton = document.getElementById('settings-button');
   const settingsModal = document.getElementById('settings-modal');
   const closeSettingsButton = document.getElementById('close-settings');
+  const muteCheckbox = document.getElementById('mute-sound');
+  const muteToggleButton = document.getElementById('mute-toggle-button');
   const useChordAbbreviationsCheckbox = document.getElementById('use-chord-abbreviations');
   const useLargeFontCheckbox = document.getElementById('use-large-font');
   const useMusicFontCheckbox = document.getElementById('use-music-font');
@@ -218,6 +220,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     settingsModal.addEventListener('click', (event) => {
       if (event.target === settingsModal) {
         settingsModal.classList.add('hidden');
+      }
+    });
+  }
+  
+  // Mute sound checkbox event listener
+  if (muteCheckbox) {
+    muteCheckbox.addEventListener('change', () => {
+      const soundController = window.soundController || window.sound;
+      if (soundController) {
+        soundController.setMuted(muteCheckbox.checked);
+      }
+    });
+  }
+  
+  // Mute toggle button event listener
+  if (muteToggleButton) {
+    muteToggleButton.addEventListener('click', () => {
+      const soundController = window.soundController || window.sound;
+      if (soundController) {
+        soundController.toggleMute();
       }
     });
   }

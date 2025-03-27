@@ -48,10 +48,15 @@
       </div>
 
       <div id="exit-button-container">
-        <button id="exit-to-menu-button" class="small-button">Quit</button>
+        <button id="exit-to-menu-button" class="game-button">Quit</button>
+        <button id="restart-game-button" class="game-button">Restart</button>
       </div>
 
       <div style="display: none;" id="fps-counter">FPS: 0</div>
+      
+      <div id="mute-button-container">
+        <button id="mute-toggle-button" class="icon-button">🔊</button>
+      </div>
     </div>
     
     <!-- Title Screen -->
@@ -124,6 +129,11 @@
           </div>
         </div>
       </div>
+
+      <section>
+        <span><a href="https://code.lawrenceluo.me/">About</a></span>
+        <span><a href="https://ko-fi.com/lawrenceluo">Donate</a></span>  
+      </section>
     </div>
     
     <!-- Game Over Screen -->
@@ -138,7 +148,7 @@
         <p>Congratulations! You've set a new record!</p>
       </div>
       <div class="button-container">
-        <button id="restart-button" class="button">Play Again</button>
+        <button id="play-again-button" class="button">Play Again</button>
         <button id="game-over-menu-button" class="button">Return to Menu</button>
       </div>
     </div>
@@ -181,7 +191,7 @@
               <input type="checkbox" id="use-chord-abbreviations">
               Use chord name abbreviations
             </label>
-            <p class="setting-description">When enabled, chord names will be abbreviated:</p>
+            <p class="setting-description">When enabled, chord names will be abbreviated.</p>
           </div>
           
           <div class="setting-item">
@@ -201,11 +211,19 @@
           </div>
           
           <div class="setting-item">
+            <label for="mute-sound">
+              <input type="checkbox" id="mute-sound">
+              Mute all sounds
+            </label>
+            <p class="setting-description">When enabled, all game sounds will be muted.</p>
+          </div>
+          
+          <div class="setting-item">
             <label for="hide-uncommon-chords">
               <input type="checkbox" id="hide-uncommon-chords">
               Hide uncommon chords
             </label>
-            <p class="setting-description">When enabled, only common chords from standard keys will appear. Major-based chords (major, aug, dom7) will follow major key rules, and minor-based chords (minor, dim, half-dim) will follow minor key rules.</p>
+            <p class="setting-description">When enabled, only common chords from standard keys will appear.</p>
           </div>
         </div>
       </div>
