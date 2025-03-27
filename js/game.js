@@ -792,7 +792,7 @@ class Game {
         // Play charging sound
         const soundController = this.getSoundController();
         if (soundController) {
-          soundController.playLaserChargeSound();
+          soundController.playLaserChargeSound(1); // Initial power level
         }
       } else if (this.chordCharge.active) {
         // Update the notes in the current charge
@@ -802,16 +802,32 @@ class Game {
         const newPower = Math.min(this.chordCharge.notes.size, 4);
         
         // Play charging sound if power level increased
-        if (newPower > this.chordCharge.power) {
+        if (newPower > this.chordCharge.power && newPower < 4) {
           const soundController = this.getSoundController();
           if (soundController) {
-            soundController.playLaserChargeSound();
+            soundController.playLaserChargeSound(newPower); // Pass the new power level
           }
         }
         
         this.chordCharge.power = newPower;
         
-        // Check if any enemy matches the current chord
+        // If we have 4 notes, fire immediately
+        if (this.chordCharge.notes.size >= 4) {
+          // Find the best matching enemy if any
+          let matchingEnemy = this.enemies.find(enemy => {
+            return enemy.alive && enemy.matchesNote(note, Array.from(this.chordCharge.notes));
+          });
+          
+          // Fire at the matching enemy or just release if no match
+          if (matchingEnemy) {
+            this.fireChargedLaser(matchingEnemy);
+          } else {
+            this.releaseChordCharge();
+          }
+          return; // Exit early after firing
+        }
+        
+        // For 1-3 notes, check if any enemy matches the current chord
         let matchingEnemy = this.enemies.find(enemy => {
           return enemy.alive && enemy.matchesNote(note, Array.from(this.chordCharge.notes));
         });
@@ -924,7 +940,25 @@ class Game {
       
       // If no more notes are held, release the charge
       if (this.chordCharge.notes.size === 0) {
+        // Stop the charging sound if all notes are released
+        const soundController = this.getSoundController();
+        if (soundController) {
+          soundController.stopLaserChargeSound();
+        }
         this.releaseChordCharge();
+      } else {
+        // Update power level based on remaining notes
+        const newPower = Math.min(this.chordCharge.notes.size, 4);
+        if (newPower < this.chordCharge.power) {
+          // Power level decreased, update it
+          this.chordCharge.power = newPower;
+          
+          // Update the charge sound to match the new power level
+          const soundController = this.getSoundController();
+          if (soundController) {
+            soundController.playLaserChargeSound(newPower);
+          }
+        }
       }
     }
   }
@@ -932,6 +966,12 @@ class Game {
   // Fire a charged laser at a specific enemy
   fireChargedLaser(matchingEnemy) {
     if (!this.player.fire()) return;
+    
+    // Stop the laser charge sound immediately
+    const soundController = this.getSoundController();
+    if (soundController) {
+      soundController.stopLaserChargeSound(0.01); // Very short fade out
+    }
     
     // Calculate target position
     const targetX = matchingEnemy.x + matchingEnemy.width / 2;
@@ -978,13 +1018,17 @@ class Game {
         this.score += this.pointsPerEnemy * firingData.power;
         
         // Play sound
-        const soundController = this.getSoundController();
         if (soundController) {
           soundController.playEnemyDestroyedSound();
           
           // Mark laser as hit
           laser.markHit();
           soundController.playLaserHitSound();
+          
+          // Play explosive sound for high-powered lasers (power >= 3)
+          if (firingData.power >= 3) {
+            soundController.playLaserExplosiveSound();
+          }
         }
       }
       
@@ -999,6 +1043,12 @@ class Game {
   // Release the charged laser without a specific target
   releaseChordCharge() {
     if (!this.chordCharge.active || !this.player.fire()) return;
+    
+    // Stop the laser charge sound immediately
+    const soundController = this.getSoundController();
+    if (soundController) {
+      soundController.stopLaserChargeSound(0.01); // Very short fade out
+    }
     
     // Calculate target position - shoot straight up from player
     const targetX = this.player.x + this.player.width / 2;
@@ -1027,9 +1077,13 @@ class Game {
       );
       
       // Play miss sound
-      const soundController = this.getSoundController();
       if (soundController) {
         soundController.playLaserMissSound();
+        
+        // Play explosive sound for high-powered lasers (power >= 3)
+        if (firingData.power >= 3) {
+          soundController.playLaserExplosiveSound();
+        }
       }
       
       // Add laser
@@ -1042,6 +1096,12 @@ class Game {
   
   // Reset the chord charge system
   resetChordCharge() {
+    // Stop the charging sound when resetting
+    const soundController = this.getSoundController();
+    if (soundController) {
+      soundController.stopLaserChargeSound();
+    }
+    
     this.chordCharge.active = false;
     this.chordCharge.lastReleaseTime = performance.now();
     this.chordCharge.notes = new Set();

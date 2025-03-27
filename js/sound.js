@@ -11,13 +11,21 @@ class SoundController {
     this.sounds = {
       laserHit: null,
       laserMiss: null,
-      laserCharge: null,
+      laserChargeLow: null,
+      laserChargeMedium: null,
+      laserChargeHigh: null,
+      laserExplosive: null, // New explosive sound for high-powered lasers
       enemyDestroyed: null,
       enemyShieldHit: null,
       playerDamage: null,
       gameOver: null,
       victory: null,
       waveComplete: null
+    };
+    
+    // Active sound sources that can be stopped
+    this.activeSources = {
+      laserCharge: null
     };
     
     // Bind methods
@@ -59,7 +67,7 @@ class SoundController {
       for (let i = 0; i < buffer.length; i++) {
         const t = i / sampleRate;
         const frequency = 800 - 600 * (t / duration);
-        buffer[i] = 0.5 * Math.sin(frequency * t * Math.PI * 2) * Math.exp(-5 * t);
+        buffer[i] = 0.3 * Math.sin(frequency * t * Math.PI * 2) * Math.exp(-5 * t);
       }
     }, 0.2);
     
@@ -138,21 +146,113 @@ class SoundController {
       }
     }, 2.0);
     
-    // Laser charge sound
-    this.sounds.laserCharge = this.createBuffer(buffer => {
-      const duration = 0.5;
+    // Laser charge sounds for different power levels
+    // Level 1 (low power)
+    this.sounds.laserChargeLow = this.createBuffer(buffer => {
+      const duration = 1.0;
       const sampleRate = this.audioContext.sampleRate;
       
       for (let i = 0; i < buffer.length; i++) {
         const t = i / sampleRate;
-        const frequency = 300 + 400 * (t / duration);
-        buffer[i] = 0.3 * Math.sin(frequency * t * Math.PI * 2) * Math.pow(t / duration, 0.5);
+        // Base frequency starts low and rises slowly
+        const baseFreq = 100 + 50 * Math.pow(t / duration, 1.2);
+        // Add pulsing/oscillation effect
+        const pulseRate = 10 + (30 * (t / duration)); // Slower pulses
+        const pulseAmount = 0.6 * Math.sin(pulseRate * t * Math.PI * 2);
+        // Add some harmonics for richness
+        const harmonic1 = 0.25 * Math.sin(baseFreq * 2 * t * Math.PI * 2);
+        const harmonic2 = 0.1 * Math.sin(baseFreq * 3 * t * Math.PI * 2);
+        // Combine waveforms
+        const volume = 0.12;
+        buffer[i] = volume * (
+          Math.sin(baseFreq * t * Math.PI * 2) * (1 + pulseAmount) + 
+          harmonic1 + harmonic2
+        ) * Math.pow(t / duration, 0.6); // Gradual ramp-up
       }
-    }, 0.5);
+    }, 1.5);
+    
+    // Level 2 (medium power)
+    this.sounds.laserChargeMedium = this.createBuffer(buffer => {
+      const duration = 1.0;
+      const sampleRate = this.audioContext.sampleRate;
+      
+      for (let i = 0; i < buffer.length; i++) {
+        const t = i / sampleRate;
+        // Base frequency starts where low power ends and rises faster
+        const baseFreq = 150 + 80 * Math.pow(t / duration, 1.4);
+        // Add pulsing/oscillation effect
+        const pulseRate = 20 + (40 * (t / duration)); // Medium pulses
+        const pulseAmount = 0.65 * Math.sin(pulseRate * t * Math.PI * 2);
+        // Add some harmonics for richness
+        const harmonic1 = 0.3 * Math.sin(baseFreq * 2 * t * Math.PI * 2);
+        const harmonic2 = 0.15 * Math.sin(baseFreq * 3.2 * t * Math.PI * 2);
+        // Combine waveforms
+        const volume = 0.15;
+        buffer[i] = volume * (
+          Math.sin(baseFreq * t * Math.PI * 2) * (1 + pulseAmount) + 
+          harmonic1 + harmonic2
+        ) * Math.pow(t / duration, 0.65); // Gradual ramp-up
+      }
+    }, 1.5);
+    
+    // Level 3 (high power)
+    this.sounds.laserChargeHigh = this.createBuffer(buffer => {
+      const duration = 1.0;
+      const sampleRate = this.audioContext.sampleRate;
+      
+      for (let i = 0; i < buffer.length; i++) {
+        const t = i / sampleRate;
+        // Base frequency starts where medium power ends and rises even faster
+        const baseFreq = 230 + 120 * Math.pow(t / duration, 1.6);
+        // Add pulsing/oscillation effect
+        const pulseRate = 30 + (60 * (t / duration)); // Faster pulses
+        const pulseAmount = 0.7 * Math.sin(pulseRate * t * Math.PI * 2);
+        // Add some harmonics for richness
+        const harmonic1 = 0.35 * Math.sin(baseFreq * 2 * t * Math.PI * 2);
+        const harmonic2 = 0.2 * Math.sin(baseFreq * 3.5 * t * Math.PI * 2);
+        // Combine waveforms
+        const volume = 0.18;
+        buffer[i] = volume * (
+          Math.sin(baseFreq * t * Math.PI * 2) * (1 + pulseAmount) + 
+          harmonic1 + harmonic2
+        ) * Math.pow(t / duration, 0.7); // Gradual ramp-up
+      }
+    }, 1.5); 
+    
+    // Laser explosive sound for high-powered lasers (power >= 3)
+    this.sounds.laserExplosive = this.createBuffer(buffer => {
+      const sampleRate = this.audioContext.sampleRate;
+      
+      for (let i = 0; i < buffer.length; i++) {
+        const t = i / sampleRate;
+        
+        // Initial explosion burst
+        const burstPhase = Math.min(t / 0.1, 1); // First 0.1 seconds is the burst
+        const burstFreq = 150 * Math.random();
+        const burst = 0.8 * Math.sin(burstFreq * t * Math.PI * 2) * (1 - burstPhase);
+        
+        // Rumbling bass frequencies
+        const bassFreq = 80 + 40 * Math.sin(t * 20);
+        const bass = 0.2 * Math.sin(bassFreq * t * Math.PI * 0.2) * Math.exp(-1 * t);
+        
+        // Mid-range crackling
+        const crackleFreq = 300 + 400 * Math.random();
+        const crackle = 0.3 * Math.sin(crackleFreq * t * Math.PI * 2) * Math.exp(-6 * t);
+        
+        // High-frequency sizzle
+        const sizzleFreq = 2000 + 1000 * Math.random();
+        const sizzle = 0.05 * Math.sin(sizzleFreq * t * Math.PI * 2) * Math.exp(-8 * t);
+        
+        // White noise component
+        const noise = 0.3 * (Math.random() * 2 - 1) * Math.exp(-4 * t);
+        
+        // Combine all components
+        buffer[i] = (burst + bass + crackle + sizzle + noise) * 0.25; // Scale down to avoid clipping
+      }
+    }, 1.5);
     
     // Wave complete sound
     this.sounds.waveComplete = this.createBuffer(buffer => {
-      const duration = 1.0;
       const sampleRate = this.audioContext.sampleRate;
       
       for (let i = 0; i < buffer.length; i++) {
@@ -181,8 +281,8 @@ class SoundController {
   }
   
   // Play a sound from the buffer
-  playSound(soundName, volume = 1.0) {
-    if (!this.audioContext || !this.sounds[soundName]) return;
+  playSound(soundName, volume = 1.0, trackSource = false, sourceKey = null) {
+    if (!this.audioContext || !this.sounds[soundName]) return null;
     
     // Resume audio context if suspended
     this.resumeAudio();
@@ -199,8 +299,43 @@ class SoundController {
     source.connect(gainNode);
     gainNode.connect(this.audioContext.destination);
     
+    // Track this source if requested
+    if (trackSource && sourceKey) {
+      // Stop any previously playing sound with this key
+      if (this.activeSources[sourceKey]) {
+        const { source: oldSource, gainNode: oldGainNode } = this.activeSources[sourceKey];
+        // Fade out the old sound quickly
+        const now = this.audioContext.currentTime;
+        oldGainNode.gain.setValueAtTime(oldGainNode.gain.value, now);
+        oldGainNode.gain.linearRampToValueAtTime(0, now + 0.02);
+        // Schedule the old source to stop after the fade out
+        setTimeout(() => {
+          try {
+            oldSource.stop();
+          } catch (e) {
+            // Ignore errors if source is already stopped
+          }
+        }, 25);
+      }
+      // Store both source and gain node for potential fade out
+      this.activeSources[sourceKey] = { source, gainNode };
+    }
+    
+    // Add a very short fadeout at the end for laser sounds to avoid clipping
+    if (soundName.startsWith('laser')) {
+      const duration = source.buffer.duration;
+      const now = this.audioContext.currentTime;
+      // Keep full volume until near the end, then fade out quickly
+      const fadeStartTime = now + (duration - 0.05); // fadeout 50ms before end
+      gainNode.gain.setValueAtTime(volume, fadeStartTime);
+      gainNode.gain.linearRampToValueAtTime(0, now + duration);
+    }
+    
     // Play sound
     source.start();
+    
+    // Return the source for potential external control
+    return source;
   }
   
   // Create and play an oscillator
@@ -260,9 +395,70 @@ class SoundController {
     this.playSound('playerDamage', 0.5);
   }
   
-  // Play laser charge sound
-  playLaserChargeSound() {
-    this.playSound('laserCharge', 0.3);
+  // Play explosive laser sound for high-powered lasers
+  playLaserExplosiveSound() {
+    this.playSound('laserExplosive', 0.7);
+  }
+  
+  // Play laser charge sound with power level (1-3)
+  playLaserChargeSound(power = 1) {
+    // Note: We don't need to explicitly call stopLaserChargeSound() here anymore
+    // as the playSound method will now handle stopping previous sounds with the same key
+    
+    // Clamp power to valid range
+    const clampedPower = Math.min(Math.max(Math.round(power), 1), 3);
+    
+    // Select the appropriate sound based on power level
+    let soundName;
+    switch (clampedPower) {
+      case 1:
+        soundName = 'laserChargeLow';
+        break;
+      case 2:
+        soundName = 'laserChargeMedium';
+        break;
+      case 3:
+        soundName = 'laserChargeHigh';
+        break;
+      default:
+        soundName = 'laserChargeLow';
+    }
+    
+    // Play the selected sound with appropriate volume and track it
+    const volume = 0.2 + (clampedPower * 0.1); // Volume increases with power
+    this.playSound(soundName, volume, true, 'laserCharge');
+  }
+  
+  // Stop the laser charge sound with optional fade out
+  stopLaserChargeSound(fadeOutTime = 0.05) {
+    if (this.activeSources.laserCharge) {
+      const { source, gainNode } = this.activeSources.laserCharge;
+      
+      // If audio context is available, fade out for smoother stop
+      if (this.audioContext) {
+        const now = this.audioContext.currentTime;
+        gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+        gainNode.gain.linearRampToValueAtTime(0, now + fadeOutTime);
+        
+        // Stop the source after fade out
+        setTimeout(() => {
+          try {
+            source.stop();
+          } catch (e) {
+            // Source might already be stopped, ignore error
+          }
+          this.activeSources.laserCharge = null;
+        }, fadeOutTime * 1000);
+      } else {
+        // No audio context, stop immediately
+        try {
+          source.stop();
+        } catch (e) {
+          // Source might already be stopped, ignore error
+        }
+        this.activeSources.laserCharge = null;
+      }
+    }
   }
   
   // Play game over sound - special sad jingle
