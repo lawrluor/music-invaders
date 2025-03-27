@@ -8,8 +8,8 @@ class Enemy {
     this.x = x;
     this.y = y;
     this.initialY = y;
-    this.width = 85; // Increased size by 30% again (from 65)
-    this.height = 85; // Increased size by 30% again (from 65)
+    this.width = 94; // Increased size by 10% (from 85)
+    this.height = 94; // Increased size by 10% (from 85)
     
     // Chord mode
     this.isChord = isChord;
@@ -39,7 +39,7 @@ class Enemy {
     }
     
     // Movement
-    this.speed = 15 + Math.random() * 2.5; // Pixels per second
+    this.speed = 12.5 + Math.random() * 2.5; // Pixels per second
     this.wobbleAmount = 10;
     this.wobbleSpeed = 1 + Math.random() * 0.5;
     
@@ -176,9 +176,9 @@ class Enemy {
     
     // Draw tentacles first (they go behind the head)
     const tentacleCount = 3;
-    const tentacleWidth = 4;
-    const tentacleHeight = 20; // Increased from 10 to make tentacles longer
-    const tentacleSpacing = 7; // 4px width + 2px margin on each side
+    const tentacleWidth = 4.4; // Increased by 10%
+    const tentacleHeight = 22; // Increased by 10%
+    const tentacleSpacing = 7.7; // Increased by 10%
     
     // Calculate starting position for first tentacle
     const firstTentacleX = centerX - ((tentacleCount - 1) * tentacleSpacing) / 2;
@@ -220,9 +220,9 @@ class Enemy {
     }
     
     // Draw enemy head
-    const headWidth = 40; // Increased from 30 to make head larger
-    const headHeight = 32; // Increased from 24 to make head taller
-    const headY = centerY - 5 + bounceAmount * 0.7; // Position with bounce effect
+    const headWidth = 44; // Increased by 10%
+    const headHeight = 35.2; // Increased by 10%
+    const headY = centerY - 5.5 + bounceAmount * 0.7; // Position with bounce effect
     
     // Draw head (rounded rectangle with top rounded corners)
     ctx.fillStyle = this.color;
@@ -293,10 +293,10 @@ class Enemy {
     }
     
     // Draw googley eyes (more centered and cute)
-    const eyeRadius = 6; // Increased from 4.5 for larger eyes
-    const eyeOffsetX = 8; // Adjusted from 6 to match larger head
-    const eyeOffsetY = -7; // Adjusted from -5 to match larger head
-    const pupilRadius = 3.5; // Increased from 2.5 for larger pupils
+    const eyeRadius = 6.6; // Increased by 10%
+    const eyeOffsetX = 8.8; // Increased by 10%
+    const eyeOffsetY = -7.7; // Increased by 10%
+    const pupilRadius = 3.85; // Increased by 10%
     
     // Random pupil position for googley effect
     const pupilOffsetX = Math.sin(this.animationTime * 2) * 1.2;
@@ -350,7 +350,7 @@ class Enemy {
     
     // Eye highlights
     ctx.fillStyle = '#fff';
-    const highlightRadius = 1.2; // Highlight
+    const highlightRadius = 1.32; // Increased by 10%
     
     // Left eye highlight
     ctx.beginPath();
@@ -379,9 +379,21 @@ class Enemy {
     // Draw note/chord name below enemy
     ctx.fillStyle = '#dddddd'; // Light grey instead of white for better readability
     
-    // Check if large font is enabled
+    // Check if large font and music font are enabled
     const useLargeFont = localStorage.getItem('useLargeFont') === 'true';
-    ctx.font = useLargeFont ? 'bold 36px Arial' : 'bold 26px Arial';
+    const useMusicFont = localStorage.getItem('useMusicFont') !== 'false'; // Default to true if not set
+    
+    // Set font based on user preferences
+    if (useMusicFont) {
+      // Use Bravura music font with fallback to Helvetica/Verdana for better superscript rendering
+      ctx.font = useLargeFont ? 'bold 40px "Bravura", Helvetica, Verdana, Arial' : 'bold 30px "Bravura", Helvetica, Verdana, Arial';
+    } else {
+      // Use Helvetica/Verdana for better superscript rendering
+      ctx.font = useLargeFont ? 'bold 40px Helvetica, Verdana, Arial' : 'bold 30px Helvetica, Verdana, Arial';
+    }
+    
+    // Canvas API doesn't directly support letterSpacing, but we can implement it manually if needed
+    // For now, we'll rely on the font's natural spacing
     
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';

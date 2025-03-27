@@ -25,20 +25,38 @@ class ChordController {
     this.chordAbbreviations = {
       'maj': 'M',
       'min': 'm',
-      'dim': 'o',
+      'dim': '°',
       'aug': '+',
-      '7': '7',
-      'maj6': '6',
-      'min6': '-6',
-      'maj7': 'Δ7',
-      'min7': '-7',
-      'dim7': 'o7',
-      'half-dim7': 'ø7',
-      'minMaj7': 'm(Maj7)'
+      '7': '⁷', // Unicode superscript 7
+      'maj6': '⁶', // Unicode superscript 6
+      'min6': '‐⁶', // Unicode superscript 6 with 'm'
+      'maj7': 'Δ⁷', // Unicode superscript 7 with 'M'
+      'min7': '‐⁷', // Unicode superscript 7 with 'm'. Minus is U+2010	
+      'dim7': '°⁷', // Unicode superscript 7 with 'o'
+      'half-dim7': 'ø⁷', // Unicode superscript 7 with 'ø'
+      'minMaj7': 'm(Δ⁷)' // Minor-major 7th with superscript
     };
+
+    // Reference: types of dashes: https://jkorpela.fi/dashes.html
     
-    // Note names (for display)
-    this.noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    // Add all note name variations (flat, natural, sharp)
+    this.noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']; // Standard 12 notes for MIDI conversion
+    
+    // Extended note names with enharmonic equivalents for display
+    this.extendedNoteNames = {
+      0: ['C', 'B#'],
+      1: ['C#', 'Db'],
+      2: ['D'],
+      3: ['D#', 'Eb'],
+      4: ['E', 'Fb'],
+      5: ['F', 'E#'],
+      6: ['F#', 'Gb'],
+      7: ['G'],
+      8: ['G#', 'Ab'],
+      9: ['A'],
+      10: ['A#', 'Bb'],
+      11: ['B', 'Cb']
+    };
     
     // Check if abbreviations are enabled (load from localStorage)
     this.useAbbreviations = localStorage.getItem('useChordAbbreviations') === 'true';
@@ -48,7 +66,8 @@ class ChordController {
   getNoteNameFromMidi(midiNote) {
     const noteIndex = midiNote % 12;
     const octave = Math.floor(midiNote / 12) - 1;
-    return `${this.noteNames[noteIndex]}${octave}`;
+    // Use the primary name (first in the array) for each note
+    return `${this.extendedNoteNames[noteIndex][0]}${octave}`;
   }
   
   // Get a random chord type
@@ -91,8 +110,28 @@ class ChordController {
   }
   
   // Get chord name (e.g., "C maj7" or "C Δ" if abbreviations enabled)
-  getChordName(rootNote, chordType) {
-    const rootName = this.noteNames[rootNote % 12];
+  getChordName(rootNote, chordType, preferredSpelling = null) {
+    const rootIndex = rootNote % 12;
+    
+    // Determine which spelling to use (primary or alternate)
+    let rootName;
+    if (preferredSpelling && this.extendedNoteNames[rootIndex].includes(preferredSpelling)) {
+      // Use the preferred spelling if specified and valid
+      rootName = preferredSpelling;
+    } else {
+      // Default to primary spelling (first in the array)
+      rootName = this.extendedNoteNames[rootIndex][0];
+      
+      // For certain chord types, prefer flat spellings
+      const flatPreferredTypes = ['min', 'dim', 'dim7', 'half-dim7'];
+      if (flatPreferredTypes.includes(chordType) && this.extendedNoteNames[rootIndex].length > 1) {
+        // Check if there's a flat spelling available
+        const flatSpelling = this.extendedNoteNames[rootIndex].find(name => name.includes('b'));
+        if (flatSpelling) {
+          rootName = flatSpelling;
+        }
+      }
+    }
     
     // Don't include a space between root and chord type
     if (this.useAbbreviations && this.chordAbbreviations[chordType]) {
@@ -106,6 +145,45 @@ class ChordController {
   toggleAbbreviations(useAbbrev) {
     this.useAbbreviations = useAbbrev;
     localStorage.setItem('useChordAbbreviations', useAbbrev);
+  }
+  
+  // Find a chord by its name (supports enharmonic equivalents)
+  findChordByName(chordName) {
+    // Extract root name and chord type from the chord name
+    // This regex matches the note name at the beginning and the chord type after
+    const match = chordName.match(/^([A-G][#b]?)(.*)$/);
+    if (!match) return null;
+    
+    const [, rootName, chordType] = match;
+    
+    // Find the pitch class for this root name
+    let rootPitchClass = -1;
+    for (let pc = 0; pc < 12; pc++) {
+      if (this.extendedNoteNames[pc].includes(rootName)) {
+        rootPitchClass = pc;
+        break;
+      }
+    }
+    
+    if (rootPitchClass === -1) return null; // Root name not found
+    
+    // Find the chord type (with or without abbreviation)
+    let foundChordType = chordType;
+    if (this.useAbbreviations) {
+      // Try to find the chord type from the abbreviation
+      for (const [type, abbrev] of Object.entries(this.chordAbbreviations)) {
+        if (abbrev === chordType) {
+          foundChordType = type;
+          break;
+        }
+      }
+    }
+    
+    // Check if this is a valid chord type
+    if (!this.chordTypes[foundChordType]) return null;
+    
+    // Generate the chord notes
+    return this.generateChordFromRoot(rootPitchClass, foundChordType);
   }
   
   // Check if a set of played notes matches a chord

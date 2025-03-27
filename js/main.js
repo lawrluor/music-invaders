@@ -99,6 +99,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const closeSettingsButton = document.getElementById('close-settings');
   const useChordAbbreviationsCheckbox = document.getElementById('use-chord-abbreviations');
   const useLargeFontCheckbox = document.getElementById('use-large-font');
+  const useMusicFontCheckbox = document.getElementById('use-music-font');
   
   // Initialize checkbox states from localStorage
   if (useChordAbbreviationsCheckbox) {
@@ -142,6 +143,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
   
+  // Initialize music font checkbox
+  if (useMusicFontCheckbox) {
+    // Default to true if not set
+    const savedMusicFontState = localStorage.getItem('useMusicFont') !== 'false';
+    useMusicFontCheckbox.checked = savedMusicFontState;
+    
+    // Add change event listener
+    useMusicFontCheckbox.addEventListener('change', (event) => {
+      const useMusicFont = event.target.checked;
+      
+      // Save to localStorage
+      localStorage.setItem('useMusicFont', useMusicFont.toString());
+    });
+  }
+  
   // Open settings modal
   if (settingsButton) {
     settingsButton.addEventListener('click', () => {
@@ -155,6 +171,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         if (useLargeFontCheckbox) {
           useLargeFontCheckbox.checked = localStorage.getItem('useLargeFont') === 'true';
+        }
+        
+        if (useMusicFontCheckbox) {
+          useMusicFontCheckbox.checked = localStorage.getItem('useMusicFont') !== 'false';
         }
       }
     });

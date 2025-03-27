@@ -27,7 +27,7 @@ class Game {
       startTime: 0,
       maxHoldTime: 10000, // Max time to hold chord before auto-firing (ms)
       lastReleaseTime: 0,
-      cooldownTime: 300, // Time before a new charge can start after releasing (ms)
+      cooldownTime: 100, // Time before a new charge can start after releasing (ms)
       power: 1, // Power level of the charged laser (1-4)
       isFiring: false // Flag to prevent multiple firings in quick succession
     };
@@ -372,7 +372,7 @@ class Game {
       const animationOffset = i * 0.2;
       
       // Random y position near the top with 20% more spread
-      const y = utils.random(30, 180); // Increased from (50, 150)
+      const y = utils.random(20, 100); // Increased from (50, 150)
       
       let enemy;
       
@@ -581,7 +581,7 @@ class Game {
       // Add ammo equal to 125% of the enemies in the previous wave, rounded down
       // Make sure previousEnemyCount is a valid number
       const enemyCount = typeof previousEnemyCount === 'number' && !isNaN(previousEnemyCount) ? previousEnemyCount : 5;
-      const ammoBonus = this.chordMode ? Math.floor(enemyCount * 5) : Math.floor(enemyCount * 1.25);
+      const ammoBonus = this.chordMode ? Math.floor(enemyCount * 1.25) : Math.floor(enemyCount * 1.25);
       this.player.ammo = Math.min(this.player.maxAmmo, this.player.ammo + ammoBonus);
       
       console.log(`Wave ${this.wave}: Added ${ammoBonus} ammo based on ${enemyCount} enemies`);
