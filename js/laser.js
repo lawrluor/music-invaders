@@ -3,7 +3,7 @@
  */
 
 class Laser {
-  constructor(startX, startY, targetX, targetY, power = 1, delay = 0) {
+  constructor(startX, startY, targetX, targetY, power = 1) {
     // Start and end positions
     this.startX = startX;
     this.startY = startY;
@@ -17,10 +17,6 @@ class Laser {
     this.duration = 0.3 + (this.power * 0.05); // Longer duration for more powerful lasers
     this.time = 0;
     this.active = true;
-    
-    // Delay before laser starts moving (in seconds)
-    this.delay = delay;
-    this.delayRemaining = delay;
     
     // Hit status
     this.hit = false;
@@ -43,12 +39,6 @@ class Laser {
     // Convert deltaTime to seconds
     const dt = deltaTime / 1000;
     
-    // Handle delay before starting animation
-    if (this.delayRemaining > 0) {
-      this.delayRemaining -= dt;
-      return; // Don't update animation during delay
-    }
-    
     // Update time
     this.time += dt;
     
@@ -60,7 +50,7 @@ class Laser {
   
   // Draw laser
   draw(ctx) {
-    if (!this.active || this.delayRemaining > 0) return; // Don't draw during delay
+    if (!this.active) return;
     
     // Calculate progress (0 to 1)
     const progress = this.time / this.duration;

@@ -28,7 +28,8 @@ class Game {
       maxHoldTime: 10000, // Max time to hold chord before auto-firing (ms)
       lastReleaseTime: 0,
       cooldownTime: 300, // Time before a new charge can start after releasing (ms)
-      power: 1 // Power level of the charged laser (1-4)
+      power: 1, // Power level of the charged laser (1-4)
+      isFiring: false // Flag to prevent multiple firings in quick succession
     };
     this.wave = 1;
     this.health = 100;
@@ -964,7 +965,11 @@ class Game {
   
   // Fire a charged laser at a specific enemy
   fireChargedLaser(matchingEnemy) {
-    if (!this.player.fire()) return;
+    // Prevent firing if already in the process of firing (happens when pressing notes simultaneously)
+    if (this.chordCharge.isFiring || !this.player.fire()) return;
+    
+    // Set the firing flag to prevent multiple shots
+    this.chordCharge.isFiring = true;
     
     // Stop the laser charge sound immediately
     const soundController = this.getSoundController();
@@ -1033,12 +1038,16 @@ class Game {
       
       // Reset chord charge
       this.resetChordCharge();
-    }, 220); // small delay to allow player to move first before firing
+    }, 200); // small delay to allow player to move first before firing
   }
   
   // Release the charged laser without a specific target
   releaseChordCharge() {
-    if (!this.chordCharge.active || !this.player.fire()) return;
+    // Prevent firing if already in the process of firing
+    if (this.chordCharge.isFiring || !this.chordCharge.active || !this.player.fire()) return;
+    
+    // Set the firing flag to prevent multiple shots
+    this.chordCharge.isFiring = true;
     
     // Stop the laser charge sound immediately
     const soundController = this.getSoundController();
@@ -1117,6 +1126,7 @@ class Game {
     this.chordCharge.active = false;
     this.chordCharge.lastReleaseTime = performance.now();
     this.chordCharge.notes = new Set();
+    this.chordCharge.isFiring = false; // Reset the firing flag
   }
   
   // Draw chord charge indicator

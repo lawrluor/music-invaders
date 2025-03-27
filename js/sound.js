@@ -577,15 +577,16 @@ class SoundController {
     }, 3000);
   }
   
-  // Play wave complete sound - randomly generated major triad between C3-C5
+  // Play wave complete sound
   playWaveCompleteSound() {
     if (!this.audioContext) return;
     
     // Resume audio context if suspended
     this.resumeAudio();
     
-    // Generate a random root note between C3 (48) and C5 (72)
-    const rootNote = Math.floor(Math.random() * 25) + 48; // C3 to C5
+    // Optional: Generate a random root note between C3 (48) and C5 (72)
+    // const rootNote = Math.floor(Math.random() * 25) + 48; // C3 to C5
+    const rootNote = 60; // C4
     
     // Calculate major triad: root, major third (4 semitones up), perfect fifth (7 semitones up)
     const notes = [
