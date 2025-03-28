@@ -62,78 +62,89 @@
     <!-- Title Screen -->
     <div id="title-screen">
       <div class="title-header">
-        <h1 class="screen-title">Music Invaders</h1>
+        <h1>👾 <span class="screen-title">Music Invaders</span> 👾</h1>
         <button id="settings-button" class="icon-button">⚙️</button>
       </div>
       
       <div class="instructions-container">
-        <h2>How to Play</h2>
+        <h2>How to Play 🕹️</h2>
         <ul class="instructions-list">
-          <li>Use your MIDI instrument as a controller to shoot down baddies.</li>
-          <li>Each enemy corresponds to a specific note on your keyboard.</li>
+          <li>Use your <a href="https://www.sweetwater.com/sweetcare/articles/getting-started-with-midi-keyboards/" target="_blank" rel="noopener noreferrer" class="instructions-link">MIDI instrument</a> as a controller to shoot down enemies.</li>
+          <li>Each enemy matches a specific note on your instrument.</li>
           <li>Play the note in the correct octave to shoot the enemy.</li>
-          <li>If playing in "chord mode": Play the chord in any octave to shoot the enemy.</li>
-          <li>Don't let enemies pass your shield - they'll hurt you!</li>
-          <li>Choose your notes wisely - running out of ammo ends the game.</li>
+          <li>If playing in "chord mode": play the chord in any octave to shoot the enemy.</li>
+          <li>Enemies will damage you if they pass your shield!</li>
+          <li>Running out of ammo ends the game - choose your notes wisely.</li>
         </ul>
-      </div>
-      
-      <div class="midi-setup">
-        <h2>MIDI Setup</h2>
-        <div>
-          <label for="midi-device-select">Select MIDI Input Device:</label>
-          <select id="midi-device-select">
-            <option value="">No MIDI devices available</option>
-          </select>
-          <button id="refresh-midi" class="small-button">Refresh</button>
+
+        <div class="midi-setup">
+          <div>
+            <label for="midi-device-select"><strong>MIDI Instrument 🎹:</strong></label>
+            <select id="midi-device-select">
+              <option value="">No MIDI devices available</option>
+            </select>
+            <button id="refresh-midi" class="small-button">Refresh</button>
+          </div>
+
+          <div>
+            <div id="midi-status">MIDI Status: Not connected</div>
+            <div style="display: none;" id="midi-test-area">Play a note on your MIDI device to test</div>
+          </div>
         </div>
-        
-        <div id="midi-status">MIDI Status: Not connected</div>
-        <div style="display: none;" id="midi-test-area">Play a note on your MIDI device to test</div>
       </div>
       
       <div class="game-mode-selection">
-        <h2>Single Note Mode</h2>
-        <div class="mode-options">
-          <div class="mode-button-container">
-            <button id="single-note-classic-button" class="start-game-button" data-mode="classic" data-chord-mode="false">
-              <span class="mode-label">Classic Mode</span>
-              <span class="mode-description">Complete 5 waves to win</span>
-              <span class="high-score">High Score: <span id="single-note-classic-high-score">0</span></span>
-            </button>
-          </div>
-          <div class="mode-button-container">
-            <button id="single-note-survival-button" class="start-game-button" data-mode="survival" data-chord-mode="false">
-              <span class="mode-label">Survival Mode</span>
-              <span class="mode-description">Endless waves until you run out of ammo or health</span>
-              <span class="high-score">High Score: <span id="single-note-survival-high-score">0</span></span>
-            </button>
+        <!-- <button id="play-button" class="play-button">Start Game</button> -->
+        <div class="mode-container">
+          <!-- <h2>Single Note Mode</h2> -->
+
+          <div class="mode-options">
+            <div class="game-mode-button-container">
+              <button id="single-note-classic-button" class="game-mode-button" data-mode="classic" data-chord-mode="false">
+                <div class="mode-label">Single-Note Mode</div>
+                <div class="mode-description">Complete 5 waves to win</div>
+                <div class="high-score">High Score: <span id="single-note-classic-high-score">0</span></div>
+              </button>
+            </div>
+
+            <div class="game-mode-button-container">
+              <button id="chord-classic-button" class="game-mode-button" data-mode="classic" data-chord-mode="true">
+                <div class="mode-label">Chord Mode</div>
+                <div class="mode-description">Complete 5 waves to win</div>
+                <div class="high-score">High Score: <span id="chord-classic-high-score">0</span></div>
+              </button>
+            </div>
           </div>
         </div>
         
-        <h2>Chord Mode</h2>
-        <div class="mode-options">
-          <div class="mode-button-container">
-            <button id="chord-classic-button" class="start-game-button" data-mode="classic" data-chord-mode="true">
-              <span class="mode-label">Classic Mode</span>
-              <span class="mode-description">Complete 5 waves to win</span>
-              <span class="high-score">High Score: <span id="chord-classic-high-score">0</span></span>
-            </button>
-          </div>
-          <div class="mode-button-container">
-            <button id="chord-survival-button" class="start-game-button" data-mode="survival" data-chord-mode="true">
-              <span class="mode-label">Survival Mode</span>
-              <span class="mode-description">Endless waves of enemies</span>
-              <span class="high-score">High Score: <span id="chord-survival-high-score">0</span></span>
-            </button>
+        <div>
+          <div class="mode-container">
+            <!-- <h2>Chord Mode</h2> -->
+            <div class="mode-options">
+              <div class="game-mode-button-container">
+                <button id="single-note-survival-button" class="game-mode-button" data-mode="survival" data-chord-mode="false">
+                  <div class="mode-label">Single-Note Survival</div>
+                  <div class="mode-description">Endless waves of enemies</div>
+                  <div class="high-score">High Score: <span id="single-note-survival-high-score">0</span></div>
+                </button>
+              </div>
+
+              <div class="game-mode-button-container">
+                <button id="chord-survival-button" class="game-mode-button" data-mode="survival" data-chord-mode="true">
+                  <div class="mode-label">Chord Survival</div>
+                  <div class="mode-description">Endless waves of enemies</div>
+                  <div class="high-score">High Score: <span id="chord-survival-high-score">0</span></div>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <section>
-        <span><a href="https://code.lawrenceluo.me/">About</a></span>
-        <span><a href="https://ko-fi.com/lawrenceluo">Donate</a></span>  
-      </section>
+      <div class="footer">
+        <span><a href="https://code.lawrenceluo.me/" class="footer-link"target="_blank" rel="noopener noreferrer">About</a></span> | 
+        <span><a href="https://ko-fi.com/lawrenceluo" class="footer-link" target="_blank" rel="noopener noreferrer">Donate</a></span>  
+      </div>
     </div>
     
     <!-- Game Over Screen -->
