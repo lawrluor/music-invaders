@@ -156,45 +156,7 @@ class Game {
     // Track selected game mode and chord mode
     this.selectedGameMode = 'classic';
     this.selectedChordMode = false;
-    
-    // Add game control event listeners with null checks
-    const classicButton = document.getElementById('classic-mode-button');
-    if (classicButton) {
-      classicButton.addEventListener('click', () => {
-        console.log('Classic mode button clicked');
-        this.selectedGameMode = 'classic';
-        this.updateModeButtonSelection();
-      });
-    }
-    
-    const survivalButton = document.getElementById('survival-mode-button');
-    if (survivalButton) {
-      survivalButton.addEventListener('click', () => {
-        console.log('Survival mode button clicked');
-        this.selectedGameMode = 'survival';
-        this.updateModeButtonSelection();
-      });
-    }
-    
-    // Add chord mode button listeners
-    const singleNoteButton = document.getElementById('single-note-button');
-    if (singleNoteButton) {
-      singleNoteButton.addEventListener('click', () => {
-        console.log('Single note mode button clicked');
-        this.selectedChordMode = false;
-        this.updateNoteModeButtonSelection();
-      });
-    }
-    
-    const chordModeButton = document.getElementById('chord-mode-button');
-    if (chordModeButton) {
-      chordModeButton.addEventListener('click', () => {
-        console.log('Chord mode button clicked');
-        this.selectedChordMode = true;
-        this.updateNoteModeButtonSelection();
-      });
-    }
-    
+ 
     const playAgainButton = document.getElementById('play-again-button');
     if (playAgainButton) {
       playAgainButton.addEventListener('click', () => {

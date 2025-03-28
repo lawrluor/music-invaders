@@ -44,7 +44,7 @@ class MidiController {
         this.onMIDIFailure(e);
       }
     } else {
-      this.midiStatus.textContent = 'MIDI Status: Web MIDI API not supported in this browser';
+      this.midiStatus.textContent = 'Status: Web MIDI API not supported in this browser';
       this.midiStatus.style.color = '#f00';
     }
   }
@@ -63,7 +63,7 @@ class MidiController {
   // Handle MIDI access failure
   onMIDIFailure(error) {
     console.error('Failed to get MIDI access', error);
-    this.midiStatus.textContent = 'MIDI Status: Failed to access MIDI devices';
+    this.midiStatus.textContent = 'Status: Failed to access MIDI devices';
     this.midiStatus.style.color = '#f00';
   }
   
@@ -99,10 +99,10 @@ class MidiController {
     
     // Update status
     if (count === 0) {
-      this.midiStatus.textContent = 'MIDI Status: No MIDI devices detected';
+      this.midiStatus.textContent = 'Status: No MIDI devices detected';
       this.midiStatus.style.color = '#f00';
     } else {
-      this.midiStatus.textContent = `MIDI Status: ${count} device(s) detected`;
+      this.midiStatus.textContent = `Status: ${count} device(s) detected`;
       this.midiStatus.style.color = '#0f0';
     }
     
@@ -129,7 +129,7 @@ class MidiController {
       this.selectedInput.onmidimessage = this.onMIDIMessage;
       
       // Update status
-      this.midiStatus.textContent = `MIDI Status: Connected to ${this.selectedInput.name}`;
+      this.midiStatus.textContent = `Status: Connected to ${this.selectedInput.name}`;
       this.midiStatus.style.color = '#0f0';
       
       // Save selected device
@@ -138,7 +138,7 @@ class MidiController {
       console.log(`Selected MIDI input: ${this.selectedInput.name}`);
     } else {
       // Update status
-      this.midiStatus.textContent = 'MIDI Status: No device selected';
+      this.midiStatus.textContent = 'Status: No device selected';
       this.midiStatus.style.color = '#f00';
     }
   }

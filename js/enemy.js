@@ -174,10 +174,7 @@ class Enemy {
     const tentacleWidth = 4.4; // Increased by 10%
     const tentacleHeight = 22; // Increased by 10%
     const tentacleSpacing = 7.7; // Increased by 10%
-    
-    // Calculate starting position for first tentacle
-    const firstTentacleX = centerX - ((tentacleCount - 1) * tentacleSpacing) / 2;
-    
+      
     // Draw tentacle container div
     ctx.save();
     ctx.translate(centerX, centerY + 5 + bounceAmount * 0.5);
