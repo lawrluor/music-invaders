@@ -133,7 +133,6 @@ class Game {
     window.addEventListener('resize', this.resizeCanvas);
   }
   
-  // Initialize the game
   /**
    * Initialize the game by adding event listeners and loading high score data.
    * This method is called once when the game is first loaded.
@@ -1213,8 +1212,8 @@ class Game {
     // Update game mode display
     if (this.uiElements.gameModeDisplay) {
       const modeName = this.gameMode.charAt(0).toUpperCase() + this.gameMode.slice(1);
-      const noteModeText = this.chordMode ? 'Chord' : 'Single Note';
-      this.uiElements.gameModeDisplay.textContent = `${modeName} (${noteModeText})`;
+      const modeText = this.chordMode ? 'Chord' : 'Single-Note';
+      this.uiElements.gameModeDisplay.textContent = `${modeText} Mode (${modeName})`;
     }
     
     // Update ammo bar
