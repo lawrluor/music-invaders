@@ -378,10 +378,16 @@ class Enemy {
     // Set font based on user preferences
     if (useMusicFont) {
       // Use Bravura music font with fallback to Helvetica/Verdana for better superscript rendering
-      ctx.font = useLargeFont ? 'bold 40px "Bravura", Helvetica, Verdana, sans-serif' : 'bold 30px "Bravura", Helvetica, Verdana, sans-serif';
+      ctx.font = useLargeFont 
+        ? 'bold 40px Bravura, Helvetica, Verdana, sans-serif' 
+        : 'bold 30px Bravura, Helvetica, Verdana, sans-serif';
+      // Add letter spacing for better readability
+      ctx.letterSpacing = '1px';
     } else {
       // Use Helvetica/Verdana for better superscript rendering
-      ctx.font = useLargeFont ? 'bold 40px Helvetica, Verdana, sans-serif' : 'bold 30px Helvetica, Verdana, sans-serif';
+      ctx.font = useLargeFont 
+        ? 'bold 40px Helvetica, Verdana, sans-serif' 
+        : 'bold 30px Helvetica, Verdana, sans-serif';
     }
     
     // Canvas API doesn't directly support letterSpacing, but we can implement it manually if needed
