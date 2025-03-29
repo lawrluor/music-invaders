@@ -92,7 +92,7 @@
     z-index: -100;
     left: -33%;
     top: -33%;
-    opacity: 0.5;
+    opacity: 0.75;
     display: inline;
     rotate: 135deg;
     animation: gameOverChasing 5s linear forwards;
@@ -103,7 +103,7 @@
     z-index: -100;
     left: -33%;
     top: -33%;
-    opacity: 0.5;
+    opacity: 0.75;
     display: inline;
     rotate: 135deg;
     animation: gameOverChasing 5.5s linear forwards;

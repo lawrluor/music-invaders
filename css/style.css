@@ -87,10 +87,10 @@ body {
   -ms-overflow-style: none; /* IE and Edge */
 }
 
+/* hide scrollbars on game-container, title-screen, and body */
 body::-webkit-scrollbar { 
   display: none;  /* Safari and Chrome */
 }
-
 
 #game-container {
   position: relative;
@@ -121,7 +121,7 @@ canvas {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 10;
+  z-index: 0;
 }
 
 #score-container {
@@ -338,10 +338,27 @@ canvas {
   padding: var(--spacing-large);
 }
 
-#settings-icon {
+.settings-button-container {
   position: absolute;
   right: var(--spacing-huge);
   top: var(--spacing-huge);
+  z-index: 10;
+}
+
+.settings-icon {
+  background: none;
+  border: none;
+  font-size: var(--font-size-large);
+  cursor: pointer;
+  padding: var(--spacing-small);
+  transition: transform 0.3s ease;
+}
+
+.settings-icon:hover {
+  transform: rotate(30deg);
+}
+
+#settings-icon {
   background: none;
   border: none;
   font-size: var(--font-size-large);
@@ -463,7 +480,7 @@ canvas {
   align-items: center;
   justify-content: flex-start;
   background-color: var(--color-off-black); /* Almost fully opaque background */
-  z-index: 20;
+  z-index: 9;
   padding: 2rem 0.5rem;
   overflow-y: hidden;
   overflow-x: hidden;
@@ -513,7 +530,8 @@ canvas {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 600px;
+  max-width: 680px;
+  width: 100%;
   padding: var(--spacing-large);
 }
 
@@ -701,7 +719,8 @@ canvas {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 600px;
+  width: 100%;
+  max-width: 680px;
   padding: var(--spacing-large);
 }
 

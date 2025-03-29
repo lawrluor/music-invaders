@@ -25,6 +25,8 @@
   <body>
     <div id="game-container">
       <canvas id="game-canvas"></canvas>
+
+      <div id="settings-button-container" class="settings-button-container"><button id="settings-icon">⚙️</button></div>
       
       <div id="ui-overlay">
         <div id="game-info">
@@ -66,8 +68,6 @@
       <div id="title-screen">
         <img src="img/sprites/enemy_blue.png" alt="Enemy Image" id="alien-sprite-top-left" class="game-image">
         <img src="img/sprites/enemy_yellow.png" alt="Enemy Image" id="alien-sprite-bottom-left" class="game-image">
-        <div id="settings-button-container"><button id="settings-icon">⚙️</button></div>
-
         <div class="title-header">
           <h1><span class="screen-title">Music Invaders</span></h1>
         </div>
@@ -163,9 +163,9 @@
 
           <div>
             <div>
-              <img src="img/sprites/enemy_red.png" alt="Enemy Image" style="translate: 100% 200%;" class="alien-sprite-game-over">
+              <img src="img/sprites/enemy_purple.png" alt="Enemy Image" style="translate: 100% 200%;" class="alien-sprite-game-over">
               <img src="img/sprites/enemy_red.png" alt="Enemy Image" class="alien-sprite-game-over">
-              <img src="img/sprites/enemy_red.png" alt="Enemy Image" style="translate: -100% 200%;" class="alien-sprite-game-over">
+              <img src="img/sprites/enemy_orange.png" alt="Enemy Image" style="translate: -100% 200%;" class="alien-sprite-game-over">
             </div>
 
             <img src="img/sprites/player.png" alt="Player Image" style="translate: 275px 250px;" class="player-sprite-game-over">
@@ -188,7 +188,7 @@
           
           <div class="post-game-button-container">
             <button id="game-over-menu-button" class="play-button">Menu</button>
-            <button id="play-again-button" class="play-button">Play Again</button>
+            <button id="game-over-play-again-button" class="play-button">Play Again</button>
           </div>
         </div>
       </div>
@@ -225,7 +225,7 @@
           
           <div class="post-game-button-container">
             <button id="victory-menu-button" class="play-button">Menu</button>
-            <button id="play-again-button" class="play-button">Play Again</button>
+            <button id="victory-play-again-button" class="play-button">Play Again</button>
           </div>
         </div>
       </div>

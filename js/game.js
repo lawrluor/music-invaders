@@ -2,6 +2,10 @@
  * Game class for Space Invaders
  */
 
+// Constants
+const WAVE_NUMBER = 5;
+
+
 class Game {
   constructor(canvas) {
     // Canvas setup
@@ -31,7 +35,7 @@ class Game {
       power: 1, // Power level of the charged laser (1-4)
       isFiring: false // Flag to prevent multiple firings in quick succession
     };
-    this.wave = 1;
+    this.wave = WAVE_NUMBER
     this.health = 100;
     this.initialHealth = 100;
     this.wavesTotal = 5;
@@ -155,17 +159,6 @@ class Game {
     // Track selected game mode and chord mode
     this.selectedGameMode = 'classic';
     this.selectedChordMode = false;
- 
-    const playAgainButton = document.getElementById('play-again-button');
-    if (playAgainButton) {
-      playAgainButton.addEventListener('click', () => {
-        // Maintain the current game mode and chord mode
-        this.startGame(this.gameMode, this.chordMode);
-        // Update the global selections to match
-        window.selectedGameMode = this.gameMode;
-        window.selectedChordMode = this.chordMode;
-      });
-    }
     
     const restartGameButton = document.getElementById('restart-game-button');
     if (restartGameButton) {
@@ -195,7 +188,7 @@ class Game {
       });
     }
     
-    // Add return to menu buttons
+    // Add listener on return to menu buttons on game over and victory screens
     const gameOverMenuButton = document.getElementById('game-over-menu-button');
     if (gameOverMenuButton) {
       gameOverMenuButton.addEventListener('click', () => this.returnToMenu());
@@ -205,8 +198,18 @@ class Game {
     if (victoryMenuButton) {
       victoryMenuButton.addEventListener('click', () => this.returnToMenu());
     }
+
+    const gameOverPlayAgainButton = document.getElementById('game-over-play-again-button');
+    if (gameOverPlayAgainButton) {
+      gameOverPlayAgainButton.addEventListener('click', () => this.restartGame());
+    }
+
+    const victoryPlayAgainButton = document.getElementById('victory-play-again-button');
+    if (victoryPlayAgainButton) {
+      victoryPlayAgainButton.addEventListener('click', () => this.restartGame());
+    }
     
-    // Add exit to menu button
+    // Add listener to exit to menu button (present during gameplay)
     const exitToMenuButton = document.getElementById('exit-to-menu-button');
     if (exitToMenuButton) {
       exitToMenuButton.addEventListener('click', () => {
@@ -274,7 +277,7 @@ class Game {
     // Reset game state
     this.gameState = 'playing';
     this.score = 0;
-    this.wave = 1;
+    this.wave = WAVE_NUMBER
     this.health = this.initialHealth;
     this.lastProcessedNotes = {};
     this.activeNotes = new Set();
@@ -319,6 +322,11 @@ class Game {
     this.lastFrameTime = performance.now();
     this.frameCount = 0;
     this.lastFpsUpdate = 0;
+    
+    // Hide settings button during gameplay
+    if (typeof window.toggleSettingsButtonVisibility === 'function') {
+      window.toggleSettingsButtonVisibility(this.gameState);
+    }
     
     // Make sure the game loop is running
     if (!this.animationFrameId) {
@@ -482,16 +490,11 @@ class Game {
           this.health -= 20; // 20% of initial health (100)
           enemy.hitShield();
           enemy.die(); // Start death animation
+
           const soundController = this.getSoundController();
           if (soundController) {
             soundController.playEnemyShieldHitSound();
             soundController.playPlayerDamageSound();
-          }
-          
-          // Check if player is dead
-          if (this.health <= 0) {
-            this.gameOverReason = 'Your shield was destroyed by an enemy!';
-            this.gameOver();
           }
         }
 
@@ -518,21 +521,33 @@ class Game {
         }
       }
     }
-    
-    // Check if all enemies are dead
+
+    // Check if all enemies are defeated and there were enemies to begin with to ensure:
+    // 1. You don't trigger victory/wave transition if there were no enemies
+    // 2. You only trigger it when all enemies that existed are now dead
     if (allEnemiesDead && this.enemies.length > 0) {
       // Check if this was the last wave for classic mode
       if (this.gameMode === 'classic' && this.wave >= this.wavesTotal) {
         this.victory();
+        return; // Exit early to prevent simultaneous game over checks
       } else {
         this.startWaveTransition();
+        return; // Exit early to prevent simultaneous game over checks
       }
+    } 
+    
+    // Check if out of ammo only if there are no active lasers on the field
+    // This ensures the last shot has time to register and kill an enemy before checking ammo
+    if (this.player.ammo <= 0 && !this.lasers.length) {
+      // Only trigger game over if there are no active lasers that might still hit enemies
+      this.gameOver('You ran out of ammo!');
+      return; // Exit early to prevent simultaneous game over checks
     }
 
-    // Check if out of ammo
-    if (this.player.ammo <= 0) {
-      this.gameOverReason = 'You ran out of ammo!';
-      this.gameOver();
+    // Check if player is dead
+    if (this.health <= 0) {
+      this.gameOver('Your shield was destroyed by an enemy!');
+      return; // Exit early to prevent simultaneous game over checks
     }
     
     // Update UI
@@ -552,6 +567,11 @@ class Game {
     this.gameState = 'waveTransition';
     this.waveTransitionStart = performance.now();
     this.wave++;
+    
+    // Hide settings button during wave transition
+    if (typeof window.toggleSettingsButtonVisibility === 'function') {
+      window.toggleSettingsButtonVisibility(this.gameState);
+    }
     
     // Update UI
     this.uiElements.nextWave.textContent = this.wave;
@@ -594,12 +614,14 @@ class Game {
   }
   
   // Game over
-  gameOver() {
+  gameOver(reason) {
     this.gameState = 'gameOver';
+    this.gameOverReason = reason || 'You were defeated!';
     
-    // Store the base score before adding bonus
-    const baseScore = this.score;
-    
+    // Show settings button on game over screen
+    if (typeof window.toggleSettingsButtonVisibility === 'function') {
+      window.toggleSettingsButtonVisibility(this.gameState);
+    }
     // Add wave bonus in both classic and survival modes
     let waveBonus = 0;
     // In classic mode, only add wave bonus if they completed at least one wave
@@ -654,20 +676,7 @@ class Game {
     document.getElementById('game-over-reason').textContent = this.gameOverReason;
     
     this.uiElements.gameOverScreen.classList.remove('hidden');
-    
-    // Add event listener for the return to menu button
-    const menuButton = document.getElementById('game-over-menu-button');
-    if (menuButton) {
-      // Remove any existing event listeners
-      const newMenuButton = menuButton.cloneNode(true);
-      menuButton.parentNode.replaceChild(newMenuButton, menuButton);
-      
-      // Add new event listener
-      newMenuButton.addEventListener('click', () => {
-        this.returnToMenu();
-      });
-    }
-    
+
     // Play sound - special jingle for high score
     const soundController = this.getSoundController();
     if (soundController) {
@@ -678,6 +687,11 @@ class Game {
   // Victory
   victory() {
     this.gameState = 'victory';
+    
+    // Show settings button on victory screen
+    if (typeof window.toggleSettingsButtonVisibility === 'function') {
+      window.toggleSettingsButtonVisibility(this.gameState);
+    }
     
     // Store the base score before adding bonus
     const baseScore = this.score;
@@ -739,19 +753,6 @@ class Game {
     document.getElementById('health-bonus').textContent = healthBonus;
     this.uiElements.victoryScore.textContent = this.score;
     this.uiElements.victoryScreen.classList.remove('hidden');
-    
-    // Add event listener for the return to menu button
-    const menuButton = document.getElementById('victory-menu-button');
-    if (menuButton) {
-      // Remove any existing event listeners
-      const newMenuButton = menuButton.cloneNode(true);
-      menuButton.parentNode.replaceChild(newMenuButton, menuButton);
-      
-      // Add new event listener
-      newMenuButton.addEventListener('click', () => {
-        this.returnToMenu();
-      });
-    }
     
     // Play sound - special jingle for high score
     const soundController = this.getSoundController();
@@ -846,26 +847,25 @@ class Game {
         }
       }
     } else {
-      // SINGLE NOTE MODE: Fire immediately as before
-      if (this.player.fire()) {
-        // For single note mode
-        const matchingEnemy = this.enemies.find(enemy => enemy.alive && enemy.matchesNote(note));
-        
-        // Calculate target position
-        let targetX, targetY;
-        let hit = false;
-        
-        if (matchingEnemy) {
-          // Hit enemy
-          targetX = matchingEnemy.x + matchingEnemy.width / 2;
-          targetY = matchingEnemy.y + matchingEnemy.height / 2;
-          hit = true;
-        } else {
-          // Miss - target position based on note
-          targetX = utils.midiNoteToXPosition(note, this.canvas.width, this.midiRange.min, this.midiRange.max);
-          targetY = 0;  // Laser shoot to top of screen
-        }
+      // SINGLE NOTE MODE: Fire immediately
+      const matchingEnemy = this.enemies.find(enemy => enemy.alive && enemy.matchesNote(note));
       
+      // Calculate target position
+      let targetX, targetY;
+      let hit = false;
+      
+      if (matchingEnemy) {
+        // Hit enemy
+        targetX = matchingEnemy.x + matchingEnemy.width / 2;
+        targetY = matchingEnemy.y + matchingEnemy.height / 2;
+        hit = true;
+      } else {
+        // Miss - target position based on note
+        targetX = utils.midiNoteToXPosition(note, this.canvas.width, this.midiRange.min, this.midiRange.max);
+        targetY = 0;  // Laser shoot to top of screen
+      }
+  
+    
       // Move player to note position first
       this.player.moveTo(targetX);
       
@@ -920,10 +920,11 @@ class Game {
         
         // Add laser
         this.lasers.push(laser);
+
+        // AFTER everything, decrement ammo
+        this.player.ammo--;
       }, 100); // 100ms delay to allow player to move first
-    }
-  }
-}
+    }}
   
   // Handle MIDI note off event
   handleNoteOff(note) {
@@ -942,7 +943,7 @@ class Game {
       
       // If no more notes are held, release the charge
       if (this.chordCharge.notes.size === 0) {
-        // Stop the charging sound if all notes are released
+        // Stop the charging sound when resetting
         const soundController = this.getSoundController();
         if (soundController) {
           soundController.stopLaserChargeSound();
@@ -968,7 +969,7 @@ class Game {
   // Fire a charged laser at a specific enemy
   fireChargedLaser(matchingEnemy) {
     // Prevent firing if already in the process of firing (happens when pressing notes simultaneously)
-    if (this.chordCharge.isFiring || !this.player.fire()) return;
+    if (this.chordCharge.isFiring) return;
     
     // Set the firing flag to prevent multiple shots
     this.chordCharge.isFiring = true;
@@ -1040,13 +1041,16 @@ class Game {
       
       // Reset chord charge
       this.resetChordCharge();
+
+      // AFTER everything, decrement ammo
+      this.player.ammo--;
     }, 200); // small delay to allow player to move first before firing
   }
   
   // Release the charged laser without a specific target
   releaseChordCharge() {
     // Prevent firing if already in the process of firing
-    if (this.chordCharge.isFiring || !this.chordCharge.active || !this.player.fire()) return;
+    if (this.chordCharge.isFiring || !this.chordCharge.active) return;
     
     // Set the firing flag to prevent multiple shots
     this.chordCharge.isFiring = true;
@@ -1114,6 +1118,9 @@ class Game {
       
       // Reset chord charge
       this.resetChordCharge();
+
+      // Decrement ammo
+      this.player.ammo--;
     }, 100);
   }
   
@@ -1392,7 +1399,7 @@ class Game {
   // Reset game to initial state
   reset() {
     this.gameState = 'title';
-    this.wave = 1;
+    this.wave = WAVE_NUMBER
     this.score = 0;
     this.health = 100;
     this.gameOverReason = '';
@@ -1467,6 +1474,11 @@ class Game {
       loadAndDisplayHighScores();
     } else if (window.loadAndDisplayHighScores) {
       window.loadAndDisplayHighScores();
+    }
+    
+    // Show settings button on title screen
+    if (typeof window.toggleSettingsButtonVisibility === 'function') {
+      window.toggleSettingsButtonVisibility(this.gameState);
     }
     
     // Restart the game loop to ensure proper rendering

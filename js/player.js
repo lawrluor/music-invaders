@@ -21,7 +21,7 @@ class Player {
     this.shieldY = this.y - this.shieldHeight;
     
     // Ammo
-    this.maxAmmo = 60;
+    this.maxAmmo = 12;
     this.ammo = this.maxAmmo;
     this.isChordMode = chordMode; // Store chord mode state
   }
@@ -257,15 +257,6 @@ class Player {
   moveTo(x) {
     // Ensure player stays within canvas bounds
     this.targetX = Math.max(0, Math.min(this.canvasWidth - this.width, x - this.width / 2));
-  }
-  
-  // Fire a laser
-  fire() {
-    if (this.ammo > 0) {
-      this.ammo--;
-      return true;
-    }
-    return false;
   }
   
   // DEBUG ONLY: Export player as a PNG image file

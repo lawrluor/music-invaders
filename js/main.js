@@ -93,9 +93,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   addStartGameListener(chordClassicButton, 'classic', true);
   addStartGameListener(chordSurvivalButton, 'survival', true);
   
-  // Settings modal functionality
-  const settingsButton = document.getElementById('settings-icon');
+  // Get references to UI elements
   const settingsModal = document.getElementById('settings-modal');
+  const settingsButton = document.getElementById('settings-icon');
+  const settingsButtonContainer = document.getElementById('settings-button-container');
   const closeSettingsButton = document.getElementById('close-settings');
   const muteCheckbox = document.getElementById('mute-sound');
   const muteToggleButton = document.getElementById('mute-toggle-button');
@@ -103,6 +104,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   const useLargeFontCheckbox = document.getElementById('use-large-font');
   const useMusicFontCheckbox = document.getElementById('use-music-font');
   const hideUncommonChordsCheckbox = document.getElementById('hide-uncommon-chords');
+  
+  // Function to toggle settings button visibility based on game state
+  window.toggleSettingsButtonVisibility = function(gameState) {
+    if (!settingsButtonContainer) return;
+    
+    // Show settings button only on title, game over, and victory screens
+    if (gameState === 'title' || gameState === 'gameOver' || gameState === 'victory') {
+      settingsButtonContainer.style.display = 'block';
+    } else {
+      // Hide during gameplay and wave transitions
+      settingsButtonContainer.style.display = 'none';
+    }
+  };
+  
+  // Initial visibility state
+  window.toggleSettingsButtonVisibility('title');
   
   // Initialize checkbox states from localStorage
   if (useChordAbbreviationsCheckbox) {
