@@ -3,8 +3,7 @@
  */
 
 // Constants
-const WAVE_NUMBER = 5;
-
+const WAVE_NUMBER = 1;
 
 class Game {
   constructor(canvas) {
@@ -538,7 +537,7 @@ class Game {
     
     // Check if out of ammo only if there are no active lasers on the field
     // This ensures the last shot has time to register and kill an enemy before checking ammo
-    if (this.player.ammo <= 0 && !this.lasers.length) {
+    if (!this.player.hasAmmo() && !this.lasers.length) {
       // Only trigger game over if there are no active lasers that might still hit enemies
       this.gameOver('You ran out of ammo!');
       return; // Exit early to prevent simultaneous game over checks
@@ -764,7 +763,7 @@ class Game {
   // Handle MIDI note on event
   handleNoteOn(note, velocity) {
     // Only process if in playing state
-    if (this.gameState !== 'playing' || !this.player) return;
+    if (this.gameState !== 'playing' || !this.player || !this.player.hasAmmo()) return;
     
     // Prevent duplicate processing (some MIDI devices send multiple note on events)
     if (this.lastProcessedNotes[note] && performance.now() - this.lastProcessedNotes[note] < 100) {
@@ -848,6 +847,8 @@ class Game {
       }
     } else {
       // SINGLE NOTE MODE: Fire immediately
+      if (!this.player.hasAmmo()) return;
+
       const matchingEnemy = this.enemies.find(enemy => enemy.alive && enemy.matchesNote(note));
       
       // Calculate target position
@@ -1044,13 +1045,13 @@ class Game {
 
       // AFTER everything, decrement ammo
       this.player.ammo--;
-    }, 200); // small delay to allow player to move first before firing
+    }, 160); // small delay to allow player to move first before firing
   }
   
   // Release the charged laser without a specific target
   releaseChordCharge() {
     // Prevent firing if already in the process of firing
-    if (this.chordCharge.isFiring || !this.chordCharge.active) return;
+    if (this.chordCharge.isFiring || !this.chordCharge.active || !this.player.hasAmmo()) return;
     
     // Set the firing flag to prevent multiple shots
     this.chordCharge.isFiring = true;
@@ -1238,7 +1239,7 @@ class Game {
       // Update ammo value text
       const ammoValue = document.getElementById('ammo-value');
       if (ammoValue) {
-        ammoValue.textContent = this.player.ammo;
+        ammoValue.textContent = Math.max(0, this.player.ammo);  // Never display negative ammo value
       }
     }
     

@@ -14,14 +14,14 @@ class Player {
     
     // Movement
     this.targetX = this.x;
-    this.moveSpeed = 0.2; // Factor for smooth movement (0-1)
+    this.moveSpeed = 0.35; // Factor for smooth movement (0-1)
     
     // Shield
     this.shieldHeight = 30;
     this.shieldY = this.y - this.shieldHeight;
     
     // Ammo
-    this.maxAmmo = 12;
+    this.maxAmmo = 60;
     this.ammo = this.maxAmmo;
     this.isChordMode = chordMode; // Store chord mode state
   }
@@ -55,6 +55,10 @@ class Player {
     
     // Reset ammo
     this.ammo = this.maxAmmo;
+  }
+
+  hasAmmo() {
+    return this.ammo > 0;
   }
   
   // Draw player and shield
