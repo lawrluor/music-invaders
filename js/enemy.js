@@ -39,7 +39,7 @@ class Enemy {
     }
     
     // Movement
-    this.speed = 600; // 12.5 + Math.random() * 2.5; // Pixels per second
+    this.speed = 12.5 + Math.random() * 2.5; // Pixels per second
     this.wobbleAmount = 10;
     this.wobbleSpeed = 1 + Math.random() * 0.5;
     
