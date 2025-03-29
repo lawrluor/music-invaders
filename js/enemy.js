@@ -140,6 +140,8 @@ class Enemy {
       ctx.lineWidth = 1;
       ctx.stroke();
     }
+
+    drawBubble(this.width);
         
     // Create glow effect
     try {
@@ -369,52 +371,47 @@ class Enemy {
     ctx.fill();
     
     // Draw note/chord name below enemy
-    function drawText() {
-      ctx.fillStyle = '#dddddd'; // Light grey instead of white for better readability
-      
-      // Check if large font and music font are enabled
-      const useLargeFont = localStorage.getItem('useLargeFont') === 'true';
-      const useMusicFont = localStorage.getItem('useMusicFont') !== 'false'; // Default to true if not set
-      
-      // Set font based on user preferences
-      if (useMusicFont) {
-        // Use Bravura music font with fallback to Helvetica/Verdana for better superscript rendering
-        ctx.font = useLargeFont 
-          ? 'bold 40px Bravura, Helvetica, Verdana, sans-serif' 
-          : 'bold 30px Bravura, Helvetica, Verdana, sans-serif';
-        // Add letter spacing for better readability
-        ctx.letterSpacing = '1px';
-      } else {
-        // Use Helvetica/Verdana for better superscript rendering
-        ctx.font = useLargeFont 
-          ? 'bold 40px Helvetica, Verdana, sans-serif' 
-          : 'bold 30px Helvetica, Verdana, sans-serif';
-      }
-
-      drawText();
-      drawBubble(this.width);
-      
-      // Canvas API doesn't directly support letterSpacing, but we can implement it manually if needed
-      // For now, we'll rely on the font's natural spacing
-      
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      
-      // Position below enemy
-      const noteY = centerY + this.height/2 + 5;
-      
-      // Add text shadow for glow effect
-      ctx.shadowColor = this.color;
-      ctx.shadowBlur = 0.5;
-      ctx.fillText(this.displayName, centerX, noteY);
-      
-      // Add second shadow for stronger glow
-      ctx.shadowBlur = 0.5;
-      ctx.fillText(this.displayName, centerX, noteY);
-      
-      // Reset shadow
-      ctx.shadowBlur = 0;
+    ctx.fillStyle = '#dddddd'; // Light grey instead of white for better readability
+    
+    // Check if large font and music font are enabled
+    const useLargeFont = localStorage.getItem('useLargeFont') === 'true';
+    const useMusicFont = localStorage.getItem('useMusicFont') !== 'false'; // Default to true if not set
+    
+    // Set font based on user preferences
+    if (useMusicFont) {
+      // Use Bravura music font with fallback to Helvetica/Verdana for better superscript rendering
+      ctx.font = useLargeFont 
+        ? 'bold 40px Bravura, Helvetica, Verdana, sans-serif' 
+        : 'bold 30px Bravura, Helvetica, Verdana, sans-serif';
+      // Add letter spacing for better readability
+      ctx.letterSpacing = '1px';
+    } else {
+      // Use Helvetica/Verdana for better superscript rendering
+      ctx.font = useLargeFont 
+        ? 'bold 40px Helvetica, Verdana, sans-serif' 
+        : 'bold 30px Helvetica, Verdana, sans-serif';
     }
+    
+    // Canvas API doesn't directly support letterSpacing, but we can implement it manually if needed
+    // For now, we'll rely on the font's natural spacing
+    
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    // Position below enemy
+    const noteY = centerY + this.height/2 + 5;
+    
+    // Add text shadow for glow effect
+    ctx.shadowColor = this.color;
+    ctx.shadowBlur = 0.5;
+    ctx.fillText(this.displayName, centerX, noteY);
+    
+    // Add second shadow for stronger glow
+    ctx.shadowBlur = 0.5;
+    ctx.fillText(this.displayName, centerX, noteY);
+    
+    // Reset shadow
+    ctx.shadowBlur = 0;
     
     // Restore context
     ctx.restore();

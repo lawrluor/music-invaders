@@ -22,51 +22,53 @@
     z-index: -100;
     rotate: 180deg;
     top: -29px;
-    left: 10%;
+    left: 5%;
     opacity: 0.75;
   }
   
   #alien-sprite-bottom-left {
     position: absolute;
     z-index: -100;
-    bottom: 1vh;
-    left: 20%;
-    animation: moveAlienTitle 6s linear infinite, rotateAlienTitle 1.5s ease-in-out infinite;
-    opacity: 0.3;
+    bottom: -10vh;
+    left: 15%;
+    animation: moveAlienTitle 30s linear infinite, rotateAlienTitle 5s ease-in infinite;
+    animation-delay: 15s;
+    opacity: 0.75;
   }
   
   @keyframes moveAlienTitle {
     0% {
-     bottom: -10vh; 
-     transform: translateY(-100%);
+      bottom: -10vh; 
     }
     25% {
-      bottom: 20vh;
-      transform: translateY(100%);
+      bottom: 30vh;
     }
     50% {
-      bottom: 50vh;
-      transform: translateY(-100%);
+      bottom: 70vh;
     }
     75% {
-      bottom: 80vh;
-      transform: translateY(100%);
+      bottom: 110vh;
     }
     100% {
-      bottom: 110vh;
-      transform: translateY(-100%);
+      bottom: 220vh;
     }
   }
   
   @keyframes rotateAlienTitle {
     0% {
-      rotate: 15deg;
+      rotate: 10deg;
+    }
+    25% {
+      rotate: -5deg;
     }
     50% {
-      rotate: -15deg;
+      rotate: 5deg;
+    }
+    75% {
+      rotate: -10deg;
     }
     100% {
-      rotate: 15deg;
+      rotate: 10deg;
     }
   }
   
