@@ -287,6 +287,9 @@ class Game {
     
     // Create player with chord mode parameter
     this.player = new Player(this.canvas.width, this.canvas.height, this.chordMode);
+
+    // DEBUG ONLY: Export player as image
+    //this.player.exportAsImage();
     
     // Clear existing objects
     this.enemies = [];
@@ -408,6 +411,7 @@ class Game {
         
         // Create enemy with single note
         enemy = new Enemy(x, y, note, animationOffset);
+        // enemy.exportAsImage();  // DEBUG only
       }
       
       this.enemies.push(enemy);

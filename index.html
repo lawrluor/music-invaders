@@ -62,12 +62,18 @@
       
       <!-- Title Screen -->
       <div id="title-screen">
+        <img src="img/sprites/enemy_blue.png" alt="Enemy Image" id="alien-sprite-top-left" class="game-image">
+        <img src="img/sprites/enemy_yellow.png" alt="Enemy Image" id="alien-sprite-bottom-left" class="game-image">
+
         <div class="title-header">
-          <h1>👾 <span class="screen-title">Music Invaders</span> 👾</h1>
+          <h1>
+            <span class="screen-title">Music Invaders</span>
+          </h1>
           <button id="settings-button" class="icon-button">⚙️</button>
         </div>
         
         <div class="instructions-container">
+          <img src="img/sprites/enemy_red.png" alt="Enemy Image" id="alien-sprite-instructions-container-top" class="game-image">
           <h2>How to Play 🕹️</h2>
           <ul class="instructions-list">
             <li>Use your <a href="https://www.sweetwater.com/sweetcare/articles/getting-started-with-midi-keyboards/" target="_blank" rel="noopener noreferrer" class="instructions-link">MIDI instrument</a> as a controller to shoot down enemies.</li>
@@ -92,6 +98,8 @@
               <div style="display: none;" id="midi-test-area">Play a note on your MIDI device to test</div>
             </div>
           </div>
+          
+          <img src="img/sprites/enemy_purple.png" alt="Enemy Image" id="alien-sprite-instructions-container-side" class="game-image">
         </div>
         
         <div class="game-mode-selection">
@@ -152,7 +160,17 @@
       <div id="game-over-screen" class="hidden">
         <div class="game-over-container">
           <h1 class="screen-title game-over-title">Game Over</h1>
-          
+
+          <div>
+            <div>
+              <img src="img/sprites/enemy_red.png" alt="Enemy Image" style="translate: 100% 200%;" class="alien-sprite-game-over">
+              <img src="img/sprites/enemy_red.png" alt="Enemy Image" class="alien-sprite-game-over">
+              <img src="img/sprites/enemy_red.png" alt="Enemy Image" style="translate: -100% 200%;" class="alien-sprite-game-over">
+            </div>
+
+            <img src="img/sprites/player.png" alt="Player Image" style="translate: 300px 275px;" class="player-sprite-game-over">
+          </div>
+
           <div class="game-over-info">
             <h2 id="game-over-reason" class="reason">You were defeated!</h2>
             
@@ -178,6 +196,16 @@
       <!-- Victory Screen -->
       <div id="victory-screen" class="hidden">
         <div class="victory-container">
+          <div class="alien-sprites-victory">
+            <img src="img/sprites/enemy_purple.png" alt="Enemy Image" style="translate: -100% -100%;" class="alien-sprite-victory">
+            <img src="img/sprites/enemy_blue.png" alt="Enemy Image" style="translate: 0 -200%;"class="alien-sprite-victory">
+            <img src="img/sprites/enemy_yellow.png" alt="Enemy Image" style="translate: 100% -100%;" class="alien-sprite-victory">
+
+          </div>
+
+          <img src="img/sprites/player.png" alt="Player Image" style="translate: 0 25px;" class="player-sprite-victory">
+
+
           <h1 class="screen-title victory-title">Victory!</h1>
           <h2>You completed all <span id="waves-completed">0</span> waves!</h2>
           

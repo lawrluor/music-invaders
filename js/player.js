@@ -268,6 +268,45 @@ class Player {
     return false;
   }
   
+  // DEBUG ONLY: Export player as a PNG image file
+  exportAsImage(filename = 'player.png') {
+    // Create a temporary canvas with the player's dimensions
+    const canvas = document.createElement('canvas');
+    canvas.width = this.width;
+    canvas.height = this.height;
+    const ctx = canvas.getContext('2d');
+    
+    // Save the current position and state
+    const originalX = this.x;
+    const originalY = this.y;
+    const originalThrust = this.thrust;
+    
+    // Temporarily position at 0,0 for the export and set thrust to true to show engine glow
+    this.x = 0;
+    this.y = 0;
+    this.thrust = true;
+    
+    // Draw the player on the temporary canvas
+    this.draw(ctx);
+    
+    // Restore the original position and state
+    this.x = originalX;
+    this.y = originalY;
+    this.thrust = originalThrust;
+    
+    // Create a download link for the image
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = canvas.toDataURL('image/png');
+    
+    // Trigger the download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    return canvas; // Return the canvas in case it's needed for other purposes
+  }
+  
   // Check if a point is within the shield
   isPointInShield(x, y) {
     const shieldWidth = this.canvasWidth * 0.95; // 95% of canvas width - expanded to catch more enemies

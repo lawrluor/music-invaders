@@ -39,7 +39,7 @@ class Enemy {
     }
     
     // Movement
-    this.speed = 12.5 + Math.random() * 2.5; // Pixels per second
+    this.speed = 600; // 12.5 + Math.random() * 2.5; // Pixels per second
     this.wobbleAmount = 10;
     this.wobbleSpeed = 1 + Math.random() * 0.5;
     
@@ -132,13 +132,15 @@ class Enemy {
     // Animation - bouncy effect
     const bounceAmount = Math.sin(this.animationTime * 3) * 3;
     
-    // Draw container (circular border with glow)
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, this.width / 2 - 2, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(255, 255, 255, 0.2)`;
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    
+    // Draw bubble container (circular border with glow)
+    function drawBubble(width) {
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, width / 2 - 2, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(255, 255, 255, 0.2)`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+        
     // Create glow effect
     try {
       const glowRadius = this.width / 2;
@@ -366,50 +368,53 @@ class Enemy {
     );
     ctx.fill();
     
-
-    
     // Draw note/chord name below enemy
-    ctx.fillStyle = '#dddddd'; // Light grey instead of white for better readability
-    
-    // Check if large font and music font are enabled
-    const useLargeFont = localStorage.getItem('useLargeFont') === 'true';
-    const useMusicFont = localStorage.getItem('useMusicFont') !== 'false'; // Default to true if not set
-    
-    // Set font based on user preferences
-    if (useMusicFont) {
-      // Use Bravura music font with fallback to Helvetica/Verdana for better superscript rendering
-      ctx.font = useLargeFont 
-        ? 'bold 40px Bravura, Helvetica, Verdana, sans-serif' 
-        : 'bold 30px Bravura, Helvetica, Verdana, sans-serif';
-      // Add letter spacing for better readability
-      ctx.letterSpacing = '1px';
-    } else {
-      // Use Helvetica/Verdana for better superscript rendering
-      ctx.font = useLargeFont 
-        ? 'bold 40px Helvetica, Verdana, sans-serif' 
-        : 'bold 30px Helvetica, Verdana, sans-serif';
+    function drawText() {
+      ctx.fillStyle = '#dddddd'; // Light grey instead of white for better readability
+      
+      // Check if large font and music font are enabled
+      const useLargeFont = localStorage.getItem('useLargeFont') === 'true';
+      const useMusicFont = localStorage.getItem('useMusicFont') !== 'false'; // Default to true if not set
+      
+      // Set font based on user preferences
+      if (useMusicFont) {
+        // Use Bravura music font with fallback to Helvetica/Verdana for better superscript rendering
+        ctx.font = useLargeFont 
+          ? 'bold 40px Bravura, Helvetica, Verdana, sans-serif' 
+          : 'bold 30px Bravura, Helvetica, Verdana, sans-serif';
+        // Add letter spacing for better readability
+        ctx.letterSpacing = '1px';
+      } else {
+        // Use Helvetica/Verdana for better superscript rendering
+        ctx.font = useLargeFont 
+          ? 'bold 40px Helvetica, Verdana, sans-serif' 
+          : 'bold 30px Helvetica, Verdana, sans-serif';
+      }
+
+      drawText();
+      drawBubble(this.width);
+      
+      // Canvas API doesn't directly support letterSpacing, but we can implement it manually if needed
+      // For now, we'll rely on the font's natural spacing
+      
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      // Position below enemy
+      const noteY = centerY + this.height/2 + 5;
+      
+      // Add text shadow for glow effect
+      ctx.shadowColor = this.color;
+      ctx.shadowBlur = 0.5;
+      ctx.fillText(this.displayName, centerX, noteY);
+      
+      // Add second shadow for stronger glow
+      ctx.shadowBlur = 0.5;
+      ctx.fillText(this.displayName, centerX, noteY);
+      
+      // Reset shadow
+      ctx.shadowBlur = 0;
     }
-    
-    // Canvas API doesn't directly support letterSpacing, but we can implement it manually if needed
-    // For now, we'll rely on the font's natural spacing
-    
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    
-    // Position below enemy
-    const noteY = centerY + this.height/2 + 5;
-    
-    // Add text shadow for glow effect
-    ctx.shadowColor = this.color;
-    ctx.shadowBlur = 0.5;
-    ctx.fillText(this.displayName, centerX, noteY);
-    
-    // Add second shadow for stronger glow
-    ctx.shadowBlur = 0.5;
-    ctx.fillText(this.displayName, centerX, noteY);
-    
-    // Reset shadow
-    ctx.shadowBlur = 0;
     
     // Restore context
     ctx.restore();
@@ -483,5 +488,41 @@ class Enemy {
   // Check if enemy is below the shield
   isBelowShield(shieldY) {
     return this.y + this.height > shieldY;
+  }
+  
+  // DEBUG ONLY: Export enemy as an image file
+  exportAsImage(filename = 'enemy.png') {
+    // Create a temporary canvas with the enemy's dimensions
+    const canvas = document.createElement('canvas');
+    canvas.width = this.width;
+    canvas.height = this.height;
+    const ctx = canvas.getContext('2d');
+    
+    // Save the current position
+    const originalX = this.x;
+    const originalY = this.y;
+    
+    // Temporarily position at 0,0 for the export
+    this.x = 0;
+    this.y = 0;
+    
+    // Draw the enemy on the temporary canvas
+    this.draw(ctx);
+    
+    // Restore the original position
+    this.x = originalX;
+    this.y = originalY;
+    
+    // Create a download link for the image
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = canvas.toDataURL('image/png');
+    
+    // Trigger the download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    return canvas; // Return the canvas in case it's needed for other purposes
   }
 }

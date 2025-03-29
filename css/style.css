@@ -492,7 +492,6 @@ canvas {
   align-items: center;
   max-width: 600px;
   padding: var(--spacing-large);
-  background-color: var(--color-off-black);
 }
 
 .game-over-info {
@@ -612,6 +611,8 @@ canvas {
   border-radius: var(--border-radius-medium);
   padding: var(--spacing-huge);
   border: 1px solid var(--color-green);
+  position: relative;
+  overflow: visible;
 }
 
 .instructions-list {
@@ -679,7 +680,6 @@ canvas {
   align-items: center;
   max-width: 600px;
   padding: var(--spacing-large);
-  background-color: var(--color-off-black);
 }
 
 .victory-title {
@@ -708,3 +708,159 @@ canvas {
   margin-bottom: var(--spacing-tiny);
 }
 
+#alien-sprite-instructions-container-side {
+  position: absolute;
+  rotate: 55deg;
+  z-index: -100;
+  right: -15px;
+  top: 70%;
+  transform: translateY(-30%);
+  opacity: 0.75;
+}
+
+#alien-sprite-instructions-container-top {
+  position: absolute;
+  z-index: -100;
+  right: 100px;
+  top: -25px;
+  opacity: 0.75;
+}
+
+#alien-sprite-top-left {
+  position: absolute;
+  z-index: -100;
+  rotate: 180deg;
+  top: -27.5px;
+  left: 10%;
+  opacity: 0.75;
+}
+
+#alien-sprite-bottom-left {
+  position: absolute;
+  z-index: -100;
+  bottom: 1vh;
+  left: 20%;
+  animation: moveAlien 6s linear infinite, rotateAlien 1.5s ease-in-out infinite;
+  opacity: 0.3;
+}
+
+.alien-sprite-game-over {
+  position: absolute;
+  z-index: -100;
+  left: -33%;
+  top: -33%;
+  opacity: 0.5;
+  display: inline;
+  rotate: 135deg;
+  animation: gameOverChasing 4.5s linear forwards;
+}
+
+.player-sprite-game-over {
+  position: absolute;
+  z-index: -100;
+  left: -33%;
+  top: -33%;
+  opacity: 0.5;
+  display: inline;
+  rotate: 135deg;
+  animation: gameOverChasing 5s linear forwards;
+}
+
+.player-sprite-victory {
+  position: absolute;
+  z-index: -100;
+  bottom: -33%;
+  right: 20%;
+  opacity: 0.75;
+  display: inline;
+  animation: victoryChasing 2.5s ease-in forwards;
+}
+
+.alien-sprite-victory {
+  position: absolute;
+  z-index: -100;
+  bottom: -33%;
+  right: 20%;
+  opacity: 0.75;
+  display: inline;
+  animation: victoryChasing 3s linear forwards, victoryRotating 0.8s linear infinite;
+}
+
+@keyframes victoryRotating {
+  0% {
+    rotate: 0deg;
+  }
+  100% {
+    rotate: 360deg;
+  }
+}
+
+@keyframes victoryChasing {
+  0% {
+    bottom: -33%;
+  }
+  100% {
+    bottom: 133%;
+  }
+}
+
+@keyframes gameOverChasing {
+  0% {
+    left: -33%;
+    top: -33%;
+  }
+  100% {
+    left: 133%;
+    top: 133%;
+  }
+}
+
+@keyframes moveAlien {
+  0% {
+   bottom: -10vh; 
+   transform: translateY(-100%);
+  }
+  25% {
+    bottom: 20vh;
+    transform: translateY(100%);
+  }
+  50% {
+    bottom: 50vh;
+    transform: translateY(-100%);
+  }
+  75% {
+    bottom: 80vh;
+    transform: translateY(100%);
+  }
+  100% {
+    bottom: 110vh;
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes rotateAlienGameOver {
+  0% {
+    rotate: 135deg;
+    translate: 0px;
+  }
+  50% {
+    rotate: 150deg;
+    translate: -2px;
+  }
+  100% {
+    rotate: 135deg;
+    translate: 0px;
+  }
+}
+
+@keyframes rotateAlien {
+  0% {
+    rotate: 15deg;
+  }
+  50% {
+    rotate: -15deg;
+  }
+  100% {
+    rotate: 15deg;
+  }
+}
