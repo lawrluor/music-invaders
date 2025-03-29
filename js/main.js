@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   addStartGameListener(chordSurvivalButton, 'survival', true);
   
   // Settings modal functionality
-  const settingsButton = document.getElementById('settings-button');
+  const settingsButton = document.getElementById('settings-icon');
   const settingsModal = document.getElementById('settings-modal');
   const closeSettingsButton = document.getElementById('close-settings');
   const muteCheckbox = document.getElementById('mute-sound');

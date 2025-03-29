@@ -149,6 +149,7 @@ canvas {
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  border: none;
 }
 
 #mute-toggle-button:hover {
@@ -319,14 +320,13 @@ canvas {
   justify-content: center;
   align-items: center;
   position: relative;
-  width: 100%;
   padding: var(--spacing-large);
 }
 
-.icon-button {
+#settings-icon {
   position: absolute;
-  right: var(--spacing-large);
-  top: 0;
+  right: var(--spacing-huge);
+  top: var(--spacing-huge);
   background: none;
   border: none;
   font-size: var(--font-size-large);
@@ -335,7 +335,7 @@ canvas {
   transition: transform 0.3s ease;
 }
 
-.icon-button:hover {
+#settings-icon:hover {
   transform: rotate(30deg);
 }
 

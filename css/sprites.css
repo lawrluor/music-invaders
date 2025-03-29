@@ -7,14 +7,24 @@
     top: 70%;
     transform: translateY(-30%);
     opacity: 0.75;
+    transition: translate 0.25s ease;
   }
   
+  #alien-sprite-instructions-container-side:hover {
+    translate: 2px 2px;
+  }
+
   #alien-sprite-instructions-container-top {
     position: absolute;
     z-index: -100;
     right: 100px;
     top: -25px;
     opacity: 0.75;
+    transition: translate 0.25s ease;
+  }
+
+  #alien-sprite-instructions-container-top:hover {
+    translate: 0 -2px;
   }
   
   #alien-sprite-top-left {
@@ -24,6 +34,11 @@
     top: -29px;
     left: 5%;
     opacity: 0.75;
+    transition: translate 0.25s ease;
+  }
+
+  #alien-sprite-top-left:hover {
+    translate: 0 2px;
   }
   
   #alien-sprite-bottom-left {
