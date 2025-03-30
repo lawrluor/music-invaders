@@ -252,6 +252,9 @@ class Game {
   
   // Start a new game
   startGame(gameMode, chordMode = false) {
+    // DEDBUG ONLY
+    // this.exportBackgroundAsPNG();
+
     // Cancel any ongoing animation frame to prevent multiple loops
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
@@ -418,7 +421,9 @@ class Game {
         
         // Create enemy with single note
         enemy = new Enemy(x, y, note, animationOffset);
-        // enemy.exportAsImage();  // DEBUG only
+        
+        // DEBUG only
+        // enemy.exportAsImage(); 
       }
       
       this.enemies.push(enemy);
@@ -1365,8 +1370,8 @@ class Game {
     this.ctx.fillStyle = gradient;
     this.ctx.fillRect(0, 0, width, height);
     
-    // Draw some 'stars' as simple dots
-    this.ctx.fillStyle = '#fff';
+    // Draw some 'stars' as simple dots, off-white with reduced opacity
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
     
     // Draw fixed stars (don't move)
     for (let i = 0; i < 200; i++) {
@@ -1395,6 +1400,58 @@ class Game {
       this.ctx.arc(x, y, size, 0, Math.PI * 2);
       this.ctx.fill();
     }
+  }
+  
+  // Export background as PNG image
+  exportBackgroundAsPNG(filename = 'background.png') {    
+    // Create a temporary canvas with the same dimensions
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = this.canvas.width;
+    tempCanvas.height = this.canvas.height;
+    const tempCtx = tempCanvas.getContext('2d');
+
+    // Draw some 'stars' as simple dots, off-white with reduced opacity
+    tempCtx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+
+    // Draw fixed stars (don't move)
+    for (let i = 0; i < 200; i++) {
+      // Use prime numbers to get better distribution
+      const x = tempCanvas.width * ((i * 13) % 97) / 97;
+      const y = tempCanvas.height * ((i * 17) % 89) / 89;
+      const size = 1 + (i % 3);
+      
+      tempCtx.beginPath();
+      tempCtx.arc(x, y, size, 0, Math.PI * 2);
+      tempCtx.fill();
+    }
+    
+    // Draw animated stars (twinkle)
+    for (let i = 0; i < 100; i++) {
+      // Use prime numbers for better distribution
+      const x = tempCanvas.width * ((i * 23) % 101) / 101;
+      const y = tempCanvas.height * ((i * 29) % 103) / 103;
+      
+      // Calculate size with time-based twinkle effect
+      const twinkle = 0.5 + 0.5 * Math.sin(this.backgroundTime * 10 + i * 0.3);
+      const size = 1.5 + twinkle * 2.5;
+      
+      // Draw star
+      tempCtx.beginPath();
+      tempCtx.arc(x, y, size, 0, Math.PI * 2);
+      tempCtx.fill();
+    }
+    
+    // Create download link
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = tempCanvas.toDataURL('image/png');
+    
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    console.log(`Background exported as ${filename}`);
   }
   
   // Reset game to initial state

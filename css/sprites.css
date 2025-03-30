@@ -6,7 +6,7 @@
     right: -15px;
     top: 70%;
     transform: translateY(-30%);
-    opacity: 0.75;
+    opacity: 0.8;
     transition: translate 0.25s ease;
   }
   
@@ -19,7 +19,7 @@
     z-index: -100;
     right: 100px;
     top: -25px;
-    opacity: 0.75;
+    opacity: 0.8;
     transition: translate 0.25s ease;
   }
 
@@ -33,7 +33,7 @@
     rotate: 180deg;
     top: -29px;
     left: 5%;
-    opacity: 0.75;
+    opacity: 0.8;
     transition: translate 0.25s ease;
   }
 
@@ -48,7 +48,7 @@
     left: 15%;
     animation: moveAlienTitle 45s linear infinite, rotateAlienTitle 5s ease-in infinite;
     animation-delay: 0s;
-    opacity: 0.75;
+    opacity: 0.8;
   }
   
   @keyframes moveAlienTitle {
@@ -92,7 +92,7 @@
     z-index: -100;
     left: -33%;
     top: -33%;
-    opacity: 0.75;
+    opacity: 0.8;
     display: inline;
     rotate: 135deg;
     animation: gameOverChasing 5s linear forwards;
@@ -103,7 +103,7 @@
     z-index: -100;
     left: -33%;
     top: -33%;
-    opacity: 0.75;
+    opacity: 0.8;
     display: inline;
     rotate: 135deg;
     animation: gameOverChasing 5.5s linear forwards;
@@ -125,7 +125,7 @@
     z-index: -100;
     bottom: -33%;
     right: 20%;
-    opacity: 0.75;
+    opacity: 0.8;
     display: inline;
     animation: victoryChasing 2.5s ease-in forwards;
   }
@@ -135,7 +135,7 @@
     z-index: -100;
     bottom: -33%;
     right: 20%;
-    opacity: 0.75;
+    opacity: 0.8;
     display: inline;
     animation: victoryChasing 3s linear forwards, victoryRotating 0.8s linear infinite;
   }

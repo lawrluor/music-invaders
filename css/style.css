@@ -469,6 +469,7 @@ canvas {
   margin-bottom: 5px;
 }
 
+/* title-screen is the first full screen overlay we see on the home page!! */
 #title-screen, #game-over-screen, #victory-screen {
   position: absolute;
   top: 0;
@@ -479,7 +480,12 @@ canvas {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  background-color: var(--color-off-black); /* Almost fully opaque background */
+  background-color: var(--color-off-black);
+  background-image: url('../img/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
   z-index: 9;
   padding: 2rem 0.5rem;
   overflow-y: hidden;

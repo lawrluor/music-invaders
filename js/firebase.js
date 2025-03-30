@@ -44,10 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
           button_id: id,
           button_name: name
         });
-        console.log(`Firebase Analytics: Logged click on ${name}`);
       });
-    } else {
-      console.warn(`Firebase Analytics: Button with ID ${id} not found`);
     }
   });
   
