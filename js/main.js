@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (midiController) {
     await midiController.init();
   } else {
-    console.error('MIDI controller not found');
+    utils.log('MIDI controller not found');
   }
   
   // Get canvas element
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (soundController) {
     soundController.init();
   } else {
-    console.error('Sound controller not found');
+    utils.log('Sound controller not found');
   }
   
   // Initialize chord controller
@@ -261,5 +261,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
   
-  console.log('MIDI Space Invaders initialized');
+  utils.log('MIDI Space Invaders initialized');
 });

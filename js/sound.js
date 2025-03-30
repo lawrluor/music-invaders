@@ -52,9 +52,9 @@ class SoundController {
       // Initialize UI with current mute state
       this.updateMuteUI();
       
-      console.log('Sound controller initialized');
+      utils.log('Sound controller initialized');
     } catch (e) {
-      console.error('Web Audio API is not supported in this browser', e);
+      utils.error('Web Audio API is not supported in this browser', e);
     }
   }
   
@@ -530,7 +530,8 @@ class SoundController {
     
     // Play final major chord
     setTimeout(() => {
-      [60, 64, 67, 72].forEach(note => { // C4, E4, G4, C5 - C major chord
+      // Play a C major chord
+      [60, 64, 67].forEach(note => {
         const frequency = 440 * Math.pow(2, (note - 69) / 12);
         this.createOscillator(frequency, 1.8, 'sine', 0.3);
       });

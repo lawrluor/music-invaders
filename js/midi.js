@@ -51,7 +51,7 @@ class MidiController {
   
   // Handle successful MIDI access
   onMIDISuccess() {
-    console.log('MIDI access granted');
+    utils.log('MIDI access granted');
     
     // Update device list when devices are connected/disconnected
     this.midiAccess.onstatechange = this.updateDeviceList;
@@ -62,7 +62,7 @@ class MidiController {
   
   // Handle MIDI access failure
   onMIDIFailure(error) {
-    console.error('Failed to get MIDI access', error);
+    utils.log('Failed to get MIDI access', error);
     this.midiStatus.textContent = 'Status: Failed to access MIDI devices';
     this.midiStatus.style.color = '#f00';
   }
@@ -135,7 +135,7 @@ class MidiController {
       // Save selected device
       utils.saveLastMidiDevice(inputId);
       
-      console.log(`Selected MIDI input: ${this.selectedInput.name}`);
+      utils.log(`Selected MIDI input: ${this.selectedInput.name}`);
     } else {
       // Update status
       this.midiStatus.textContent = 'Status: No device selected';

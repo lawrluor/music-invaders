@@ -86,7 +86,7 @@ class Player {
         
         ctx.fillStyle = gradient;
       } catch (e) {
-        console.log('Shield gradient error:', e.message);
+        utils.error('Shield gradient error:', e.message);
         // Keep the default fill style set above
       }
     }
@@ -109,10 +109,10 @@ class Player {
         ctx.closePath();
         ctx.fill();
       } else {
-        console.log('Invalid shield coordinates');
+        utils.error('Invalid shield coordinates');
       }
     } catch (e) {
-      console.log('Shield drawing error:', e.message);
+      utils.error('Shield drawing error:', e.message);
     }
     
     // Draw shield grid lines for touchdown zone effect
@@ -138,7 +138,7 @@ class Player {
         }
       }
     } catch (e) {
-      console.log('Shield grid lines error:', e.message);
+      utils.error('Shield grid lines error:', e.message);
     }
     
     // Vertical center line
@@ -152,7 +152,7 @@ class Player {
         ctx.stroke();
       }
     } catch (e) {
-      console.log('Vertical center line error:', e.message);
+      utils.error('Vertical center line error:', e.message);
     }
     
     // Draw ship with more details
@@ -234,7 +234,7 @@ class Player {
       engineGlow.addColorStop(1, 'rgba(255, 100, 0, 0)');
       ctx.fillStyle = engineGlow;
     } catch (e) {
-      console.log('Engine glow error:', e.message);
+      utils.error('Engine glow error:', e.message);
       ctx.fillStyle = 'rgba(255, 100, 0, 0.5)'; // Fallback color
     }
     

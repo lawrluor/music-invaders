@@ -169,8 +169,8 @@ class Enemy {
       ctx.fillStyle = glow;
       ctx.fill();
     } catch (e) {
-      // Fallback if gradient fails
-      console.log('Gradient error:', e.message);
+      // Fallback to simple enemy if gradient fails
+      utils.error('Gradient error:', e.message);
     }
     
     // Draw tentacles first (they go behind the head)
@@ -285,7 +285,7 @@ class Enemy {
       ctx.arc(centerX, headY, headWidth/2 + 5, 0, Math.PI * 2);
       ctx.fill();
     } catch (e) {
-      console.log('Head glow error:', e.message);
+      utils.error('Head glow error:', e.message);
     }
     
     // Draw googley eyes (more centered and cute)

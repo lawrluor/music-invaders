@@ -152,7 +152,7 @@ class Game {
       midiController.addNoteOnListener(this.handleNoteOn);
       midiController.addNoteOffListener(this.handleNoteOff);
     } else {
-      console.error('MIDI controller not found');
+      utils.log('MIDI controller not found');
     }
     
     // Track selected game mode and chord mode
@@ -247,7 +247,7 @@ class Game {
     this.lastFrameTime = performance.now();
     this.gameLoop();
     
-    console.log('Game initialized');
+    utils.log('Game initialized');
   }
   
   // Start a new game
@@ -269,7 +269,7 @@ class Game {
     // Combine gameMode and chordMode for high score tracking
     const scoreKey = this.chordMode ? `${this.gameMode}_chord` : this.gameMode;
     this.highScore = utils.loadHighScore(scoreKey);
-    console.log(`Starting ${this.gameMode} mode (${this.chordMode ? 'chord' : 'note'} mode) with high score: ${this.highScore}`);
+    utils.log(`Starting ${this.gameMode} mode (${this.chordMode ? 'chord' : 'note'} mode) with high score: ${this.highScore}`);
     
     // Update high score display
     if (this.uiElements.highScore) {
@@ -335,7 +335,7 @@ class Game {
       this.gameLoop(this.lastFrameTime);
     }
     
-    console.log('Game started');
+    utils.log('Game started');
   }
 
   restartGame() {
@@ -610,7 +610,7 @@ class Game {
       const ammoBonus = this.chordMode ? Math.floor(enemyCount * 1.25) : Math.floor(enemyCount * 1.25);
       this.player.ammo = Math.min(this.player.maxAmmo, this.player.ammo + ammoBonus);
       
-      console.log(`Wave ${this.wave}: Added ${ammoBonus} ammo based on ${enemyCount} enemies`);
+      utils.log(`Wave ${this.wave}: Added ${ammoBonus} ammo based on ${enemyCount} enemies`);
     }
     
     // Hide transition screen
@@ -647,13 +647,13 @@ class Game {
     const isNewHighScore = this.score > this.highScore;
     
     // Update high score for the current game mode
-    console.log(`Game over - Current score: ${this.score}, Current high score: ${this.highScore}, Mode: ${this.gameMode}`);
+    utils.log(`Game over - Current score: ${this.score}, Current high score: ${this.highScore}, Mode: ${this.gameMode}`);
     if (isNewHighScore) {
       this.highScore = this.score;
       // Create a key that combines game mode and chord mode
       const scoreKey = this.chordMode ? `${this.gameMode}_chord` : this.gameMode;
       const saved = utils.saveHighScore(this.highScore, scoreKey);
-      console.log(`High score ${saved ? 'updated' : 'not updated'} to ${this.highScore}`);
+      utils.log(`High score ${saved ? 'updated' : 'not updated'} to ${this.highScore}`);
       this.uiElements.highScore.textContent = this.highScore;
       
       // Show high score message
@@ -662,7 +662,7 @@ class Game {
         highScoreMessage.classList.remove('hidden');
       }
     } else {
-      console.log('Score not high enough to update high score');
+      utils.log('Score not high enough to update high score');
       // Hide high score message
       const highScoreMessage = document.getElementById('game-over-high-score-message');
       if (highScoreMessage) {
@@ -710,12 +710,12 @@ class Game {
     
     // Add wave bonus in both classic and survival modes
     let waveBonus = 0;
-    if (this.gameMode === 'survival') {
+    // In classic mode, wave bonus is wavesTotal * 500 (all waves completed)
+    if (this.gameMode === 'classic') {
+      waveBonus = this.wavesTotal * 500;
+    } else {
       // In survival mode, wave bonus is current wave * 500
       waveBonus = this.wave * 500;
-    } else {
-      // In classic mode, wave bonus is wavesTotal * 500 (all waves completed)
-      waveBonus = this.wavesTotal * 500;
     }
     
     // Display wave bonus and update score
@@ -728,13 +728,13 @@ class Game {
     const isNewHighScore = this.score > this.highScore;
     
     // Update high score for the current game mode
-    console.log(`Victory - Current score: ${this.score}, Current high score: ${this.highScore}, Mode: ${this.gameMode}`);
+    utils.log(`Victory - Current score: ${this.score}, Current high score: ${this.highScore}, Mode: ${this.gameMode}`);
     if (isNewHighScore) {
       this.highScore = this.score;
       // Create a key that combines game mode and chord mode
       const scoreKey = this.chordMode ? `${this.gameMode}_chord` : this.gameMode;
       const saved = utils.saveHighScore(this.highScore, scoreKey);
-      console.log(`High score ${saved ? 'updated' : 'not updated'} to ${this.highScore}`);
+      utils.log(`High score ${saved ? 'updated' : 'not updated'} to ${this.highScore}`);
       this.uiElements.highScore.textContent = this.highScore;
       
       // Show high score message
@@ -743,7 +743,7 @@ class Game {
         highScoreMessage.classList.remove('hidden');
       }
     } else {
-      console.log('Score not high enough to update high score');
+      utils.log('Score not high enough to update high score');
       // Hide high score message
       const highScoreMessage = document.getElementById('victory-high-score-message');
       if (highScoreMessage) {
@@ -1318,7 +1318,7 @@ class Game {
       };
     }
     
-    console.log(`Wave ${this.wave} MIDI range: ${this.midiRange.min} (${utils.midiNoteToName(this.midiRange.min)}) - ${this.midiRange.max} (${utils.midiNoteToName(this.midiRange.max)})`);
+    utils.log(`Wave ${this.wave} MIDI range: ${this.midiRange.min} (${utils.midiNoteToName(this.midiRange.min)}) - ${this.midiRange.max} (${utils.midiNoteToName(this.midiRange.max)})`);
   }
   
   // Update the MIDI device range
@@ -1342,7 +1342,7 @@ class Game {
       };
     }
     
-    console.log(`MIDI device range: ${deviceRange.min} (${utils.midiNoteToName(deviceRange.min)}) - ${deviceRange.max} (${utils.midiNoteToName(deviceRange.max)})`);
+    utils.log(`MIDI device range: ${deviceRange.min} (${utils.midiNoteToName(deviceRange.min)}) - ${deviceRange.max} (${utils.midiNoteToName(deviceRange.max)})`);
   }
   
   // Draw animated background
@@ -1451,7 +1451,7 @@ class Game {
     link.click();
     document.body.removeChild(link);
     
-    console.log(`Background exported as ${filename}`);
+    utils.log(`Background exported as ${filename}`);
   }
   
   // Reset game to initial state
@@ -1467,20 +1467,16 @@ class Game {
     // Reset chord charge system
     this.resetChordCharge();
     
-    // Hide all screens except title
-    this.uiElements.gameOverScreen.classList.add('hidden');
-    this.uiElements.victoryScreen.classList.add('hidden');
-    this.uiElements.waveTransition.classList.add('hidden');
+    // Reset to the first MIDI range scheme
+    this.updateMidiRangeForWave();
     
-    // Reset player
-    if (this.player) {
-      this.player.reset(this.chordMode);
-    } else {
-      // Create a new player if it doesn't exist, with chord mode parameter
-      this.player = new Player(this.canvas.width, this.canvas.height, this.chordMode);
-    }
+    // Create player with chord mode parameter
+    this.player = new Player(this.canvas.width, this.canvas.height, this.chordMode);
+
+    // DEBUG ONLY: Export player as image
+    //this.player.exportAsImage();
     
-    // Clear enemies and lasers
+    // Clear existing objects
     this.enemies = [];
     this.lasers = [];
     
@@ -1507,7 +1503,7 @@ class Game {
   
   // Return to the main menu
   returnToMenu() {
-    console.log('Returning to main menu');
+    utils.log('Returning to main menu');
     
     // Cancel any ongoing animation frame
     if (this.animationFrameId) {

@@ -127,6 +127,7 @@ canvas {
 
 #score-container {
   position: absolute;
+  font-size: var(--font-size-normal);
   top: var(--spacing-small);
   right: var(--spacing-small);
   background-color: var(--bg-transparent);
@@ -607,7 +608,7 @@ canvas {
 .small-button {
   padding: 0.25rem 0.5rem;
   background-color: var(--color-green);
-  color: var(--color-black);
+  color: var(--color-off-black);
   border: none;
   border-radius: 3px;
   font-size: 0.9rem;

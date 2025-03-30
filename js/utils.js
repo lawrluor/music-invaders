@@ -3,6 +3,35 @@
  */
 
 const utils = {
+  // Environment detection
+  isProduction: function() {
+    // Check if we're in production based on URL
+    // This will return true if the site is hosted on a real domain
+    // and false for localhost or file:// URLs
+    return !(window.location.hostname === 'localhost' || 
+           window.location.hostname === '127.0.0.1' ||
+           window.location.protocol === 'file:');
+  },
+  
+  // Debug logger that only outputs in development
+  log: function(message, ...args) {
+    if (!this.isProduction()) {
+      console.log(message, ...args);
+    }
+  },
+  
+  // Warning logger that only outputs in development
+  warn: function(message, ...args) {
+    if (!this.isProduction()) {
+      console.warn(message, ...args);
+    }
+  },
+  
+  // Error logger that always outputs (even in production)
+  error: function(message, ...args) {
+    console.error(message, ...args);
+  },
+  
   // Create a random number between min and max
   random: function(min, max) {
     return Math.random() * (max - min) + min;
@@ -73,7 +102,7 @@ const utils = {
     // Only save if the new score is higher than the current high score
     if (score > currentHighScore) {
       localStorage.setItem(storageKey, score.toString());
-      console.log(`New high score for ${gameMode} mode: ${score}`);
+      this.log(`New high score for ${gameMode} mode: ${score}`);
       return true;
     }
     return false;
@@ -101,7 +130,7 @@ const utils = {
     
     // If no score exists yet, return 0
     if (storedScore === null) {
-      console.log(`No high score found for ${gameMode} mode, starting at 0`);
+      this.log(`No high score found for ${gameMode} mode, starting at 0`);
       return 0;
     }
     

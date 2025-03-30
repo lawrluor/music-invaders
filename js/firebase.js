@@ -17,12 +17,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-console.log("Firebase Analytics initialized");
+utils.log("Firebase Analytics initialized");
 
 // Wait for DOM to be fully loaded before attaching event listeners
-document.addEventListener('DOMContentLoaded', () => {
-  console.log("DOM loaded, attaching Firebase Analytics event listeners");
-  
+document.addEventListener('DOMContentLoaded', () => {  
   // Game mode button tracking
   const buttons = {
     "single-note-classic-button": "Single-Note Classic",
@@ -44,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
           button_id: id,
           button_name: name
         });
+        utils.log(`Firebase Analytics: Logged button click - ${name}`);
       });
     }
   });
@@ -53,5 +52,4 @@ document.addEventListener('DOMContentLoaded', () => {
     page_title: document.title,
     page_location: window.location.href
   });
-  console.log("Firebase Analytics: Logged page view");
 });
