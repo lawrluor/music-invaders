@@ -16,6 +16,7 @@
   --bg-green: rgba(0, 50, 0, 0.5);
   --bg-green-opaque: rgb(12, 32, 12);
   --bg-red: rgba(110, 0, 0, 0.252);
+  --bg-red-opaque: rgb(40, 9, 9);
   
   /* Border colors */
   --border-light: rgba(255, 255, 255, 0.3);
@@ -280,7 +281,7 @@ canvas {
 
 .play-button:hover {
   border-color: var(--color-green);
-  background-color: var(--bg-green);
+  background-color: var(--bg-green-opaque);
   transform: translateY(-3px);
   box-shadow: var(--shadow-normal);
 }
@@ -302,7 +303,7 @@ canvas {
 }
 
 [data-mode="classic"].game-mode-button:hover {
-  background-color: var(--bg-green);
+  background-color: var(--bg-green-opaque);
   box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
   transform: translateY(-2px);
 }
@@ -318,7 +319,7 @@ canvas {
 }
 
 [data-mode="survival"].game-mode-button:hover  {
-  background-color: var(--bg-red);
+  background-color: var(--bg-red-opaque);
   box-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
   transform: translateY(-2px);
 
@@ -676,6 +677,7 @@ canvas {
   bottom: 0;
   margin-bottom: var(--spacing-large);
   color: var(--border-medium);
+  background-color: var(--color-off-black);
 }
 
 .footer-link {
