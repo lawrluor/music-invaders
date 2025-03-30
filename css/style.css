@@ -485,7 +485,6 @@ canvas {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-
   z-index: 9;
   padding: 2rem 0.5rem;
   overflow-y: hidden;
@@ -510,6 +509,10 @@ canvas {
   align-items: center;
   justify-content: center;
   background-color: var(--color-off-black);
+  background-image: url('../img/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   z-index: 20;
   padding: 2rem 0.5rem;
   overflow-y: auto;
