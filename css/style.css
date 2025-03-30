@@ -3,6 +3,7 @@
   --color-black: #000;
   --color-off-black: #0d0d0d;
   --color-white: #fff;
+  --color-off-white: #efefef;
   --color-green: #0f0;
   --color-dark-green: #006305;
   --color-yellow: #ffcc00;
@@ -610,13 +611,14 @@ canvas {
   background-color: var(--color-green);
   color: var(--color-off-black);
   border: none;
-  border-radius: 3px;
+  border-radius: var(--border-radius-small);
   font-size: 0.9rem;
   cursor: pointer;
   transition: var(--transition-normal);
   pointer-events: auto;
   margin-left: var(--spacing-small);
   font-family: var(--font-main);
+  box-shadow: 0 0 8px var(--bg-green);
 }
 
 .small-button:hover {
@@ -700,6 +702,13 @@ canvas {
   margin-top: 7.5px;
 }
 
+.midi-setup select {
+  font-family: var(--font-main);
+  padding: 1px var(--spacing-tiny);
+  border-radius: var(--border-radius-small);
+  background-color: var(--color-off-white);
+}
+
 .instructions-link {
   color: var(--color-green);
   text-decoration: none;
@@ -713,6 +722,7 @@ canvas {
 
 #midi-status {
   font-size: 0.8em;
+  color: #f00;  /* start red for not connected */
 }
 
 #midi-test-area {

@@ -44,7 +44,7 @@ class MidiController {
         this.onMIDIFailure(e);
       }
     } else {
-      this.midiStatus.textContent = 'Status: Web MIDI API not supported in this browser';
+      this.midiStatus.textContent = 'Web MIDI API not supported in this browser';
       this.midiStatus.style.color = '#f00';
     }
   }
@@ -63,7 +63,7 @@ class MidiController {
   // Handle MIDI access failure
   onMIDIFailure(error) {
     utils.log('Failed to get MIDI access', error);
-    this.midiStatus.textContent = 'Status: Failed to access MIDI devices';
+    this.midiStatus.textContent = 'Failed to access MIDI devices';
     this.midiStatus.style.color = '#f00';
   }
   
@@ -99,22 +99,29 @@ class MidiController {
     
     // Update status
     if (count === 0) {
-      this.midiStatus.textContent = 'Status: No MIDI devices detected';
+      this.midiStatus.textContent = 'No MIDI devices detected';
       this.midiStatus.style.color = '#f00';
     } else {
-      this.midiStatus.textContent = `Status: ${count} device(s) detected`;
-      this.midiStatus.style.color = '#0f0';
-    }
-    
-    // Try to select the last used device
-    const lastDeviceId = utils.loadLastMidiDevice();
-    if (lastDeviceId) {
-      this.deviceSelect.value = lastDeviceId;
-      this.selectInput(lastDeviceId);
+      // MIDI devices detected - first try to select the last used device
+      const lastDeviceId = utils.loadLastMidiDevice();
+      if (lastDeviceId) {
+        this.deviceSelect.value = lastDeviceId;
+        if (!this.selectInput(lastDeviceId)) {
+          // If last device not found, select first available
+          this.deviceSelect.value = this.midiInputs[0].id;
+
+          if (!this.selectInput(this.midiInputs[0].id)) {
+            // If somehow still couldn't connect to first available device, show device count instead
+            this.midiStatus.textContent = `${count} device${count === 1 ? '' : 's'} detected`;
+            this.midiStatus.style.color = '#0f0';
+          }
+        }
+      }
     }
   }
   
-  // Select a MIDI input device
+  // Select a specific MIDI input device 
+  // Return true if found, false if not
   selectInput(inputId) {
     // Disconnect current input if any
     if (this.selectedInput) {
@@ -129,17 +136,19 @@ class MidiController {
       this.selectedInput.onmidimessage = this.onMIDIMessage;
       
       // Update status
-      this.midiStatus.textContent = `Status: Connected to ${this.selectedInput.name}`;
+      this.midiStatus.textContent = `Connected to ${this.selectedInput.name}`;
       this.midiStatus.style.color = '#0f0';
       
       // Save selected device
       utils.saveLastMidiDevice(inputId);
       
       utils.log(`Selected MIDI input: ${this.selectedInput.name}`);
+      return true;
     } else {
-      // Update status
-      this.midiStatus.textContent = 'Status: No device selected';
-      this.midiStatus.style.color = '#f00';
+      // Update status - device was requested but not found
+      this.midiStatus.textContent = 'Requested MIDI device not found';
+      this.midiStatus.style.color = '#f90';  // Orange for warning
+      return false;
     }
   }
   

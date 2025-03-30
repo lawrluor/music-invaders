@@ -43,6 +43,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const addStartGameListener = (button, gameMode, chordMode) => {
     if (button) {
       button.addEventListener('click', () => {
+        // Check if MIDI device is connected
+        const midiController = window.midiController || window.midi;
+        if (!midiController || !midiController.selectedInput) {
+          // Show warning popup
+          showMidiWarningPopup(gameMode, chordMode);
+          return;
+        }
+        
         if (soundController) soundController.resumeAudio();
         // Start the game directly with the selected mode
         window.game.startGame(gameMode, chordMode);
@@ -51,6 +59,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (titleScreen) titleScreen.classList.add('hidden');
       });
     }
+  };
+  
+  // Function to show MIDI warning popup
+  const showMidiWarningPopup = (gameMode, chordMode) => {
+    // Create popup container if it doesn't exist
+    let popup = document.getElementById('midi-warning-popup');
+
+    // Show popup
+    popup.classList.remove('hidden');
+    
+    // Add event listeners to buttons
+    document.getElementById('popup-cancel').addEventListener('click', () => {
+      popup.classList.add('hidden');
+    });
+    
+    document.getElementById('popup-continue').addEventListener('click', () => {
+      popup.classList.add('hidden');
+      if (soundController) soundController.resumeAudio();
+      
+      // Start the game anyway
+      window.game.startGame(gameMode, chordMode);
+
+      // Hide title screen and show game
+      const titleScreen = document.getElementById('title-screen');
+      if (titleScreen) titleScreen.classList.add('hidden');
+    });
   };
   
   // Function to load and display high scores - make it globally available

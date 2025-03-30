@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Music Invaders</title>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/popup.css">
   <link rel="stylesheet" href="css/sprites.css">
 
   <!-- favicon -->
@@ -81,7 +82,7 @@
           <img src="img/sprites/enemy_red.png" alt="Enemy Image" id="alien-sprite-instructions-container-top" class="game-image">
           <h2>How to Play 🕹️</h2>
           <ul class="instructions-list">
-            <li>Use your <a href="https://www.sweetwater.com/sweetcare/articles/getting-started-with-midi-keyboards/" target="_blank" rel="noopener noreferrer" class="instructions-link">MIDI instrument</a> as a controller to shoot down enemies.</li>
+            <li>Use your <a href="https://www.sweetwater.com/sweetcare/articles/getting-started-with-midi-keyboards/#What-is-a-MIDI-keyboard" target="_blank" rel="noopener noreferrer" class="instructions-link">MIDI instrument</a> as a controller to shoot down enemies.</li>
             <li>Each enemy matches a specific note on your instrument.</li>
             <li>Play the note in the correct octave to shoot the enemy.</li>
             <li>If playing in "chord mode": play the chord in any octave.</li>
@@ -91,7 +92,7 @@
 
           <div class="midi-setup">
             <div>
-              <label for="midi-device-select"><strong>MIDI Instrument 🎹:</strong></label>
+              <label for="midi-device-select"><strong>MIDI Instrument:</strong></label>
               <select id="midi-device-select">
                 <option value="">No MIDI devices available</option>
               </select>
@@ -108,10 +109,7 @@
         </div>
         
         <div class="game-mode-selection">
-          <!-- <button id="play-button" class="play-button">Start Game</button> -->
           <div class="mode-container">
-            <!-- <h2>Single Note Mode</h2> -->
-
             <div class="mode-options">
               <div class="game-mode-button-container">
                 <button id="single-note-classic-button" class="game-mode-button" data-mode="classic" data-chord-mode="false">
@@ -133,7 +131,6 @@
           
           <div>
             <div class="mode-container">
-              <!-- <h2>Chord Mode</h2> -->
               <div class="mode-options">
                 <div class="game-mode-button-container">
                   <button id="single-note-survival-button" class="game-mode-button" data-mode="survival" data-chord-mode="false">
@@ -240,6 +237,19 @@
         <h1 class="screen-title">Wave <span id="next-wave">2</span></h1>
         <h2>Get Ready!</h2>
       </div>
+
+      <div id="midi-warning-popup" class="popup hidden">
+        <div class="popup-content">
+          <h2>MIDI Device Required</h2>
+          <div class="popup-text">
+            <p>You need a <a href="https://www.sweetwater.com/sweetcare/articles/getting-started-with-midi-keyboards/#What-is-a-MIDI-keyboard" target="_blank" rel="noopener noreferrer" class="instructions-link">MIDI keyboard or controller</a> to play this game. Please connect a MIDI device and select it from the dropdown menu.</p>
+          </div>
+          <div class="popup-buttons">
+            <button id="popup-cancel" class="small-button popup-button">Cancel</button>
+            <button id="popup-continue" class="small-button popup-button">Continue Anyway</button>
+          </div>
+        </div>
+      </div>
       
       <!-- Settings Modal -->
       <div id="settings-modal" class="modal hidden">
@@ -265,13 +275,13 @@
               <p class="setting-description">When enabled, notes and chord names will be displayed in a larger font size for better visibility.</p>
             </div>
             
-            <div class="setting-item">
+            <!-- <div class="setting-item">
               <label for="use-music-font">
                 <input type="checkbox" id="use-music-font" checked>
                 Use Bravura music font
               </label>
               <p class="setting-description">When enabled, notes and chord names will be displayed using a specialized music font for better readability.</p>
-            </div>
+            </div> -->
             
             <div class="setting-item">
               <label for="mute-sound">
