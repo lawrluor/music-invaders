@@ -146,5 +146,45 @@ const utils = {
   // Load last selected MIDI device
   loadLastMidiDevice: function() {
     return localStorage.getItem('midiSpaceInvadersLastDevice') || '';
+  },
+
+  /**
+   * Shows a confirmation popup with custom message and actions
+   * @param {string} title - The title of the popup
+   * @param {string} message - The message to display
+   * @param {Function} onConfirm - Function to call if user confirms
+   * @param {Function} onCancel - Function to call if user cancels
+   */
+  showConfirmationPopup: function(title, message, onConfirm, onCancel, cancelText = 'Cancel', confirmText = 'Confirm') {
+    // Create popup container if it doesn't exist
+    let popup = document.getElementById('game-confirmation-popup');
+
+    // Set title and message
+    document.getElementById('popup-title').textContent = title;
+    document.getElementById('popup-message').textContent = message;
+
+    // Set button text
+    document.getElementById('popup-cancel').textContent = cancelText;
+    document.getElementById('popup-confirm').textContent = confirmText;
+
+    // Show popup
+    popup.classList.remove('hidden');
+    
+    // Add event listeners to buttons
+    document.getElementById('popup-cancel').addEventListener('click', () => {
+      popup.classList.add('hidden');
+      if (onCancel) onCancel();
+
+      // Remove event listener so this button can be reused for a different popup
+      document.getElementById('popup-cancel').removeEventListener('click', () => {});
+    });
+    
+    document.getElementById('popup-confirm').addEventListener('click', () => {
+      popup.classList.add('hidden');
+      if (onConfirm) onConfirm();
+
+      // Remove event listener so this button can be reused for a different popup
+      document.getElementById('popup-confirm').removeEventListener('click', () => {});
+    });
   }
 };

@@ -169,19 +169,24 @@ class Game {
           if (gameContainer) {
             gameContainer.style.visibility = 'hidden';
             
-            // Use setTimeout to ensure the visibility change is rendered before showing the dialog
             setTimeout(() => {
-              // Confirm before exiting
-              const confirmExit = confirm('Are you sure you want to restart the game? Your progress will be lost and your score will not be saved.');
-              
-              if (confirmExit) {
-                this.restartGame();
-                gameContainer.style.visibility = 'visible';
-              } else {
-                // Allow player to see the game again
-                gameContainer.style.visibility = 'visible';
-              }
-            }, 50);  // Small delay to ensure the visibility change is rendered
+              // Show confirmation popup
+              utils.showConfirmationPopup(
+                'Restart Game',
+                'Are you sure you want to restart the game? Your progress will be lost and your score will not be saved.',
+                () => {
+                  // User confirmed restart
+                  gameContainer.style.visibility = 'visible';
+                  this.restartGame();
+                },
+                () => {
+                  // User canceled restart - resume game
+                  gameContainer.style.visibility = 'visible';
+                },
+                'Cancel',
+                'Restart'
+              );
+            }, 50);
           }
         }
       });
@@ -220,20 +225,24 @@ class Game {
           if (gameContainer) {
             gameContainer.style.visibility = 'hidden';
             
-            // Use setTimeout to ensure the visibility change is rendered before showing the dialog
+            // Show confirmation popup
             setTimeout(() => {
-              // Confirm before exiting
-              const confirmExit = confirm('Are you sure you want to exit to the menu? Your progress will be lost and your score will not be saved.');
-              
-              if (confirmExit) {
-                // User clicked OK, return to menu
+              utils.showConfirmationPopup(
+                'Exit to Menu',
+                'Are you sure you want to exit to the menu? Your progress will be lost and your score will not be saved.',
+                () => {
+                  // User confirmed exit
                 this.returnToMenu();
                 gameContainer.style.visibility = 'visible';
-              } else {
-                // User clicked Cancel, show the game container again
+              },
+              () => {
+                // User canceled exit - resume game
                 gameContainer.style.visibility = 'visible';
-              }
-            }, 50); // Small delay to ensure the visibility change is rendered
+              },
+              'Cancel',
+              'Exit'
+            );
+            }, 50);
           }
         }
       });

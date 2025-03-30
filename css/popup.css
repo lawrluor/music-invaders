@@ -32,5 +32,16 @@
   .popup-button {
     background-color: var(--border-medium);
     padding: var(--spacing-tiny) var(--spacing-small);
+    border-radius: var(--border-radius-small);
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: none;
+    transition: var(--transition-normal);
+    pointer-events: auto;
+    font-family: var(--font-main);
+  }
+  
+  .popup-button:hover {
+    opacity: 0.75;
   }
   
