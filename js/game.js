@@ -1548,44 +1548,6 @@ class Game {
     this.lastFrameTime = performance.now();
     this.gameLoop();
   }
-  
-  // Update the visual selection of game mode buttons
-  updateModeButtonSelection() {
-    const classicButton = document.getElementById('classic-mode-button');
-    const survivalButton = document.getElementById('survival-mode-button');
-    
-    if (classicButton && survivalButton) {
-      // Remove selected class from all buttons
-      classicButton.classList.remove('selected');
-      survivalButton.classList.remove('selected');
-      
-      // Add selected class to the active button
-      if (this.selectedGameMode === 'classic') {
-        classicButton.classList.add('selected');
-      } else if (this.selectedGameMode === 'survival') {
-        survivalButton.classList.add('selected');
-      }
-    }
-  }
-  
-  // Update the visual selection of note mode buttons
-  updateNoteModeButtonSelection() {
-    const singleNoteButton = document.getElementById('single-note-button');
-    const chordModeButton = document.getElementById('chord-mode-button');
-    
-    if (singleNoteButton && chordModeButton) {
-      // Remove selected class from all buttons
-      singleNoteButton.classList.remove('selected');
-      chordModeButton.classList.remove('selected');
-      
-      // Add selected class to the active button
-      if (this.selectedChordMode) {
-        chordModeButton.classList.add('selected');
-      } else {
-        singleNoteButton.classList.add('selected');
-      }
-    }
-  }
 }
 
 // Export Game class

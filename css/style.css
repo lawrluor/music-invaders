@@ -239,6 +239,21 @@ canvas {
   transition: width 0.3s ease;
 }
 
+#refresh-midi {
+  transition: transform 0.3s ease;
+}
+
+#refresh-midi-container {
+  cursor: pointer;
+  display: inline;
+  padding: 3px;
+}
+
+#refresh-midi-container:hover #refresh-midi {
+  transform: rotate(180deg);
+  top: 1px;  /* Adjust position as icon is slightly asymmetrical */
+}
+
 .mode-container {
   display: flex;
   align-items: center;
@@ -616,7 +631,6 @@ canvas {
   cursor: pointer;
   transition: var(--transition-normal);
   pointer-events: auto;
-  margin-left: var(--spacing-small);
   font-family: var(--font-main);
   box-shadow: 0 0 8px var(--bg-green);
 }

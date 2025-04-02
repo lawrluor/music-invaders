@@ -17,7 +17,7 @@ class MidiController {
     this.deviceSelect = document.getElementById('midi-device-select');
     this.midiStatus = document.getElementById('midi-status');
     this.midiTestArea = document.getElementById('midi-test-area');
-    this.refreshButton = document.getElementById('refresh-midi');
+    this.refreshButton = document.getElementById('refresh-midi-container');
     
     // Bind methods
     this.init = this.init.bind(this);
@@ -80,7 +80,12 @@ class MidiController {
     defaultOption.value = '';
     defaultOption.textContent = 'Select a MIDI device';
     this.deviceSelect.appendChild(defaultOption);
-    
+
+    // Show status message
+    this.midiStatus.textContent = 'Retrieving MIDI devices...';
+
+    this.refreshButton.style.cursor = 'wait';
+  
     // Get all inputs
     const inputs = this.midiAccess.inputs.values();
     let count = 0;
@@ -118,6 +123,10 @@ class MidiController {
         }
       }
     }
+
+    setTimeout(() => {
+      this.refreshButton.style.cursor = 'pointer';
+    }, 250);
   }
   
   // Select a specific MIDI input device 
