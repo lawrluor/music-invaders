@@ -1,16 +1,18 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
 import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-analytics.js";
+import dotenv from 'dotenv';
+dotenv.config();
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBr6cmDgLfDAEaigKL3lpO6-SGBKuJnVuI",
-  authDomain: "music-invaders.firebaseapp.com",
-  projectId: "music-invaders",
-  storageBucket: "music-invaders.firebasestorage.app",
-  messagingSenderId: "1022855122132",
-  appId: "1:1022855122132:web:9f21d41871db91ecee7f41",
-  measurementId: "G-XJDT9WPZSL"
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID,
+  measurementId: process.env.FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase
