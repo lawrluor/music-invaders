@@ -8,6 +8,28 @@ if (!fs.existsSync(buildDir)) {
     fs.mkdirSync(buildDir, { recursive: true });
 }
 
+// Function to copy directory recursively
+function copyDir(srcDir, destDir) {
+    if (!fs.existsSync(destDir)) {
+        fs.mkdirSync(destDir, { recursive: true });
+    }
+
+    const files = fs.readdirSync(srcDir);
+    
+    files.forEach(file => {
+        const srcPath = path.join(srcDir, file);
+        const destPath = path.join(destDir, file);
+        
+        const stat = fs.statSync(srcPath);
+        
+        if (stat.isDirectory()) {
+            copyDir(srcPath, destPath);
+        } else {
+            fs.copyFileSync(srcPath, destPath);
+        }
+    });
+}
+
 // Function to minify a file
 async function minifyFile(srcPath, destPath) {
     try {
@@ -82,5 +104,12 @@ copyFiles.forEach(file => {
     fs.copyFileSync(src, dest);
     console.log(`Copied ${file}`);
 });
+
+// Copy images directory
+const imagesDir = path.join(__dirname, 'img');
+if (fs.existsSync(imagesDir)) {
+    copyDir(imagesDir, path.join(buildDir, 'img'));
+    console.log('Copied images directory');
+}
 
 console.log('Build completed successfully!');
