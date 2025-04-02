@@ -13,8 +13,18 @@ async function minifyFile(srcPath, destPath) {
     try {
         const fileContent = fs.readFileSync(srcPath, 'utf8');
         
+        // Replace environment variable placeholders with actual values
+        const envContent = fileContent
+            .replace(/"__FIREBASE_API_KEY__"/g, JSON.stringify(process.env.FIREBASE_API_KEY))
+            .replace(/"__FIREBASE_AUTH_DOMAIN__"/g, JSON.stringify(process.env.FIREBASE_AUTH_DOMAIN))
+            .replace(/"__FIREBASE_PROJECT_ID__"/g, JSON.stringify(process.env.FIREBASE_PROJECT_ID))
+            .replace(/"__FIREBASE_STORAGE_BUCKET__"/g, JSON.stringify(process.env.FIREBASE_STORAGE_BUCKET))
+            .replace(/"__FIREBASE_MESSAGING_SENDER_ID__"/g, JSON.stringify(process.env.FIREBASE_MESSAGING_SENDER_ID))
+            .replace(/"__FIREBASE_APP_ID__"/g, JSON.stringify(process.env.FIREBASE_APP_ID))
+            .replace(/"__FIREBASE_MEASUREMENT_ID__"/g, JSON.stringify(process.env.FIREBASE_MEASUREMENT_ID));
+
         // Minify with obfuscation options
-        const result = await Terser.minify(fileContent, {
+        const result = await Terser.minify(envContent, {
             mangle: true,
             compress: true,
             format: {
@@ -41,6 +51,9 @@ async function minifyFile(srcPath, destPath) {
     }
 }
 
+// Load environment variables from .env file
+require('dotenv').config();
+
 // List of JS files to minify
 const jsFiles = [
     'js/chords.js',
@@ -52,7 +65,7 @@ const jsFiles = [
     'js/midi.js',
     'js/player.js',
     'js/sound.js',
-    'js/utils.js',
+    'js/utils.js'
 ];
 
 // Process each JS file
