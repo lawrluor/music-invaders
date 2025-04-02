@@ -48,15 +48,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!midiController || !midiController.selectedInput) {
           // Show warning popup
           showMidiWarningPopup(gameMode, chordMode, 'MIDI Device Required', 'You need a MIDI keyboard or controller to play this game. Please connect a MIDI device and select it from the dropdown menu.');
-          return;
-        }
-        
+          button.removeEventListener('click', arguments.callee);
+          return
+        } 
         if (soundController) soundController.resumeAudio();
         // Start the game directly with the selected mode
         window.game.startGame(gameMode, chordMode);
         // Hide title screen and show game
         const titleScreen = document.getElementById('title-screen');
         if (titleScreen) titleScreen.classList.add('hidden');
+        // At end, cleanup event listener
+        button.removeEventListener('click', arguments.callee);
       });
     }
   };
@@ -66,6 +68,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const showMidiWarningPopup = (gameMode, chordMode, title, message) => {
     utils.showConfirmationPopup(title, message, 
       () => {
+        // Confirm
         const popup = document.getElementById('game-confirmation-popup');
         if (popup) popup.classList.add('hidden');
 
@@ -77,9 +80,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Hide title screen and show game
         const titleScreen = document.getElementById('title-screen');
         if (titleScreen) titleScreen.classList.add('hidden');
-      }, () => {
+      },
+      () => {
         // Cancel
-        popup.classList.add('hidden');
+        const popup = document.getElementById('game-confirmation-popup');
+        if (popup) popup.classList.add('hidden');
       },
       'Cancel',
       'Continue Anyways'

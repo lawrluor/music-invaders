@@ -156,35 +156,40 @@ const utils = {
    * @param {Function} onCancel - Function to call if user cancels
    */
   showConfirmationPopup: function(title, message, onConfirm, onCancel, cancelText = 'Cancel', confirmText = 'Confirm') {
-    // Create popup container if it doesn't exist
-    let popup = document.getElementById('game-confirmation-popup');
+    // Create popup container
+    const popupHtml = `
+      <div class="popup">
+        <div class="popup-content">
+          <h2>${title}</h2>
+          <div class="popup-text">
+            <p>${message}</p>
+          </div>
+          <div class="popup-buttons">
+            <button class="popup-button">${cancelText}</button>
+            <button class="popup-button">${confirmText}</button>
+          </div>
+        </div>
+      </div>
+    `;
 
-    // Set title and message
-    document.getElementById('popup-title').textContent = title;
-    document.getElementById('popup-message').textContent = message;
+    // Create a new popup element
+    const popup = document.createElement('div');
+    popup.innerHTML = popupHtml;
+    document.body.appendChild(popup);
 
-    // Set button text
-    document.getElementById('popup-cancel').textContent = cancelText;
-    document.getElementById('popup-confirm').textContent = confirmText;
+    // Get the buttons
+    const cancelButton = popup.querySelector('.popup-buttons button:first-child');
+    const confirmButton = popup.querySelector('.popup-buttons button:last-child');
 
-    // Show popup
-    popup.classList.remove('hidden');
-    
-    // Add event listeners to buttons
-    document.getElementById('popup-cancel').addEventListener('click', () => {
-      popup.classList.add('hidden');
+    // Add event listeners
+    cancelButton.addEventListener('click', () => {
+      popup.remove();
       if (onCancel) onCancel();
-
-      // Remove event listener so this button can be reused for a different popup
-      document.getElementById('popup-cancel').removeEventListener('click', () => {});
     });
-    
-    document.getElementById('popup-confirm').addEventListener('click', () => {
-      popup.classList.add('hidden');
-      if (onConfirm) onConfirm();
 
-      // Remove event listener so this button can be reused for a different popup
-      document.getElementById('popup-confirm').removeEventListener('click', () => {});
+    confirmButton.addEventListener('click', () => {
+      popup.remove();
+      if (onConfirm) onConfirm();
     });
   }
 };

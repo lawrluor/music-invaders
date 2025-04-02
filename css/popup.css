@@ -1,47 +1,46 @@
 /* Popup styles */
 .popup {
-    display: flex;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-    color: var(--color-green);
-    font-family: var(--font-main);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-  }
-  
-  .popup-content {
-    background-color: var(--color-off-black);
-    padding: var(--spacing-huge);
-    border-radius: var(--border-radius-medium);
-    max-width: 680px;
-    text-align: center;
-    box-shadow: 0 0 10px var(--bg-green);
-  }
-  
-  .popup-text {
-    padding: var(--spacing-medium) 0;
-  }
-  
-  .popup-button {
-    background-color: var(--border-medium);
-    padding: var(--spacing-tiny) var(--spacing-small);
-    border-radius: var(--border-radius-small);
-    font-size: 0.9rem;
-    cursor: pointer;
-    border: none;
-    transition: var(--transition-normal);
-    pointer-events: auto;
-    font-family: var(--font-main);
-  }
-  
-  .popup-button:hover {
-    opacity: 0.75;
-  }
-  
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-green);
+  font-family: var(--font-main);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.popup-content {
+  background-color: var(--color-off-black);
+  padding: var(--spacing-huge);
+  border-radius: var(--border-radius-medium);
+  max-width: 680px;
+  text-align: center;
+  box-shadow: 0 0 10px var(--bg-green);
+}
+
+.popup-text {
+  padding: var(--spacing-medium) 0;
+}
+
+.popup-button {
+  background-color: var(--border-medium);
+  padding: var(--spacing-tiny) var(--spacing-small);
+  border-radius: var(--border-radius-small);
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  transition: var(--transition-normal);
+  pointer-events: auto;
+  font-family: var(--font-main);
+}
+
+.popup-button:hover {
+  opacity: 0.75;
+}
