@@ -9,19 +9,19 @@ if (!fs.existsSync(buildDir)) {
 }
 
 // Function to minify a file
-async function minifyFile(srcPath, destPath) {
+async function minifyFile(srcPath, destPath, envConfig) {
     try {
         const fileContent = fs.readFileSync(srcPath, 'utf8');
         
         // Replace environment variable placeholders with actual values
         const envContent = fileContent
-            .replace(/"__FIREBASE_API_KEY__"/g, JSON.stringify(process.env.FIREBASE_API_KEY))
-            .replace(/"__FIREBASE_AUTH_DOMAIN__"/g, JSON.stringify(process.env.FIREBASE_AUTH_DOMAIN))
-            .replace(/"__FIREBASE_PROJECT_ID__"/g, JSON.stringify(process.env.FIREBASE_PROJECT_ID))
-            .replace(/"__FIREBASE_STORAGE_BUCKET__"/g, JSON.stringify(process.env.FIREBASE_STORAGE_BUCKET))
-            .replace(/"__FIREBASE_MESSAGING_SENDER_ID__"/g, JSON.stringify(process.env.FIREBASE_MESSAGING_SENDER_ID))
-            .replace(/"__FIREBASE_APP_ID__"/g, JSON.stringify(process.env.FIREBASE_APP_ID))
-            .replace(/"__FIREBASE_MEASUREMENT_ID__"/g, JSON.stringify(process.env.FIREBASE_MEASUREMENT_ID));
+            .replace(/"__FIREBASE_API_KEY__"/g, JSON.stringify(envConfig.FIREBASE_API_KEY))
+            .replace(/"__FIREBASE_AUTH_DOMAIN__"/g, JSON.stringify(envConfig.FIREBASE_AUTH_DOMAIN))
+            .replace(/"__FIREBASE_PROJECT_ID__"/g, JSON.stringify(envConfig.FIREBASE_PROJECT_ID))
+            .replace(/"__FIREBASE_STORAGE_BUCKET__"/g, JSON.stringify(envConfig.FIREBASE_STORAGE_BUCKET))
+            .replace(/"__FIREBASE_MESSAGING_SENDER_ID__"/g, JSON.stringify(envConfig.FIREBASE_MESSAGING_SENDER_ID))
+            .replace(/"__FIREBASE_APP_ID__"/g, JSON.stringify(envConfig.FIREBASE_APP_ID))
+            .replace(/"__FIREBASE_MEASUREMENT_ID__"/g, JSON.stringify(envConfig.FIREBASE_MEASUREMENT_ID));
 
         // Minify with obfuscation options
         const result = await Terser.minify(envContent, {
@@ -68,11 +68,22 @@ const jsFiles = [
     'js/utils.js'
 ];
 
+// Load environment configuration
+const envConfig = {
+    FIREBASE_API_KEY: process.env.FIREBASE_API_KEY,
+    FIREBASE_AUTH_DOMAIN: process.env.FIREBASE_AUTH_DOMAIN,
+    FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID,
+    FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET,
+    FIREBASE_MESSAGING_SENDER_ID: process.env.FIREBASE_MESSAGING_SENDER_ID,
+    FIREBASE_APP_ID: process.env.FIREBASE_APP_ID,
+    FIREBASE_MEASUREMENT_ID: process.env.FIREBASE_MEASUREMENT_ID
+};
+
 // Process each JS file
 jsFiles.forEach(file => {
     const src = path.join(__dirname, file);
     const dest = path.join(buildDir, file);
-    minifyFile(src, dest);
+    minifyFile(src, dest, envConfig);
 });
 
 // Copy HTML and CSS files to build directory

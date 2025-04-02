@@ -4,13 +4,13 @@ import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/11.5.
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "__FIREBASE_API_KEY__",
-  authDomain: "__FIREBASE_AUTH_DOMAIN__",
-  projectId: "__FIREBASE_PROJECT_ID__",
-  storageBucket: "__FIREBASE_STORAGE_BUCKET__",
-  messagingSenderId: "__FIREBASE_MESSAGING_SENDER_ID__",
-  appId: "__FIREBASE_APP_ID__",
-  measurementId: "__FIREBASE_MEASUREMENT_ID__"
+  apiKey: "AIzaSyD4iE2xUrguqF7xjVX9v6r5tG4iL5mN6p",
+  authDomain: "your-auth-domain.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-storage-bucket.appspot.com",
+  messagingSenderId: "your-messaging-sender-id",
+  appId: "your-app-id",
+  measurementId: "your-measurement-id"
 };
 
 // Initialize Firebase
