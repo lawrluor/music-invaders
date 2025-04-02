@@ -51,8 +51,18 @@ async function minifyFile(srcPath, destPath, envConfig) {
     }
 }
 
-// Load environment variables from .env file
+// Load environment configuration
 require('dotenv').config();
+
+const envConfig = {
+    FIREBASE_API_KEY: process.env.FIREBASE_API_KEY,
+    FIREBASE_AUTH_DOMAIN: process.env.FIREBASE_AUTH_DOMAIN,
+    FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID,
+    FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET,
+    FIREBASE_MESSAGING_SENDER_ID: process.env.FIREBASE_MESSAGING_SENDER_ID,
+    FIREBASE_APP_ID: process.env.FIREBASE_APP_ID,
+    FIREBASE_MEASUREMENT_ID: process.env.FIREBASE_MEASUREMENT_ID
+};
 
 // List of JS files to minify
 const jsFiles = [
@@ -67,17 +77,6 @@ const jsFiles = [
     'js/sound.js',
     'js/utils.js'
 ];
-
-// Load environment configuration
-const envConfig = {
-    FIREBASE_API_KEY: process.env.FIREBASE_API_KEY,
-    FIREBASE_AUTH_DOMAIN: process.env.FIREBASE_AUTH_DOMAIN,
-    FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID,
-    FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET,
-    FIREBASE_MESSAGING_SENDER_ID: process.env.FIREBASE_MESSAGING_SENDER_ID,
-    FIREBASE_APP_ID: process.env.FIREBASE_APP_ID,
-    FIREBASE_MEASUREMENT_ID: process.env.FIREBASE_MEASUREMENT_ID
-};
 
 // Process each JS file
 jsFiles.forEach(file => {
@@ -104,6 +103,29 @@ copyFiles.forEach(file => {
 
     fs.copyFileSync(src, dest);
     console.log(`Copied ${file}`);
+});
+
+// Copy images to build directory
+const copyImages = [
+    'img/sprites/enemy_blue.png',
+    'img/sprites/enemy_yellow.png',
+    'img/sprites/enemy_red.png',
+    'img/sprites/enemy_purple.png',
+    'img/sprites/enemy_orange.png',
+    'img/sprites/player.png'
+];
+
+copyImages.forEach(file => {
+    const src = path.join(__dirname, file);
+    const dest = path.join(buildDir, file);
+    const destDir = path.dirname(dest);
+    
+    if (!fs.existsSync(destDir)) {
+        fs.mkdirSync(destDir, { recursive: true });
+    }
+
+    fs.copyFileSync(src, dest);
+    console.log(`Copied image ${file}`);
 });
 
 console.log('Build completed successfully!');
