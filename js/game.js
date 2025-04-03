@@ -17,13 +17,15 @@ class Game {
     this.getMidiController = () => window.midiController || window.midi;
 
     // Game state
-    this.gameState = 'title'; // title, playing, gameOver, victory, waveTransition
+    this.gameState = 'title'; // title, playing, gameOver, victory, waveTransition, paused
     this.score = 0;
     this.gameMode = 'classic'; // classic or survival
     this.chordMode = false; // Whether to use chords instead of single notes
     this.highScore = utils.loadHighScore(this.gameMode);
     this.windowFocused = true; // Track window focus state
     this.backgroundCollisionCheckInterval = null; // Interval for background collision checks
+    this.pauseTime = 0; // Time when the game was paused
+    this.pausePenalty = 2500; // Milliseconds penalty for pausing (advancement of game state)
 
     // Chord charging system
     this.chordCharge = {
@@ -109,6 +111,7 @@ class Game {
 
     // UI elements
     this.uiElements = {
+      gameContainer: document.getElementById('game-container'),
       score: document.getElementById('score'),
       highScore: document.getElementById('high-score'),
       wave: document.getElementById('wave'),
@@ -123,7 +126,29 @@ class Game {
       titleScreen: document.getElementById('title-screen'),
       gameOverScreen: document.getElementById('game-over-screen'),
       victoryScreen: document.getElementById('victory-screen'),
-      waveTransition: document.getElementById('wave-transition')
+      waveTransition: document.getElementById('wave-transition'),
+      // Additional UI elements to reduce redundant code
+      pauseButton: document.getElementById('pause-game-button'),
+      restartButton: document.getElementById('restart-game-button'),
+      exitToMenuButton: document.getElementById('exit-to-menu-button'),
+      gameOverMenuButton: document.getElementById('game-over-menu-button'),
+      victoryMenuButton: document.getElementById('victory-menu-button'),
+      gameOverPlayAgainButton: document.getElementById('game-over-play-again-button'),
+      victoryPlayAgainButton: document.getElementById('victory-play-again-button'),
+      healthValue: document.getElementById('health-value'),
+      ammoValue: document.getElementById('ammo-value'),
+      baseScore: document.getElementById('base-score'),
+      ammoBonus: document.getElementById('ammo-bonus'),
+      healthBonus: document.getElementById('health-bonus'),
+      waveBonus: document.getElementById('wave-bonus'),
+      waveBonusContainer: document.getElementById('wave-bonus-container'),
+      gameOverReason: document.getElementById('game-over-reason'),
+      gameOverWaves: document.getElementById('game-over-waves'),
+      wavesCompleted: document.getElementById('waves-completed'),
+      gameOverWaveBonus: document.getElementById('game-over-wave-bonus'),
+      gameOverWaveBonusContainer: document.getElementById('game-over-wave-bonus-container'),
+      gameOverHighScoreMessage: document.getElementById('game-over-high-score-message'),
+      victoryHighScoreMessage: document.getElementById('victory-high-score-message')
     };
 
     // Bind methods
@@ -136,6 +161,8 @@ class Game {
     this.startNextWave = this.startNextWave.bind(this);
     this.handleWindowFocus = this.handleWindowFocus.bind(this);
     this.handleWindowBlur = this.handleWindowBlur.bind(this);
+    this.pauseGame = this.pauseGame.bind(this);
+    this.resumeGame = this.resumeGame.bind(this);
 
     // Add window resize event listener
     window.addEventListener('resize', this.resizeCanvas);
@@ -143,6 +170,119 @@ class Game {
     // Add window focus/blur event listeners
     window.addEventListener('focus', this.handleWindowFocus);
     window.addEventListener('blur', this.handleWindowBlur);
+
+    // Add pause game button
+    if (this.uiElements.pauseButton) {
+      this.uiElements.pauseButton.addEventListener('click', () => {
+        // Only allow pause during actual gameplay
+        if (this.gameState === 'playing') {
+          this.pauseGameDialog();
+        }
+      });
+    }
+
+    // Add keyboard listener for pause (P key or Escape key)
+    // Only allow pause during actual gameplay
+    window.addEventListener('keydown', (e) => {
+      if ((e.key === 'p' || e.key === 'P' || e.key === 'Escape') && this.gameState === 'playing') {
+        this.pauseGameDialog();
+      }
+    });
+
+    // Add listener on return to menu buttons on game over and victory screens
+    if (this.uiElements.gameOverMenuButton) {
+      this.uiElements.gameOverMenuButton.addEventListener('click', () => {
+        this.returnToMenu();
+
+        // Add a small delay to ensure sound plays before transition and avoid screen flicker
+        setTimeout(() => {
+          this.uiElements.gameOverScreen.classList.add('hidden');
+        }, 50);
+      });
+    } else {
+      utils.log('ERROR: game-over-menu-button not found');
+    }
+
+    if (this.uiElements.victoryMenuButton) {
+      this.uiElements.victoryMenuButton.addEventListener('click', () => {
+        this.returnToMenu();
+
+        // Add a small delay to ensure sound plays before transition and avoid screen flicker
+        setTimeout(() => {
+          this.uiElements.victoryScreen.classList.add('hidden');
+        }, 50);
+      });
+    } else {
+      utils.log('ERROR: victory-menu-button not found');
+    }
+
+    if (this.uiElements.gameOverPlayAgainButton) {
+      this.uiElements.gameOverPlayAgainButton.addEventListener('click', () => this.restartGame());
+    }
+
+    if (this.uiElements.victoryPlayAgainButton) {
+      this.uiElements.victoryPlayAgainButton.addEventListener('click', () => this.restartGame());
+    }
+
+    // Add restart button event listener
+    if (this.uiElements.restartButton) {
+      this.uiElements.restartButton.addEventListener('click', () => {
+        this.pauseGame();
+
+        setTimeout(() => {
+          // Show confirmation popup
+          utils.showConfirmationPopup(
+            'Restart Game',
+            'Are you sure you want to restart the game? Your progress will be lost and your score will not be saved.',
+            () => {
+              // User confirmed restart
+              this.restartGame();
+            },
+            () => {
+              // User canceled restart - resume game
+              this.resumeGame();
+            },
+            'Cancel',
+            'Restart'
+          );
+        }, 50);
+      });
+    }
+
+    // Add listener to exit to menu button (present during gameplay)
+    if (this.uiElements.exitToMenuButton) {
+      this.uiElements.exitToMenuButton.addEventListener('click', () => {
+        this.pauseGame();
+
+        // Show confirmation popup
+        setTimeout(() => {
+          utils.showConfirmationPopup(
+            'Exit to Menu',
+            'Are you sure you want to exit to the menu? Your progress will be lost and your score will not be saved.',
+            () => {
+              // User confirmed exit
+              this.returnToMenu();
+            },
+            () => {
+              // User canceled exit - resume game
+              this.resumeGame();
+            },
+            'Cancel',
+            'Exit'
+          );
+        }, 50);
+      });
+    }
+
+    // Load high score for current game mode and update display
+    this.highScore = utils.loadHighScore(this.gameMode);
+    this.uiElements.highScore.textContent = this.highScore;
+
+    // Start game loop
+    this.lastFrameTime = performance.now();
+    this.gameLoop();
+
+    utils.log('Game initialized');
   }
 
   /**
@@ -167,113 +307,6 @@ class Game {
     // Track selected game mode and chord mode
     this.selectedGameMode = 'classic';
     this.selectedChordMode = false;
-
-    const restartGameButton = document.getElementById('restart-game-button');
-    if (restartGameButton) {
-      restartGameButton.addEventListener('click', () => {
-        if (this.gameState === 'playing') {
-          // Hide the entire game container before showing the confirmation dialog
-          // This prevents players from abusing the dialog as a pause mechanism
-          const gameContainer = document.getElementById('game-container');
-          if (gameContainer) {
-            gameContainer.style.visibility = 'hidden';
-
-            setTimeout(() => {
-              // Show confirmation popup
-              utils.showConfirmationPopup(
-                'Restart Game',
-                'Are you sure you want to restart the game? Your progress will be lost and your score will not be saved.',
-                () => {
-                  // User confirmed restart
-                  gameContainer.style.visibility = 'visible';
-                  this.restartGame();
-                },
-                () => {
-                  // User canceled restart - resume game
-                  gameContainer.style.visibility = 'visible';
-                },
-                'Cancel',
-                'Restart'
-              );
-            }, 50);
-          }
-        }
-      });
-    }
-
-    // Add listener on return to menu buttons on game over and victory screens
-    const gameOverMenuButton = document.getElementById('game-over-menu-button');
-    if (gameOverMenuButton) {
-      gameOverMenuButton.addEventListener('click', () => {
-        this.returnToMenu();
-
-        // Add a small delay to ensure sound plays before transition and avoid screen flicker
-        setTimeout(() => {
-          this.uiElements.gameOverScreen.classList.add('hidden');
-        }, 50);
-      });
-    } else {
-      utils.log('ERROR: game-over-menu-button not found');
-    }
-
-    const victoryMenuButton = document.getElementById('victory-menu-button');
-    if (victoryMenuButton) {
-      victoryMenuButton.addEventListener('click', () => {
-        this.returnToMenu();
-
-        // Add a small delay to ensure sound plays before transition and avoid screen flicker
-        setTimeout(() => {
-          this.uiElements.victoryScreen.classList.add('hidden');
-        }, 50);
-      });
-    } else {
-      utils.log('ERROR: victory-menu-button not found');
-    }
-
-    const gameOverPlayAgainButton = document.getElementById('game-over-play-again-button');
-    if (gameOverPlayAgainButton) {
-      gameOverPlayAgainButton.addEventListener('click', () => this.restartGame());
-    }
-
-    const victoryPlayAgainButton = document.getElementById('victory-play-again-button');
-    if (victoryPlayAgainButton) {
-      victoryPlayAgainButton.addEventListener('click', () => this.restartGame());
-    }
-
-    // Add listener to exit to menu button (present during gameplay)
-    const exitToMenuButton = document.getElementById('exit-to-menu-button');
-    if (exitToMenuButton) {
-      exitToMenuButton.addEventListener('click', () => {
-        // Only allow exit during gameplay
-        if (this.gameState === 'playing') {
-          // Hide the entire game container before showing the confirmation dialog
-          // This prevents players from using the dialog as a pause mechanism
-          const gameContainer = document.getElementById('game-container');
-          if (gameContainer) {
-            gameContainer.style.visibility = 'hidden';
-
-            // Show confirmation popup
-            setTimeout(() => {
-              utils.showConfirmationPopup(
-                'Exit to Menu',
-                'Are you sure you want to exit to the menu? Your progress will be lost and your score will not be saved.',
-                () => {
-                  // User confirmed exit
-                this.returnToMenu();
-                gameContainer.style.visibility = 'visible';
-              },
-              () => {
-                // User canceled exit - resume game
-                gameContainer.style.visibility = 'visible';
-              },
-              'Cancel',
-              'Exit'
-            );
-            }, 50);
-          }
-        }
-      });
-    }
 
     // Load high score for current game mode and update display
     this.highScore = utils.loadHighScore(this.gameMode);
@@ -384,6 +417,10 @@ class Game {
     // Dismiss any open dialogs first
     this.dismissOpenDialogs();
 
+    // Show the game container
+    this.uiElements.gameContainer.style.visibility = 'visible';
+
+    // Reset the game state
     this.resetChordCharge();
     if (this.activeNotes) {
       this.activeNotes.clear();
@@ -505,10 +542,38 @@ class Game {
       this.updatePlaying(cappedDeltaTime);
     } else if (this.gameState === 'waveTransition') {
       this.updateWaveTransition(timestamp);
+    } else if (this.gameState === 'paused') {
+      // When paused, just draw the current state without updating
+      this.drawGameObjects();
     }
 
     // Request next frame
     this.animationFrameId = requestAnimationFrame(this.gameLoop);
+  }
+
+  // Draw game objects without updating their positions
+  drawGameObjects() {
+    // Draw player
+    if (this.player) {
+      this.player.draw(this.ctx);
+    }
+
+    // Draw enemies
+    this.enemies.forEach(enemy => {
+      if (enemy.alive) {
+        enemy.draw(this.ctx);
+      }
+    });
+
+    // Draw lasers
+    this.lasers.forEach(laser => {
+      laser.draw(this.ctx);
+    });
+
+    // Draw chord charge indicator if in chord mode
+    if (this.chordMode) {
+      this.drawChordChargeIndicator();
+    }
   }
 
   // Update game during playing state (runs every "frame)
@@ -685,6 +750,9 @@ class Game {
     if (popups.length > 0) {
       utils.log(`Dismissing ${popups.length} open dialog(s) - Game state: ${this.gameState}`);
 
+      // Check if we're currently paused
+      const wasPaused = this.gameState === 'paused';
+
       // Remove each popup
       popups.forEach(popup => {
         try {
@@ -695,14 +763,12 @@ class Game {
       });
 
       // Ensure game container is visible since dialogs may have hidden it
-      const gameContainer = document.getElementById('game-container');
-      if (gameContainer) {
-        if (gameContainer.style.visibility === 'hidden') {
-          utils.log('Restoring game container visibility');
-          gameContainer.style.visibility = 'visible';
-        }
-      } else {
-        utils.log('WARNING: Game container not found when dismissing dialogs');
+      this.uiElements.gameContainer.style.visibility = 'visible';
+
+      // If the game was paused, resume it with penalty
+      if (wasPaused) {
+        utils.log('Game was paused when dialogs were dismissed. Resuming with penalty.');
+        this.resumeGame();
       }
 
       return true; // Dialogs were dismissed
@@ -730,15 +796,15 @@ class Game {
       // Wave bonus is (completed waves - 1) * 500 points
       // We subtract 1 because wave 1 doesn't count as a completed wave
       waveBonus = (this.wave - 1) * 500;
-      document.getElementById('game-over-wave-bonus-container').style.display = 'block';
-      document.getElementById('game-over-wave-bonus').textContent = waveBonus;
+      this.uiElements.gameOverWaveBonusContainer.style.display = 'block';
+      this.uiElements.gameOverWaveBonus.textContent = waveBonus;
       this.score += waveBonus;
     } else {
-      document.getElementById('game-over-wave-bonus-container').style.display = 'none';
+      this.uiElements.gameOverWaveBonusContainer.style.display = 'none';
     }
 
     // Update the waves completed display
-    document.getElementById('game-over-waves').textContent = this.wave - 1;
+    this.uiElements.gameOverWaves.textContent = this.wave - 1;
 
     // Check if this is a new high score
     const isNewHighScore = this.score > this.highScore;
@@ -754,16 +820,14 @@ class Game {
       this.uiElements.highScore.textContent = this.highScore;
 
       // Show high score message
-      const highScoreMessage = document.getElementById('game-over-high-score-message');
-      if (highScoreMessage) {
-        highScoreMessage.classList.remove('hidden');
+      if (this.uiElements.gameOverHighScoreMessage) {
+        this.uiElements.gameOverHighScoreMessage.classList.remove('hidden');
       }
     } else {
       utils.log('Score not high enough to update high score');
       // Hide high score message
-      const highScoreMessage = document.getElementById('game-over-high-score-message');
-      if (highScoreMessage) {
-        highScoreMessage.classList.add('hidden');
+      if (this.uiElements.gameOverHighScoreMessage) {
+        this.uiElements.gameOverHighScoreMessage.classList.add('hidden');
       }
     }
 
@@ -774,7 +838,7 @@ class Game {
     if (!this.gameOverReason) {
       this.gameOverReason = 'You were defeated!';
     }
-    document.getElementById('game-over-reason').textContent = this.gameOverReason;
+    this.uiElements.gameOverReason.textContent = this.gameOverReason;
 
     this.uiElements.gameOverScreen.classList.remove('hidden');
 
@@ -819,9 +883,9 @@ class Game {
     }
 
     // Display wave bonus and update score
-    document.getElementById('wave-bonus-container').style.display = 'block';
-    document.getElementById('wave-bonus').textContent = waveBonus;
-    document.getElementById('waves-completed').textContent = this.gameMode === 'survival' ? this.wave : this.wavesTotal;
+    this.uiElements.waveBonusContainer.style.display = 'block';
+    this.uiElements.waveBonus.textContent = waveBonus;
+    this.uiElements.wavesCompleted.textContent = this.gameMode === 'survival' ? this.wave : this.wavesTotal;
     this.score += waveBonus;
 
     // Check if this is a new high score
@@ -838,23 +902,21 @@ class Game {
       this.uiElements.highScore.textContent = this.highScore;
 
       // Show high score message
-      const highScoreMessage = document.getElementById('victory-high-score-message');
-      if (highScoreMessage) {
-        highScoreMessage.classList.remove('hidden');
+      if (this.uiElements.victoryHighScoreMessage) {
+        this.uiElements.victoryHighScoreMessage.classList.remove('hidden');
       }
     } else {
       utils.log('Score not high enough to update high score');
       // Hide high score message
-      const highScoreMessage = document.getElementById('victory-high-score-message');
-      if (highScoreMessage) {
-        highScoreMessage.classList.add('hidden');
+      if (this.uiElements.victoryHighScoreMessage) {
+        this.uiElements.victoryHighScoreMessage.classList.add('hidden');
       }
     }
 
     // Update UI
-    document.getElementById('base-score').textContent = baseScore;
-    document.getElementById('ammo-bonus').textContent = ammoBonus;
-    document.getElementById('health-bonus').textContent = healthBonus;
+    this.uiElements.baseScore.textContent = baseScore;
+    this.uiElements.ammoBonus.textContent = ammoBonus;
+    this.uiElements.healthBonus.textContent = healthBonus;
     this.uiElements.victoryScore.textContent = this.score;
     this.uiElements.victoryScreen.classList.remove('hidden');
 
@@ -1336,15 +1398,13 @@ class Game {
     // Update ammo bar
     if (this.player) {
       const ammoPercent = (this.player.ammo / this.player.maxAmmo) * 100;
-      const ammoBar = document.getElementById('ammo-bar');
-      if (ammoBar) {
-        ammoBar.style.width = `${ammoPercent}%`;
+      if (this.uiElements.ammoBar) {
+        this.uiElements.ammoBar.style.width = `${ammoPercent}%`;
       }
 
       // Update ammo value text
-      const ammoValue = document.getElementById('ammo-value');
-      if (ammoValue) {
-        ammoValue.textContent = Math.max(0, this.player.ammo);  // Never display negative ammo value
+      if (this.uiElements.ammoValue) {
+        this.uiElements.ammoValue.textContent = Math.max(0, this.player.ammo);  // Never display negative ammo value
       }
     }
 
@@ -1354,7 +1414,9 @@ class Game {
       this.uiElements.healthBar.style.width = `${healthPercent}%`;
 
       // Update health value text
-      document.getElementById('health-value').textContent = Math.round(this.health);
+      if (this.uiElements.healthValue) {
+        this.uiElements.healthValue.textContent = Math.round(this.health);
+      }
 
       // Change color based on health
       if (healthPercent > 60) {
@@ -1371,8 +1433,7 @@ class Game {
   updateFPS(deltaTime) {
     this.frameCount++;
 
-    // Update FPS every 500ms
-    if (performance.now() - this.lastFpsUpdate > 500) {
+    if (performance.now() - this.lastFpsUpdate > deltaTime) {
       this.fps = Math.round(this.frameCount / ((performance.now() - this.lastFpsUpdate) / 1000));
       this.uiElements.fpsCounter.textContent = `FPS: ${this.fps}`;
 
@@ -1613,8 +1674,8 @@ class Game {
   returnToMenu() {
     utils.log('Returning to main menu');
 
-    // First, save the previous state for logging
-    const previousState = this.gameState;
+    // Show the game container (required for the menu to show as well)
+    this.uiElements.gameContainer.style.visibility = 'visible';
 
     // Set the game state to title immediately
     this.gameState = 'title';
@@ -1744,6 +1805,91 @@ class Game {
         }
       }
     });
+  }
+
+  pauseGame() {
+    // Only allow pausing during gameplay
+    if (this.gameState !== 'playing') return;
+
+    // Hide the game container to prevent abuse of the pause dialog
+    this.uiElements.gameContainer.style.visibility = 'hidden';
+
+    // Store the current game state and time
+    this.pauseTime = performance.now();
+    this.gameState = 'paused';
+
+    // Reset any chord charge to prevent issues when pausing
+    if (this.chordMode && this.chordCharge.active) {
+      this.resetChordCharge();
+    }
+  }
+
+  // Pause the game
+  pauseGameDialog() {
+    this.pauseGame();
+
+    // Show pause dialog using the existing confirmation popup
+    utils.showConfirmationPopup(
+      'Game Paused',
+      '',
+      () => {
+        // Resume the game with penalty when confirmed
+        this.resumeGame();
+      },
+      () => {
+        // Return to menu when canceled
+        this.returnToMenu();
+      },
+      'Return to Menu',
+      'Resume Game'
+    );
+
+    // Log the pause action
+    utils.log('Game paused');
+  }
+
+  // Resume the game with a penalty
+  resumeGame() {
+    // Only allow resuming from paused state
+    if (this.gameState !== 'paused') return;
+
+    // Show the game container
+    this.uiElements.gameContainer.style.visibility = 'visible';
+
+    // Calculate how long the game was paused
+    const pauseDuration = performance.now() - this.pauseTime;
+    utils.log(`Game resumed after ${Math.round(pauseDuration)}ms pause`);
+
+    // Apply the pause penalty by advancing game state
+    // This will move enemies closer to the player
+    this.enemies.forEach(enemy => {
+      if (enemy.alive) {
+        // Apply the penalty time to enemy movement
+        enemy.update(this.pausePenalty);
+      }
+    });
+
+    // Apply penalty to lasers
+    this.lasers.forEach(laser => {
+      laser.update(this.pausePenalty);
+    });
+
+    // Apply penalty to player animations if needed
+    if (this.player) {
+      this.player.update(this.pausePenalty);
+    }
+
+    // Return to playing state
+    this.gameState = 'playing';
+
+    // Resume animation timing to avoid additional jumps
+    this.lastFrameTime = performance.now();
+
+    // Check for collisions immediately after resume
+    // This ensures any enemies that moved into the shield during the penalty are detected
+    this.checkEnemyShieldCollisions();
+
+    utils.log('Game resumed with penalty applied');
   }
 }
 

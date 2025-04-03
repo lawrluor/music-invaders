@@ -137,6 +137,10 @@ canvas {
   text-align: right;
 }
 
+#exit-to-menu-button {
+  rotate: 180deg;
+}
+
 #exit-button-container {
   position: absolute;
   bottom: var(--spacing-small);
