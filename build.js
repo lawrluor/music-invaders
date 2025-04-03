@@ -15,13 +15,13 @@ function copyDir(srcDir, destDir) {
     }
 
     const files = fs.readdirSync(srcDir);
-    
+
     files.forEach(file => {
         const srcPath = path.join(srcDir, file);
         const destPath = path.join(destDir, file);
-        
+
         const stat = fs.statSync(srcPath);
-        
+
         if (stat.isDirectory()) {
             copyDir(srcPath, destPath);
         } else {
@@ -34,7 +34,7 @@ function copyDir(srcDir, destDir) {
 async function minifyFile(srcPath, destPath) {
     try {
         const fileContent = fs.readFileSync(srcPath, 'utf8');
-        
+
         // Minify with obfuscation options
         const result = await Terser.minify(fileContent, {
             mangle: true,
@@ -90,14 +90,13 @@ const copyFiles = [
     'css/style.css',
     'css/popup.css',
     'css/sprites.css',
-    'css/fontawesome.min.css'
 ];
 
 copyFiles.forEach(file => {
     const src = path.join(__dirname, file);
     const dest = path.join(buildDir, file);
     const destDir = path.dirname(dest);
-    
+
     if (!fs.existsSync(destDir)) {
         fs.mkdirSync(destDir, { recursive: true });
     }
