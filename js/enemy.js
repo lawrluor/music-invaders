@@ -10,24 +10,24 @@ class Enemy {
     this.initialY = y;
     this.width = 94; // Increased size by 10% (from 85)
     this.height = 94; // Increased size by 10% (from 85)
-    
+
     // Chord mode
     this.isChord = isChord;
-    
+
     if (isChord && chordData) {
       // For chord mode
       this.chordData = chordData;
       this.rootNote = chordData.root;
       this.chordType = chordData.type;
       this.chordNotes = chordData.notes;
-      
+
       // Get display name from chord controller to respect abbreviation settings
       if (window.chordController) {
         this.displayName = window.chordController.getChordName(this.rootNote, this.chordType);
       } else {
         this.displayName = chordData.name;
       }
-      
+
       // Use root note for color
       this.color = this.getColorFromNote(this.rootNote);
     } else {
@@ -37,12 +37,12 @@ class Enemy {
       this.displayName = this.noteName;
       this.color = this.getColorFromNote(midiNote);
     }
-    
+
     // Movement
     this.speed = 12.5 + Math.random() * 2.5; // Pixels per second
     this.wobbleAmount = 10;
     this.wobbleSpeed = 1 + Math.random() * 0.5;
-    
+
     // Animation
     this.animationTime = animationOffset;
     this.alive = true;
@@ -54,33 +54,33 @@ class Enemy {
     this.deathDuration = 0.3; // seconds - faster fade out
     this.hasHitShield = false; // Flag to track if enemy has already hit the shield
   }
-  
+
   // Update enemy position and animation
   update(deltaTime) {
     if (!this.alive) return;
-    
+
     // Convert deltaTime to seconds for easier animation calculations
     const dt = deltaTime / 1000;
-    
+
     // Update animation time
     this.animationTime += dt;
-    
+
     // Move down
     this.y += this.speed * dt;
-    
+
     // Wobble side to side
     this.x += Math.sin(this.animationTime * this.wobbleSpeed) * 0.5;
-    
+
     // Update hit animation
     if (this.hitTime > 0) {
       this.hitTime -= dt;
     }
-    
+
     // Update shield hit animation
     if (this.shieldHitTime > 0) {
       this.shieldHitTime -= dt;
     }
-    
+
     // Update death animation
     if (this.deathTime > 0) {
       this.deathTime -= dt;
@@ -89,20 +89,20 @@ class Enemy {
       }
     }
   }
-  
+
   // Draw enemy
   draw(ctx) {
     if (!this.alive && this.deathTime <= 0) return;
-    
+
     // Save context
     ctx.save();
-    
+
     // Death animation
     if (this.deathTime > 0) {
       const progress = 1 - (this.deathTime / this.deathDuration);
       const scale = 1 + progress * 0.5;
       const alpha = 1 - progress;
-      
+
       ctx.globalAlpha = alpha;
       ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
       ctx.scale(scale, scale);
@@ -114,24 +114,24 @@ class Enemy {
     // Hit flash
     if (this.hitTime > 0) {
       ctx.fillStyle = '#fff';
-    } 
+    }
     // Shield hit animation
     else if (this.shieldHitTime > 0) {
       const progress = 1 - (this.shieldHitTime / this.shieldHitDuration);
       ctx.fillStyle = `rgba(0, 255, 255, ${0.8 - progress * 0.8})`;
-    } 
+    }
     // Normal color
     else {
       ctx.fillStyle = this.color;
     }
-    
+
     // Center coordinates
     const centerX = this.width / 2;
     const centerY = this.height / 2;
-    
+
     // Animation - bouncy effect
     const bounceAmount = Math.sin(this.animationTime * 3) * 3;
-    
+
     // Draw bubble container (circular border with glow)
     function drawBubble(width) {
       ctx.beginPath();
@@ -142,56 +142,56 @@ class Enemy {
     }
 
     drawBubble(this.width);
-        
+
     // Create glow effect
     try {
       const glowRadius = this.width / 2;
-      
+
       // Ensure all values are finite and valid
       if (!isFinite(centerX) || !isFinite(centerY) || !isFinite(glowRadius) || glowRadius <= 0) {
         throw new Error('Invalid gradient parameters');
       }
-      
+
       const glow = ctx.createRadialGradient(
         centerX, centerY, 0,
         centerX, centerY, glowRadius
       );
       // Convert color to rgba with alpha (reduced glow)
-      const colorWithAlpha = this.color.startsWith('hsl') 
+      const colorWithAlpha = this.color.startsWith('hsl')
         ? this.color.replace('hsl', 'hsla').replace(')', ', 0.15)')
         : this.color.startsWith('rgb')
           ? this.color.replace('rgb', 'rgba').replace(')', ', 0.15)')
           : this.color;
-      
+
       glow.addColorStop(0, colorWithAlpha); // Add alpha for transparency
       glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      
+
       ctx.fillStyle = glow;
       ctx.fill();
     } catch (e) {
       // Fallback to simple enemy if gradient fails
       utils.error('Gradient error:', e.message);
     }
-    
+
     // Draw tentacles first (they go behind the head)
     const tentacleCount = 3;
     const tentacleWidth = 4.4; // Increased by 10%
     const tentacleHeight = 22; // Increased by 10%
     const tentacleSpacing = 7.7; // Increased by 10%
-      
+
     // Draw tentacle container div
     ctx.save();
     ctx.translate(centerX, centerY + 5 + bounceAmount * 0.5);
-    
+
     // Draw each tentacle
     ctx.fillStyle = this.color;
     for (let i = 0; i < tentacleCount; i++) {
       const tentacleX = -((tentacleCount - 1) * tentacleSpacing) / 2 + (i * tentacleSpacing);
-      
+
       // Draw tentacle (rounded rectangle)
       ctx.beginPath();
       const radius = tentacleWidth / 2;
-      
+
       // Draw rounded rectangle for tentacle
       ctx.moveTo(tentacleX, 0);
       ctx.lineTo(tentacleX + tentacleWidth, 0);
@@ -202,32 +202,32 @@ class Enemy {
       ctx.fill();
     }
     ctx.restore();
-    
+
     // Reset fill style for next elements if needed
     if (this.hitTime > 0) {
       ctx.fillStyle = '#fff';
-    } 
+    }
     else if (this.shieldHitTime > 0) {
       const progress = 1 - (this.shieldHitTime / this.shieldHitDuration);
       ctx.fillStyle = `rgba(0, 255, 255, ${0.8 - progress * 0.8})`;
-    } 
+    }
     else {
       ctx.fillStyle = this.color;
     }
-    
+
     // Draw enemy head
     const headWidth = 44; // Increased by 10%
     const headHeight = 35.2; // Increased by 10%
     const headY = centerY - 5.5 + bounceAmount * 0.7; // Position with bounce effect
-    
+
     // Draw head (rounded rectangle with top rounded corners)
     ctx.fillStyle = this.color;
     ctx.beginPath();
-    
+
     // Draw rounded rectangle with only top corners rounded
     const topRadius = 15; // Rounded top corners
     const bottomRadius = 5; // Less rounded bottom corners
-    
+
     // Top left corner
     ctx.moveTo(centerX - headWidth/2 + topRadius, headY - headHeight/2);
     // Top edge
@@ -246,40 +246,40 @@ class Enemy {
     ctx.lineTo(centerX - headWidth/2, headY - headHeight/2 + topRadius);
     // Top left corner
     ctx.arc(centerX - headWidth/2 + topRadius, headY - headHeight/2 + topRadius, topRadius, Math.PI, Math.PI*3/2, false);
-    
+
     ctx.closePath();
     ctx.fill();
-    
+
     // Add head glow
     try {
       const headGlowRadius = headWidth/2 + 5;
-      
+
       // Ensure all values are finite and valid
       if (!isFinite(centerX) || !isFinite(headY) || !isFinite(headGlowRadius) || headGlowRadius <= 0) {
         throw new Error('Invalid gradient parameters');
       }
-      
+
       const headGlow = ctx.createRadialGradient(
         centerX, headY, 0,
         centerX, headY, headGlowRadius
       );
       // Convert color to rgba with alpha for head glow
-      const headColorFull = this.color.startsWith('hsl') 
+      const headColorFull = this.color.startsWith('hsl')
         ? this.color.replace('hsl', 'hsla').replace(')', ', 1.0)')
         : this.color.startsWith('rgb')
           ? this.color.replace('rgb', 'rgba').replace(')', ', 1.0)')
           : this.color;
-          
-      const headColorFaded = this.color.startsWith('hsl') 
+
+      const headColorFaded = this.color.startsWith('hsl')
         ? this.color.replace('hsl', 'hsla').replace(')', ', 0.2)')
         : this.color.startsWith('rgb')
           ? this.color.replace('rgb', 'rgba').replace(')', ', 0.2)')
           : this.color;
-      
+
       headGlow.addColorStop(0, headColorFull);
       headGlow.addColorStop(0.7, headColorFaded);
       headGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      
+
       ctx.fillStyle = headGlow;
       ctx.beginPath();
       ctx.arc(centerX, headY, headWidth/2 + 5, 0, Math.PI * 2);
@@ -287,17 +287,17 @@ class Enemy {
     } catch (e) {
       utils.error('Head glow error:', e.message);
     }
-    
+
     // Draw googley eyes (more centered and cute)
     const eyeRadius = 6.6; // Increased by 10%
     const eyeOffsetX = 8.8; // Increased by 10%
     const eyeOffsetY = -7.7; // Increased by 10%
     const pupilRadius = 3.85; // Increased by 10%
-    
+
     // Random pupil position for googley effect
     const pupilOffsetX = Math.sin(this.animationTime * 2) * 1.2;
     const pupilOffsetY = Math.cos(this.animationTime * 1.5) * 1.2;
-    
+
     // Left eye white
     ctx.fillStyle = '#fff';
     ctx.beginPath();
@@ -309,7 +309,7 @@ class Enemy {
       Math.PI * 2
     );
     ctx.fill();
-    
+
     // Right eye white
     ctx.beginPath();
     ctx.arc(
@@ -320,7 +320,7 @@ class Enemy {
       Math.PI * 2
     );
     ctx.fill();
-    
+
     // Left eye pupil (with googley movement)
     ctx.fillStyle = '#000';
     ctx.beginPath();
@@ -332,7 +332,7 @@ class Enemy {
       Math.PI * 2
     );
     ctx.fill();
-    
+
     // Right eye pupil (with googley movement)
     ctx.beginPath();
     ctx.arc(
@@ -343,11 +343,11 @@ class Enemy {
       Math.PI * 2
     );
     ctx.fill();
-    
+
     // Eye highlights
     ctx.fillStyle = '#fff';
     const highlightRadius = 1.32; // Increased by 10%
-    
+
     // Left eye highlight
     ctx.beginPath();
     ctx.arc(
@@ -358,7 +358,7 @@ class Enemy {
       Math.PI * 2
     );
     ctx.fill();
-    
+
     // Right eye highlight
     ctx.beginPath();
     ctx.arc(
@@ -369,54 +369,54 @@ class Enemy {
       Math.PI * 2
     );
     ctx.fill();
-    
+
     // Draw note/chord name below enemy
     ctx.fillStyle = '#dddddd'; // Light grey instead of white for better readability
-    
+
     // Check if large font and music font are enabled
     const useLargeFont = localStorage.getItem('useLargeFont') === 'true';
     const useMusicFont = localStorage.getItem('useMusicFont') !== 'false'; // Default to true if not set
-    
+
     // Set font based on user preferences
     if (useMusicFont) {
       // Use Bravura music font with fallback to Helvetica/Verdana for better superscript rendering
-      ctx.font = useLargeFont 
-        ? 'bold 40px Bravura, Helvetica, Verdana, sans-serif' 
+      ctx.font = useLargeFont
+        ? 'bold 40px Bravura, Helvetica, Verdana, sans-serif'
         : 'bold 30px Bravura, Helvetica, Verdana, sans-serif';
       // Add letter spacing for better readability
       ctx.letterSpacing = '1px';
     } else {
       // Use Helvetica/Verdana for better superscript rendering
-      ctx.font = useLargeFont 
-        ? 'bold 40px Helvetica, Verdana, sans-serif' 
+      ctx.font = useLargeFont
+        ? 'bold 40px Helvetica, Verdana, sans-serif'
         : 'bold 30px Helvetica, Verdana, sans-serif';
     }
-    
+
     // Canvas API doesn't directly support letterSpacing, but we can implement it manually if needed
     // For now, we'll rely on the font's natural spacing
-    
+
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    
+
     // Position below enemy
     const noteY = centerY + this.height/2 + 5;
-    
+
     // Add text shadow for glow effect
     ctx.shadowColor = this.color;
     ctx.shadowBlur = 0.5;
     ctx.fillText(this.displayName, centerX, noteY);
-    
+
     // Add second shadow for stronger glow
     ctx.shadowBlur = 0.5;
     ctx.fillText(this.displayName, centerX, noteY);
-    
+
     // Reset shadow
     ctx.shadowBlur = 0;
-    
+
     // Restore context
     ctx.restore();
   }
-  
+
   // Update display name based on current abbreviation settings
   updateDisplayName() {
     if (this.isChord && window.chordController) {
@@ -424,7 +424,7 @@ class Enemy {
       this.displayName = window.chordController.getChordName(this.rootNote, this.chordType);
     }
   }
-  
+
   // Get color based on MIDI note
   getColorFromNote(note) {
     // Use hue based on note (C = red, C# = orange, etc.)
@@ -432,7 +432,7 @@ class Enemy {
 
     // Use brightness based on octave
     const lightness = 50 + (Math.floor(note / 12) - 2) * 10;
-    
+
     /* Avoid white color for enemies */
     if (lightness > 90) {
       return `hsl(${hue}, 100%, 90%)`;
@@ -440,7 +440,7 @@ class Enemy {
       return `hsl(${hue}, 100%, ${lightness}%)`;
     }
   }
-  
+
   // Check if this enemy matches the given MIDI note or chord
   matchesNote(note, activeNotes = null) {
     if (this.isChord && activeNotes) {
@@ -452,19 +452,19 @@ class Enemy {
       return this.midiNote === note;
     }
   }
-  
+
   // Hit the enemy
   hit() {
     this.hitTime = this.hitDuration;
   }
-  
+
   // Start death animation
   die() {
     if (this.deathTime <= 0) { // Only start death animation if not already dying
       this.deathTime = this.deathDuration;
     }
   }
-  
+
   // Hit the shield
   hitShield() {
     if (!this.hasHitShield) {
@@ -472,7 +472,7 @@ class Enemy {
       this.hasHitShield = true;
     }
   }
-  
+
   // Check collision with a point
   collidesWith(x, y) {
     return this.alive &&
@@ -481,12 +481,12 @@ class Enemy {
            y >= this.y &&
            y <= this.y + this.height;
   }
-  
+
   // Check if enemy is below the shield
   isBelowShield(shieldY) {
     return this.y + this.height > shieldY;
   }
-  
+
   // DEBUG ONLY: Export enemy as an image file
   exportAsImage(filename = 'enemy.png') {
     // Create a temporary canvas with the enemy's dimensions
@@ -494,32 +494,32 @@ class Enemy {
     canvas.width = this.width;
     canvas.height = this.height;
     const ctx = canvas.getContext('2d');
-    
+
     // Save the current position
     const originalX = this.x;
     const originalY = this.y;
-    
+
     // Temporarily position at 0,0 for the export
     this.x = 0;
     this.y = 0;
-    
+
     // Draw the enemy on the temporary canvas
     this.draw(ctx);
-    
+
     // Restore the original position
     this.x = originalX;
     this.y = originalY;
-    
+
     // Create a download link for the image
     const link = document.createElement('a');
     link.download = filename;
     link.href = canvas.toDataURL('image/png');
-    
+
     // Trigger the download
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     return canvas; // Return the canvas in case it's needed for other purposes
   }
 }

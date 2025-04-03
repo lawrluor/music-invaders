@@ -661,7 +661,7 @@ class SoundController {
       setTimeout(() => {
         const frequency = 440 * Math.pow(2, (note - 69) / 12);
         this.createOscillator(frequency, 0.15, 'sine', 0.3);
-      }, index * 80); // 80ms between notes for a quick jingle
+      }, index * 125); // 125ms between notes for a quick jingle
     });
     
     // Add a final chord for emphasis
@@ -671,7 +671,7 @@ class SoundController {
         const frequency = 440 * Math.pow(2, (note - 69) / 12);
         this.createOscillator(frequency, 0.4, 'sine', 0.25);
       });
-    }, 350); // Play after the ascending notes
+    }, 625); // Play after the ascending notes
   }
   
   // Toggle mute state

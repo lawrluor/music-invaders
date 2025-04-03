@@ -89,7 +89,8 @@ const copyFiles = [
     'index.html',
     'css/style.css',
     'css/popup.css',
-    'css/sprites.css'
+    'css/sprites.css',
+    'css/fontawesome.min.css'
 ];
 
 copyFiles.forEach(file => {

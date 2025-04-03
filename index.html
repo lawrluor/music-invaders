@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="css/popup.css">
     <link rel="stylesheet" href="css/sprites.css">
 
-    <!-- Font Awesome -->
+    <!-- import fontawesome 4.7.0 by url -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <!-- favicon -->
@@ -18,7 +18,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
     <link rel="manifest" href="img/favicon/site.webmanifest">
     <link rel="shortcut icon" href="img/favicon/favicon.ico">
-    
+
     <!-- Add Bravura music font for musical notation -->
     <style>
       @font-face {
@@ -30,7 +30,7 @@
       }
     </style>
   </head>
-  
+
   <body>
     <div id="game-container">
       <canvas id="game-canvas"></canvas>
@@ -67,12 +67,14 @@
         </div>
 
         <div style="display: none;" id="fps-counter">FPS: 0</div>
-        
+
+        <div id="game-message"></div>
+
         <div id="mute-button-container">
           <button id="mute-toggle-button">🔊</button>
         </div>
       </div>
-      
+
       <!-- Title Screen -->
       <div id="title-screen">
         <img src="img/sprites/enemy_blue.png" alt="Enemy Image" id="alien-sprite-top-left" class="game-image">
@@ -80,7 +82,7 @@
         <div class="title-header">
           <h1><span class="screen-title">Music Invaders</span></h1>
         </div>
-        
+
         <div class="instructions-container">
           <img src="img/sprites/enemy_red.png" alt="Enemy Image" id="alien-sprite-instructions-container-top" class="game-image">
           <h2>How to Play 🕹️</h2>
@@ -107,10 +109,10 @@
               <div style="display: none;" id="midi-test-area">Play a note on your MIDI device to test</div>
             </div>
           </div>
-          
+
           <img src="img/sprites/enemy_purple.png" alt="Enemy Image" id="alien-sprite-instructions-container-side" class="game-image">
         </div>
-        
+
         <div class="game-mode-selection">
           <div class="mode-container">
             <div class="mode-options">
@@ -131,7 +133,7 @@
               </div>
             </div>
           </div>
-          
+
           <div>
             <div class="mode-container">
               <div class="mode-options">
@@ -156,11 +158,11 @@
         </div>
 
         <div class="footer">
-          <span><a href="https://code.lawrenceluo.me/" class="footer-link"target="_blank" rel="noopener noreferrer">About</a></span> | 
-          <span><a href="https://ko-fi.com/lawrenceluo" class="footer-link" target="_blank" rel="noopener noreferrer">Donate</a></span>  
+          <span><a href="https://code.lawrenceluo.me/" class="footer-link"target="_blank" rel="noopener noreferrer">About</a></span> |
+          <span><a href="https://ko-fi.com/lawrenceluo" class="footer-link" target="_blank" rel="noopener noreferrer">Donate</a></span>
         </div>
       </div>
-      
+
       <!-- Game Over Screen -->
       <div id="game-over-screen" class="hidden">
         <div class="game-over-container">
@@ -178,26 +180,26 @@
 
           <div class="game-over-info">
             <h2 id="game-over-reason" class="reason">You were defeated!</h2>
-            
+
             <div class="game-over-stats">
               <h2 class="game-over-waves">Waves Completed: <span id="game-over-waves">0</span></h2>
               <h2 id="game-over-wave-bonus-container">Wave Bonus: <span id="game-over-wave-bonus">0</span> points</h2>
               <h2 class="game-over-score">Final Score: <span id="final-score">0</span></h2>
             </div>
-            
+
             <div id="game-over-high-score-message" class="high-score-message hidden">
               <h2 class="high-score-text">New High Score!</h2>
               <p>Congratulations! You've set a new record!</p>
             </div>
           </div>
-          
+
           <div class="post-game-button-container">
             <button id="game-over-menu-button" class="play-button">Menu</button>
             <button id="game-over-play-again-button" class="play-button">Play Again</button>
           </div>
         </div>
       </div>
-      
+
       <!-- Victory Screen -->
       <div id="victory-screen" class="hidden">
         <div class="victory-container">
@@ -212,7 +214,7 @@
 
           <h1 class="screen-title victory-title">Victory!</h1>
           <h2>You completed all <span id="waves-completed">0</span> waves!</h2>
-          
+
           <div class="victory-info">
             <div class="victory-stats">
               <h4>Enemy Score: <span id="base-score">0</span> points</h4>
@@ -221,26 +223,26 @@
               <h4 id="wave-bonus-container">Wave Bonus: <span id="wave-bonus">0</span> points</h4>
               <h4 id="final-total">Final Score: <span id="victory-score">0</span></h4>
             </div>
-            
+
             <div id="victory-high-score-message" class="high-score-message hidden">
               <h2 class="high-score-text">New High Score!</h2>
               <p>Congratulations! You've set a new record!</p>
             </div>
           </div>
-          
+
           <div class="post-game-button-container">
             <button id="victory-menu-button" class="play-button">Menu</button>
             <button id="victory-play-again-button" class="play-button">Play Again</button>
           </div>
         </div>
       </div>
-      
+
       <!-- Wave Transition -->
       <div id="wave-transition" class="hidden">
         <h1 class="screen-title">Wave <span id="next-wave">2</span></h1>
         <h2>Get Ready!</h2>
       </div>
-      
+
       <!-- Settings Modal -->
       <div id="settings-modal" class="modal hidden">
         <div class="modal-content">
@@ -256,7 +258,7 @@
               </label>
               <p class="setting-description">When enabled, chord names will be abbreviated.</p>
             </div>
-            
+
             <div class="setting-item">
               <label for="use-large-font">
                 <input type="checkbox" id="use-large-font">
@@ -264,7 +266,7 @@
               </label>
               <p class="setting-description">When enabled, notes and chord names will be displayed in a larger font size for better visibility.</p>
             </div>
-            
+
             <!-- <div class="setting-item">
               <label for="use-music-font">
                 <input type="checkbox" id="use-music-font" checked>
@@ -272,7 +274,7 @@
               </label>
               <p class="setting-description">When enabled, notes and chord names will be displayed using a specialized music font for better readability.</p>
             </div> -->
-            
+
             <div class="setting-item">
               <label for="mute-sound">
                 <input type="checkbox" id="mute-sound">
@@ -280,7 +282,7 @@
               </label>
               <p class="setting-description">When enabled, all game sounds will be muted.</p>
             </div>
-            
+
             <div class="setting-item">
               <label for="hide-uncommon-chords">
                 <input type="checkbox" id="hide-uncommon-chords">
@@ -292,7 +294,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Scripts -->
     <script src="js/utils.js"></script>
     <script src="js/sound.js"></script>
