@@ -386,14 +386,10 @@ class Enemy {
       // Add letter spacing for better readability
       ctx.letterSpacing = '1px';
     } else {
-      // Use Helvetica/Verdana for better superscript rendering
       ctx.font = useLargeFont
         ? 'bold 40px Helvetica, Verdana, sans-serif'
         : 'bold 30px Helvetica, Verdana, sans-serif';
     }
-
-    // Canvas API doesn't directly support letterSpacing, but we can implement it manually if needed
-    // For now, we'll rely on the font's natural spacing
 
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -401,13 +397,41 @@ class Enemy {
     // Position below enemy
     const noteY = centerY + this.height/2 + 5;
 
+    // Apply text stroke to create contrast with background
+    // Draw text outline/stroke - a darker outline helps with readability against colorful backgrounds
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+    ctx.lineWidth = 4; // Thicker outline for better visibility
+    ctx.lineJoin = 'round'; // Round joins for smoother outline
+    ctx.miterLimit = 2;
+    ctx.strokeText(this.displayName, centerX, noteY);
+
     // Add text shadow for glow effect
     ctx.shadowColor = this.color;
-    ctx.shadowBlur = 0.5;
+    ctx.shadowBlur = 3;
     ctx.fillText(this.displayName, centerX, noteY);
 
-    // Add second shadow for stronger glow
-    ctx.shadowBlur = 0.5;
+    // Add a semi-transparent background behind the text for better readability
+    // This is drawn before the text but appears behind it
+    const textMetrics = ctx.measureText(this.displayName);
+    const textWidth = textMetrics.width;
+    const textHeight = useLargeFont ? 40 : 30;
+    const padding = 6;
+
+    // Save state before drawing background
+    ctx.save();
+    ctx.globalAlpha = 0.5; // Semi-transparent background
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(
+      centerX - textWidth/2 - padding,
+      noteY - textHeight/2 - padding/2,
+      textWidth + padding*2,
+      textHeight + padding
+    );
+    ctx.restore();
+
+    // Redraw text on top of background
+    ctx.fillStyle = '#ffffff'; // Pure white for better contrast
+    ctx.shadowBlur = 0; // Remove shadow for clean text
     ctx.fillText(this.displayName, centerX, noteY);
 
     // Reset shadow

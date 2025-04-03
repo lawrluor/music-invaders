@@ -581,7 +581,6 @@ class Game {
     // Update player
     if (this.player) {
       this.player.update(deltaTime);
-      this.player.draw(this.ctx);
     }
 
     // Update enemies
@@ -624,17 +623,40 @@ class Game {
           // Log shield hit for debugging
           utils.log(`Enemy hit shield! Health: ${this.health}, Window focused: ${this.windowFocused}`);
         }
-
-        enemy.draw(this.ctx);
       }
     });
 
     // Update lasers
     this.lasers = this.lasers.filter(laser => {
       laser.update(deltaTime);
-      laser.draw(this.ctx);
       return laser.active;
     });
+
+    // Draw objects in order from background to foreground
+    // 1. Draw dying enemies first (they're fading out)
+    this.enemies.forEach(enemy => {
+      if (!enemy.alive && enemy.deathTime > 0) {
+        enemy.draw(this.ctx);
+      }
+    });
+
+    // 2. Draw living enemies ordered by y-position (bottom to top)
+    // This makes enemies closer to the bottom (closer to the player) appear on top
+    const livingEnemies = this.enemies.filter(enemy => enemy.alive);
+    livingEnemies.sort((a, b) => b.y - a.y); // Sort by y-position descending
+    livingEnemies.forEach(enemy => {
+      enemy.draw(this.ctx);
+    });
+
+    // 3. Draw lasers on top of enemies
+    this.lasers.forEach(laser => {
+      laser.draw(this.ctx);
+    });
+
+    // 4. Draw player on top of everything
+    if (this.player) {
+      this.player.draw(this.ctx);
+    }
 
     // Draw chord charge indicator if in chord mode
     if (this.chordMode) {
