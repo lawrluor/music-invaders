@@ -144,7 +144,7 @@ canvas {
   text-align: center;
 }
 
-#game-message {
+#game-message-container {
   position: absolute;
   bottom: var(--spacing-small);
   left: 50%;

@@ -116,7 +116,7 @@ class Game {
       healthBar: document.getElementById('health-bar'),
       gameModeDisplay: document.getElementById('game-mode-display'),
       fpsCounter: document.getElementById('fps-counter'),
-      gameMessage: document.getElementById('game-message'),
+      gameDebugMessage: document.getElementById('game-debug-message'),
       finalScore: document.getElementById('final-score'),
       victoryScore: document.getElementById('victory-score'),
       nextWave: document.getElementById('next-wave'),
@@ -1665,7 +1665,7 @@ class Game {
   handleWindowFocus() {
     this.windowFocused = true;
     utils.log('Window focused');
-    this.uiElements.gameMessage.textContent = 'Window active';  // DEBUG ONLY
+    this.uiElements.gameDebugMessage.textContent = 'Window active';  // DEBUG ONLY
 
     // Clear any background collision check interval
     if (this.backgroundCollisionCheckInterval) {
@@ -1684,7 +1684,7 @@ class Game {
   handleWindowBlur() {
     this.windowFocused = false;
     utils.log('Window blurred');
-    this.uiElements.gameMessage.textContent = 'Window inactive';  // DEBUG ONLY
+    this.uiElements.gameDebugMessage.textContent = 'Window inactive';  // DEBUG ONLY
 
     // Set up regular collision checks when window is not focused
     if (this.gameState === 'playing' && !this.backgroundCollisionCheckInterval) {
