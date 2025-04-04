@@ -346,6 +346,23 @@ class Game {
     this.highScore = utils.loadHighScore(scoreKey);
     utils.log(`Starting ${this.gameMode} mode (${this.chordMode ? 'chord' : 'note'} mode) with high score: ${this.highScore}`);
 
+    // Track game start with Firebase Analytics
+    try {
+      // Use globally available Firebase analytics
+      if (window.firebaseAnalytics && window.firebaseLogEvent) {
+        window.firebaseLogEvent(window.firebaseAnalytics, 'game_start', {
+          game_mode: this.gameMode,
+          chord_mode: this.chordMode,
+          screen_width: window.innerWidth,
+          screen_height: window.innerHeight,
+          aspect_ratio: (window.innerWidth / window.innerHeight).toFixed(2)
+        });
+        utils.log('Tracked game start with Firebase Analytics');
+      }
+    } catch (e) {
+      utils.log('Firebase Analytics error:', e);
+    }
+
     // Update high score display
     if (this.uiElements.highScore) {
       this.uiElements.highScore.textContent = this.highScore;
@@ -807,6 +824,27 @@ class Game {
     this.gameState = 'gameOver';
     this.gameOverReason = reason || 'You were defeated!';
 
+    // Track game end with Firebase Analytics
+    try {
+      // Use globally available Firebase analytics
+      if (window.firebaseAnalytics && window.firebaseLogEvent) {
+        window.firebaseLogEvent(window.firebaseAnalytics, 'game_end', {
+          game_mode: this.gameMode,
+          chord_mode: this.chordMode,
+          screen_width: window.innerWidth,
+          screen_height: window.innerHeight,
+          aspect_ratio: (window.innerWidth / window.innerHeight).toFixed(2),
+          score: this.score,
+          wave: this.wave,
+          fps: this.fps,
+          reason: this.gameOverReason.replace(/[!]/g, '').trim() // Clean up reason text
+        });
+        utils.log('Tracked game end with Firebase Analytics');
+      }
+    } catch (e) {
+      utils.log('Firebase Analytics error:', e);
+    }
+
     // Show settings button on game over screen
     if (typeof window.toggleSettingsButtonVisibility === 'function') {
       window.toggleSettingsButtonVisibility(this.gameState);
@@ -877,6 +915,28 @@ class Game {
     this.dismissOpenDialogs();
 
     this.gameState = 'victory';
+
+    // Track victory with Firebase Analytics
+    try {
+      // Use globally available Firebase analytics
+      if (window.firebaseAnalytics && window.firebaseLogEvent) {
+        window.firebaseLogEvent(window.firebaseAnalytics, 'game_victory', {
+          game_mode: this.gameMode,
+          chord_mode: this.chordMode,
+          screen_width: window.innerWidth,
+          screen_height: window.innerHeight,
+          aspect_ratio: (window.innerWidth / window.innerHeight).toFixed(2),
+          score: this.score,
+          final_wave: this.wave,
+          fps: this.fps,
+          remaining_health: this.health,
+          remaining_ammo: this.player ? this.player.ammo : 0
+        });
+        utils.log('Tracked victory with Firebase Analytics');
+      }
+    } catch (e) {
+      utils.log('Firebase Analytics error:', e);
+    }
 
     // Show settings button on victory screen
     if (typeof window.toggleSettingsButtonVisibility === 'function') {
