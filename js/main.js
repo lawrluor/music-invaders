@@ -301,5 +301,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // Clear saved data button event listener
+  const clearSavedDataButton = document.getElementById('clear-saved-data');
+  if (clearSavedDataButton) {
+    clearSavedDataButton.addEventListener('click', () => {
+      // Show confirmation popup before clearing data
+      utils.showConfirmationPopup(
+        'Clear Saved Data',
+        'Are you sure you want to delete all your saved game data including high scores and settings? This action cannot be undone.',
+        () => {
+          // User confirmed, clear all data
+          utils.clearSavedData();
+
+          setTimeout(() => {
+            window.location.reload();
+          }, 50);
+        },
+        null, // No special action on cancel
+        'Cancel',
+        'Clear All Data'
+      );
+    });
+  }
+
   utils.log('MIDI Space Invaders initialized');
 });

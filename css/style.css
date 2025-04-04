@@ -481,13 +481,13 @@ canvas {
 }
 
 .setting-description {
-  margin: var(--spacing-small) 0;
-  color: #aaa;
-  font-size: var(--font-size-normal);
+  font-size: var(--font-size-small);
+  color: var(--color-off-white);
+  margin-top: var(--spacing-tiny);
 }
 
 .mode-label {
-  font-size: 1.3em;
+  font-size: var(--font-size-medium);
   margin-bottom: 5px;
   font-weight: bold;
   color: var(--color-green);
@@ -498,6 +498,25 @@ canvas {
   color: var(--border-medium);
   text-align: center;
   margin-bottom: 5px;
+}
+
+/* Danger button for destructive actions */
+.danger-button {
+  background-color: var(--bg-red-opaque);
+  color: var(--color-white);
+  border: 1px solid var(--color-red);
+  padding: var(--spacing-small) var(--spacing-medium);
+  border-radius: var(--border-radius-small);
+  cursor: pointer;
+  font-family: var(--font-main);
+  font-size: var(--font-size-normal);
+  transition: var(--transition-normal);
+  margin-top: var(--spacing-small);
+}
+
+.danger-button:hover {
+  background-color: var(--color-red);
+  box-shadow: 0 0 4px var(--color-red);
 }
 
 /* title-screen is the first full screen overlay we see on the home page!! */

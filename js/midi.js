@@ -84,7 +84,11 @@ class MidiController {
     // Show status message
     this.midiStatus.textContent = 'Retrieving MIDI devices...';
 
+    // Toggle refresh button to "load"
     this.refreshButton.style.cursor = 'wait';
+    setTimeout(() => {
+      this.refreshButton.style.cursor = 'pointer';
+    }, 250);
 
     // Get all inputs
     const inputs = this.midiAccess.inputs.values();
@@ -122,10 +126,6 @@ class MidiController {
       this.midiStatus.textContent = `${count} device${count === 1 ? '' : 's'} detected`;
       this.midiStatus.style.color = '#0f0';
     }
-
-    setTimeout(() => {
-      this.refreshButton.style.cursor = 'pointer';
-    }, 250);
   }
 
   // Select a specific MIDI input device
