@@ -79,8 +79,28 @@ const utils = {
     return padding + position * (canvasWidth - 2 * padding);
   },
 
+  // Compare high scores including wave information
+  // Returns 1 if score1 is better, -1 if score2 is better, 0 if equal
+  compareHighScores: function(scoreData1, scoreData2) {
+    // First compare by score
+    if (scoreData1.score > scoreData2.score) {
+      return 1; // First score is higher
+    } else if (scoreData1.score < scoreData2.score) {
+      return -1; // Second score is higher
+    } else {
+      // If scores are equal, compare by wave
+      if (scoreData1.wave > scoreData2.wave) {
+        return 1; // First wave is higher
+      } else if (scoreData1.wave < scoreData2.wave) {
+        return -1; // Second wave is higher
+      } else {
+        return 0; // Completely equal
+      }
+    }
+  },
+
   // Save high score to local storage based on game mode
-  saveHighScore: function(score, gameMode = 'classic') {
+  saveHighScore: function(score, gameMode = 'classic', wave = 1) {
     // Generate storage key based on game mode and whether it's chord mode
     let storageKey;
 
@@ -97,14 +117,80 @@ const utils = {
         'musicInvadersClassicHighScore';
     }
 
-    const currentHighScore = parseInt(localStorage.getItem(storageKey) || 0, 10);
+    // Get current high score data
+    let currentHighScoreData;
+    try {
+      const savedData = localStorage.getItem(storageKey);
+      currentHighScoreData = savedData ? JSON.parse(savedData) : { score: 0, wave: 0 };
+    } catch (e) {
+      // Handle case where previous data might be just a number
+      const previousScore = parseInt(localStorage.getItem(storageKey) || 0, 10);
+      currentHighScoreData = { score: previousScore, wave: 0 };
+    }
 
     // Only save if the new score is higher than the current high score
-    if (score > currentHighScore) {
-      localStorage.setItem(storageKey, score.toString());
-      this.log(`New high score for ${gameMode} mode: ${score}`);
+    if (score > currentHighScoreData.score) {
+      const newData = { score: score, wave: wave };
+      localStorage.setItem(storageKey, JSON.stringify(newData));
+      this.log(`New high score for ${gameMode} mode: ${score} (Wave ${wave})`);
       return true;
     }
+    return false;
+  },
+
+  // Save high score to local storage with option to prioritize wave over score
+  // Not currently used, as raw score is used for high scores
+  saveHighScoreWithWavePriority: function(score, wave, gameMode = 'classic', prioritizeWave = false) {
+    // Generate storage key based on game mode and whether it's chord mode
+    let storageKey = gameMode.includes('_chord') ?
+      (gameMode === 'survival_chord' ? 'musicInvadersSurvivalChordHighScore' : 'musicInvadersClassicChordHighScore') :
+      (gameMode === 'survival' ? 'musicInvadersSurvivalHighScore' : 'musicInvadersClassicHighScore');
+
+    // Add suffix for wave-prioritized high scores
+    if (prioritizeWave) {
+      storageKey += '_wave';
+    }
+
+    // Get current high score data
+    let currentHighScoreData;
+    try {
+      const savedData = localStorage.getItem(storageKey);
+      currentHighScoreData = savedData ? JSON.parse(savedData) : { score: 0, wave: 0 };
+    } catch (e) {
+      // Handle case where previous data might be just a number
+      const previousScore = parseInt(localStorage.getItem(storageKey) || 0, 10);
+      currentHighScoreData = { score: previousScore, wave: 0 };
+    }
+
+    let shouldSave = false;
+
+    if (prioritizeWave) {
+      // Save if the wave is higher, or if wave is the same but score is higher
+      if (wave > currentHighScoreData.wave) {
+        shouldSave = true;
+      } else if (wave === currentHighScoreData.wave && score > currentHighScoreData.score) {
+        shouldSave = true;
+      }
+    } else {
+      // Traditional approach: save if score is higher
+      if (score > currentHighScoreData.score) {
+        shouldSave = true;
+      }
+    }
+
+    if (shouldSave) {
+      const newData = { score: score, wave: wave };
+      localStorage.setItem(storageKey, JSON.stringify(newData));
+
+      if (prioritizeWave) {
+        this.log(`New wave record for ${gameMode} mode: Wave ${wave} with score ${score}`);
+      } else {
+        this.log(`New high score for ${gameMode} mode: ${score} (Wave ${wave})`);
+      }
+
+      return true;
+    }
+
     return false;
   },
 
@@ -126,16 +212,22 @@ const utils = {
         'musicInvadersClassicHighScore';
     }
 
-    const storedScore = localStorage.getItem(storageKey);
+    const storedData = localStorage.getItem(storageKey);
 
-    // If no score exists yet, return 0
-    if (storedScore === null) {
+    // If no score exists yet, return default object
+    if (storedData === null) {
       this.log(`No high score found for ${gameMode} mode, starting at 0`);
-      return 0;
+      return { score: 0, wave: 0 };
     }
 
-    // Parse the stored score as an integer
-    return parseInt(storedScore, 10);
+    try {
+      // Try to parse as JSON first (new format)
+      return JSON.parse(storedData);
+    } catch (e) {
+      // If parsing fails, it's probably the old format (just a number)
+      const score = parseInt(storedData, 10);
+      return { score: score, wave: 0 };
+    }
   },
 
   // Save last selected MIDI device

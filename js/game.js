@@ -275,8 +275,14 @@ class Game {
     }
 
     // Load high score for current game mode and update display
-    this.highScore = utils.loadHighScore(this.gameMode);
-    this.uiElements.highScore.textContent = this.highScore;
+    const scoreKey = this.chordMode ? `${this.gameMode}_chord` : this.gameMode;
+    const highScoreData = utils.loadHighScore(scoreKey);
+    this.highScore = highScoreData.score;
+
+    if (this.uiElements.highScore) {
+      const waveText = highScoreData.wave > 0 ? ` (Wave ${highScoreData.wave})` : '';
+      this.uiElements.highScore.textContent = this.highScore + waveText;
+    }
 
     // Start game loop
     this.lastFrameTime = performance.now();
@@ -343,8 +349,15 @@ class Game {
     // Load the appropriate high score for this mode
     // Combine gameMode and chordMode for high score tracking
     const scoreKey = this.chordMode ? `${this.gameMode}_chord` : this.gameMode;
-    this.highScore = utils.loadHighScore(scoreKey);
+    const highScoreData = utils.loadHighScore(scoreKey);
+    this.highScore = highScoreData.score;
     utils.log(`Starting ${this.gameMode} mode (${this.chordMode ? 'chord' : 'note'} mode) with high score: ${this.highScore}`);
+
+    // Update high score display
+    if (this.uiElements.highScore) {
+      const waveText = highScoreData.wave > 0 ? ` (Wave ${highScoreData.wave})` : '';
+      this.uiElements.highScore.textContent = this.highScore + waveText;
+    }
 
     // Track game start with Firebase Analytics
     try {
@@ -361,11 +374,6 @@ class Game {
       }
     } catch (e) {
       utils.log('Firebase Analytics error:', e);
-    }
-
-    // Update high score display
-    if (this.uiElements.highScore) {
-      this.uiElements.highScore.textContent = this.highScore;
     }
 
     // Reset game state
@@ -875,9 +883,17 @@ class Game {
       this.highScore = this.score;
       // Create a key that combines game mode and chord mode
       const scoreKey = this.chordMode ? `${this.gameMode}_chord` : this.gameMode;
-      const saved = utils.saveHighScore(this.highScore, scoreKey);
-      utils.log(`High score ${saved ? 'updated' : 'not updated'} to ${this.highScore}`);
-      this.uiElements.highScore.textContent = this.highScore;
+      // Pass the current wave to saveHighScore
+      const saved = utils.saveHighScore(this.highScore, scoreKey, this.wave);
+      utils.log(`High score ${saved ? 'updated' : 'not updated'} to ${this.highScore} (Wave ${this.wave})`);
+
+      // Update high score display in UI
+      if (this.uiElements.highScore) {
+        // Show both score and wave
+        const highScoreData = utils.loadHighScore(scoreKey);
+        const waveText = highScoreData.wave > 0 ? ` (Wave ${highScoreData.wave})` : '';
+        this.uiElements.highScore.textContent = highScoreData.score + waveText;
+      }
 
       // Show high score message
       if (this.uiElements.gameOverHighScoreMessage) {
@@ -979,9 +995,18 @@ class Game {
       this.highScore = this.score;
       // Create a key that combines game mode and chord mode
       const scoreKey = this.chordMode ? `${this.gameMode}_chord` : this.gameMode;
-      const saved = utils.saveHighScore(this.highScore, scoreKey);
-      utils.log(`High score ${saved ? 'updated' : 'not updated'} to ${this.highScore}`);
-      this.uiElements.highScore.textContent = this.highScore;
+      // Pass the current wave to saveHighScore
+      const wavesCompleted = this.gameMode === 'survival' ? this.wave : this.wavesTotal;
+      const saved = utils.saveHighScore(this.highScore, scoreKey, wavesCompleted);
+      utils.log(`High score ${saved ? 'updated' : 'not updated'} to ${this.highScore} (Wave ${wavesCompleted})`);
+
+      // Update high score display in UI
+      if (this.uiElements.highScore) {
+        // Show both score and wave
+        const highScoreData = utils.loadHighScore(scoreKey);
+        const waveText = highScoreData.wave > 0 ? ` (Wave ${highScoreData.wave})` : '';
+        this.uiElements.highScore.textContent = highScoreData.score + waveText;
+      }
 
       // Show high score message
       if (this.uiElements.victoryHighScoreMessage) {

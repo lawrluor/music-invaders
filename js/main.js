@@ -94,31 +94,39 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Function to load and display high scores - make it globally available
   window.loadAndDisplayHighScores = () => {
     // Single Note Classic
-    const singleNoteClassicHighScore = utils.loadHighScore('classic');
+    const singleNoteClassicHighScoreData = utils.loadHighScore('classic');
     const singleNoteClassicHighScoreElement = document.getElementById('single-note-classic-high-score');
     if (singleNoteClassicHighScoreElement) {
-      singleNoteClassicHighScoreElement.textContent = singleNoteClassicHighScore;
+      const scoreText = singleNoteClassicHighScoreData.score;
+      const waveText = singleNoteClassicHighScoreData.wave > 0 ? ` (Wave ${singleNoteClassicHighScoreData.wave})` : '';
+      singleNoteClassicHighScoreElement.textContent = scoreText + waveText;
     }
 
     // Single Note Survival
-    const singleNoteSurvivalHighScore = utils.loadHighScore('survival');
+    const singleNoteSurvivalHighScoreData = utils.loadHighScore('survival');
     const singleNoteSurvivalHighScoreElement = document.getElementById('single-note-survival-high-score');
     if (singleNoteSurvivalHighScoreElement) {
-      singleNoteSurvivalHighScoreElement.textContent = singleNoteSurvivalHighScore;
+      const scoreText = singleNoteSurvivalHighScoreData.score;
+      const waveText = singleNoteSurvivalHighScoreData.wave > 0 ? ` (Wave ${singleNoteSurvivalHighScoreData.wave})` : '';
+      singleNoteSurvivalHighScoreElement.textContent = scoreText + waveText;
     }
 
     // Chord Classic
-    const chordClassicHighScore = utils.loadHighScore('classic_chord');
+    const chordClassicHighScoreData = utils.loadHighScore('classic_chord');
     const chordClassicHighScoreElement = document.getElementById('chord-classic-high-score');
     if (chordClassicHighScoreElement) {
-      chordClassicHighScoreElement.textContent = chordClassicHighScore;
+      const scoreText = chordClassicHighScoreData.score;
+      const waveText = chordClassicHighScoreData.wave > 0 ? ` (Wave ${chordClassicHighScoreData.wave})` : '';
+      chordClassicHighScoreElement.textContent = scoreText + waveText;
     }
 
     // Chord Survival
-    const chordSurvivalHighScore = utils.loadHighScore('survival_chord');
+    const chordSurvivalHighScoreData = utils.loadHighScore('survival_chord');
     const chordSurvivalHighScoreElement = document.getElementById('chord-survival-high-score');
     if (chordSurvivalHighScoreElement) {
-      chordSurvivalHighScoreElement.textContent = chordSurvivalHighScore;
+      const scoreText = chordSurvivalHighScoreData.score;
+      const waveText = chordSurvivalHighScoreData.wave > 0 ? ` (Wave ${chordSurvivalHighScoreData.wave})` : '';
+      chordSurvivalHighScoreElement.textContent = scoreText + waveText;
     }
   };
 

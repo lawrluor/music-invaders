@@ -33,7 +33,9 @@
 
   <body>
     <div id="game-container">
-      <canvas id="game-canvas"></canvas>
+      <div class="game-wrap">
+        <canvas id="game-canvas"></canvas>
+      </div>
 
       <div id="settings-button-container" class="settings-button-container"><button id="settings-icon">⚙️</button></div>
 
@@ -123,7 +125,7 @@
               <div class="game-mode-button-container">
                 <button id="single-note-classic-button" class="game-mode-button" data-mode="classic" data-chord-mode="false">
                   <div class="mode-label">Single-Note Mode</div>
-                  <div class="mode-description">Complete 5 waves to win!</div>
+                  <div class="mode-description">Complete 5 waves to win</div>
                   <div class="high-score">High Score: <span id="single-note-classic-high-score">0</span></div>
                 </button>
               </div>
@@ -131,7 +133,7 @@
               <div class="game-mode-button-container">
                 <button id="chord-classic-button" class="game-mode-button" data-mode="classic" data-chord-mode="true">
                   <div class="mode-label">Chord Mode</div>
-                  <div class="mode-description">Complete 5 waves to win!</div>
+                  <div class="mode-description">Complete 5 waves to win</div>
                   <div class="high-score">High Score: <span id="chord-classic-high-score">0</span></div>
                 </button>
               </div>
