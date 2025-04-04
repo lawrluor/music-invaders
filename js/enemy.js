@@ -3,13 +3,16 @@
  */
 
 class Enemy {
-  constructor(x, y, midiNote, animationOffset = 0, isChord = false, chordData = null) {
+  constructor(x, y, midiNote, animationOffset = 0, isChord = false, chordData = null, referenceHeight = 800) {
     // Position and size
     this.x = x;
     this.y = y;
     this.initialY = y;
     this.width = 94; // Increased size by 10% (from 85)
     this.height = 94; // Increased size by 10% (from 85)
+
+    // Store reference height for scaling
+    this.referenceHeight = referenceHeight;
 
     // Chord mode
     this.isChord = isChord;
@@ -38,8 +41,10 @@ class Enemy {
       this.color = this.getColorFromNote(midiNote);
     }
 
-    // Movement
-    this.speed = 12.5 + Math.random() * 2.5; // Pixels per second
+    // Movement - scale speed based on canvas height
+    const baseSpeed = 12.5 + Math.random() * 2.5; // Base pixels per second
+    // Scale speed relative to reference height (typically 800px)
+    this.speed = baseSpeed * (window.innerHeight / this.referenceHeight);
     this.wobbleAmount = 10;
     this.wobbleSpeed = 1 + Math.random() * 0.5;
 
@@ -545,5 +550,12 @@ class Enemy {
     document.body.removeChild(link);
 
     return canvas; // Return the canvas in case it's needed for other purposes
+  }
+
+  // Update speed when window is resized
+  updateSpeed(canvasHeight) {
+    // Recalculate speed based on new canvas height
+    const baseSpeed = 12.5 + Math.random() * 2.5; // Base pixels per second
+    this.speed = baseSpeed * (canvasHeight / this.referenceHeight);
   }
 }

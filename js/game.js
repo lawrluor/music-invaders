@@ -502,7 +502,7 @@ class Game {
         const x = utils.midiNoteToXPosition(note, this.canvas.width, startNote, endNote);
 
         // Create enemy with single note
-        enemy = new Enemy(x, y, note, animationOffset);
+        enemy = new Enemy(x, y, note, animationOffset, false, null);
 
         // DEBUG only
         // enemy.exportAsImage();
@@ -1466,8 +1466,23 @@ class Game {
 
   // Resize canvas to fill window
   resizeCanvas() {
+    const oldHeight = this.canvas.height;
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
+
+    // Update enemy speeds if there are enemies and height changed
+    if (this.enemies && this.enemies.length > 0 && oldHeight !== this.canvas.height) {
+      this.enemies.forEach(enemy => {
+        if (enemy.updateSpeed) {
+          enemy.updateSpeed(this.canvas.height);
+        }
+      });
+    }
+
+    // Update player's position and shield
+    if (this.player) {
+      this.player.updatePositions(this.canvas.width, this.canvas.height);
+    }
   }
 
   // Update MIDI range based on the current wave
@@ -1662,7 +1677,7 @@ class Game {
     this.updateMidiRangeForWave();
 
     // Create player with chord mode parameter
-    this.player = new Player(this.canvas.width, this.canvas.height, this.chordMode);
+    this.player = new Player(this.canvas.width, this.canvas.height, this.chordMode, this.canvas.height);
 
     // DEBUG ONLY: Export player as image
     //this.player.exportAsImage();
